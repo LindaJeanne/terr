@@ -2,6 +2,24 @@ import curses
 import numpy as np
 
 
+def start_curses():
+    ''' calls curses setup functions '''
+    screen = curses.initscr()
+    curses.noecho()
+    curses.cbreak()
+    screen.keypad(True)
+    curses.start_color()
+    return screen
+
+
+def end_curses(screen):
+    ''' cleans up after curses '''
+    curses.nocbreak()
+    screen.keypad(False)
+    curses.echo()
+    curses.endwin()
+
+
 def display_array_mask(the_array, the_screen):
 
     curses.init_pair(1, curses.COLOR_BLUE, curses.COLOR_BLACK)

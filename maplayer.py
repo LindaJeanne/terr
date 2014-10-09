@@ -1,6 +1,7 @@
 import numpy as np
 import noise
 import random
+import cursesdisplay as cd
 
 #@staticmethod
 #@classmethod
@@ -90,3 +91,42 @@ class MapLayer(np.ndarray):
                 self[x][y] = j + (neighbors[x][y] / 8)
             elif (neighbors[x][y] < 0 and j > 0):
                 self[x][y] = j + (neighbors[x][y] / 24)
+
+    def display_rougelike_map(self):
+
+        #this is temporary. later, the CursesDispaly instance
+        #will be persistant, and not internal to a function.
+        curses_display = cd.CursesDisplay()
+
+        for i, v in np.ndenumerate(self):
+            color_and_char = self.get_color_and_char(v, i)
+
+            curses_display.display_char(
+                i[0],
+                i[1],
+                color_and_char[1],
+                color_and_char[0])
+
+        curses_display.refresh()
+        key_pressed = curses_display.wait_char()
+
+        curses_display.end_curses()
+        return key_pressed
+
+    def get_color_and_char(self, value, i):
+        '''Abstract method to map array values to display char and color'''
+        pass
+
+
+class WorldMap(MapLayer):
+
+    def get_color_and_char(self, value, i):
+
+        #very rough, just to get the curses display working.
+
+        if value > 0:
+            return (cd.CursesDisplay.COLOR_GREEN_ON_BLACK, '#')
+        elif value == 0:
+            return (cd.CursesDisplay.COLOR_BLUE_ON_BLACK, '=')
+        else:
+            return (cd.CursesDisplay.COLOR_BLUE_ON_BLACK, '~')

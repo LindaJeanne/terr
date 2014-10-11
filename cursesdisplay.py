@@ -30,7 +30,7 @@ class CursesDisplay():
     def addPanel(screenToken, shape):
         pass
 
-    def display_char(self, x, y, char, color, screenToken='SCREEN'):
+    def display_char(self, x, y, char, color=1, screenToken='SCREEN'):
         '''displays a character at a given location on the given screen.
 
         'color' is a number representing a curses color pair; those

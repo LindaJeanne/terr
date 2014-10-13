@@ -1,41 +1,79 @@
 import numpy as np
 import blocks
-import cursesdisplay as cd
+import collections as cn
 
-arena = []
+stepDirection = cn.namedtuple('stepDirection', 'South East')
 
 
-class ArenaTile():
+class ArenaTile(object):
 
-    def __init__(self, block_token, floor_token, location):
+    def __init__(
+            self,
+            block_token,
+            floor_token,
+            myarena,
+            location):
         self.block = blocks.blocks[block_token]
         self.floor = blocks.floor_tiles[floor_token]
+        self.myarena = myarena
         self.location = location
+        self.items = list()
+        self.creatures = list()
 
     def char(self):
-        if (self.block.token == 'BLOCK_AIR'):
+
+        if self is self.myarena.index[self.myarena.player.location]:
+            return ord('@')
+        elif self.creatures:
+            return self.creatures[:-1].char
+        elif self.items:
+            return self.items[:-1].char
+        elif self.block.token == 'BLOCK_AIR':
             return self.floor.char
         else:
             return self.block.char
 
 
-def create_arena(shape):
-    global arena
+class Arena(object):
 
-    arena = np.empty(shape, ArenaTile)
+    def __init__(self, shape, generator):
+        self.index = np.ndarray(shape, ArenaTile)
+        self.shape = shape
+        self.player = None
+        generator.generate(self)
 
-    for i, v in np.ndenumerate(arena):
-        arena[i] = ArenaTile('BLOCK_AIR', 'FLOOR_AIR', i)
-    for index in np.ndindex(shape[0], shape[1], 2):
-        arena[index] = ArenaTile('BLOCK_AIR', 'FLOOR_STONE', index)
-    for index in np.ndindex(shape[0], shape[1], 1):
-        arena[index] = ArenaTile('BLOCK_STONE', 'FLOOR_STONE', index)
-    for i in range(5, 8):
-        arena[i, 3, 1] = ArenaTile('BLOCK_STONE', 'FLOOR_STONE', (i, 3, 1))
+    def draw(self, curses_display, slice):
+
+        for i, v in np.ndenumerate(slice):
+            #print(i[0], i[1], v.char())
+            curses_display.display_char(i[0], i[1], v.char())
+
+    def set_player(self, sapient):
+        self.player = sapient
 
 
-def draw_level(z, display, screen="SCREEN"):
-    for i, v in np.ndenumerate(arena[:, :, z]):
-        display.display_char(i[0], i[1], v.char())
+class Overworld(Arena):
 
-    display.refresh()
+    def __init__(self, x, y, z, overworld_generator):
+        super().__init__((x, y, z), overworld_generator)
+
+    def draw(self, curses_display, z):
+        super().draw(curses_display, self.index[:, :, z])
+
+
+class ArenaGenerator(object):
+
+    def generate(self, thearena):
+
+            for i, v in np.ndenumerate(thearena.index):
+                thearena.index[i] = ArenaTile(
+                    'BLOCK_AIR', 'FLOOR_AIR', thearena, i)
+            for j in np.ndindex(thearena.shape[0], thearena.shape[1], 2):
+                thearena.index[j] = ArenaTile(
+                    'BLOCK_AIR', 'FLOOR_STONE', thearena, j)
+            for j in np.ndindex(thearena.shape[0], thearena.shape[1], 1):
+                thearena.index[j] = ArenaTile(
+                    'BLOCK_STONE', 'FLOOR_STONE', thearena, j)
+            for i in range(5, 8):
+                thearena.index[i, 3, 1] = ArenaTile(
+                    'BLOCK_STONE', 'FLOOR_STONE', thearena, (i, 3, 1))

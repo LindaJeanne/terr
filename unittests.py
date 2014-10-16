@@ -2,6 +2,7 @@ import unittest
 import templ
 import arena
 import gameobjects as go
+import numpy as np
 
 
 class TemplModuleTests(unittest.TestCase):
@@ -69,8 +70,8 @@ class ArenaTileTests(unittest.TestCase):
     def setUp(self):
         glassblock = templ.BlockDetails('BLOCK_GLASS', False, True, 34)
         stonefloor = templ.BlockDetails('STONE_FLOOR', True, True, 46)
-        self.arenatile = arena.ArenaTile(0, 0, glassblock)
-        self.floortile = arena.ArenaTile(0, 1, stonefloor)
+        self.arenatile = arena.ArenaTile((0, 0), glassblock)
+        self.floortile = arena.ArenaTile((0, 1), stonefloor)
 
     def test_create_arena_tile(self):
         self.assertEqual(
@@ -83,8 +84,8 @@ class ArenaTileTests(unittest.TestCase):
         self.assertEqual(
             self.arenatile.block.char,
             34)
-        self.assertEqual(self.arenatile.x, 0)
-        self.assertEqual(self.arenatile.y, 0)
+        self.assertEqual(self.arenatile._coords[0], 0)
+        self.assertEqual(self.arenatile._coords[1], 0)
 
     def test_add_remove_creature(self):
         fire_elemental = go.Creature(
@@ -194,6 +195,46 @@ class GameObjectTests(unittest.TestCase):
         self.assertEqual(player.detail.token, 'PLAYER')
 
     def teardwon(self):
+        pass
+
+
+class ArenaTests(unittest.TestCase):
+
+    def setUp(self):
+        self.testarray = np.asanyarray(
+            ((46, 46, 46, 46, 46),
+             (46, 35, 35, 35, 46),
+             (46, 46, 46, 46, 46),
+             (46, 35, 35, 35, 46),
+             (46, 46, 46, 46, 46)))
+
+    def test_generate_2D_arena(self):
+        template_array = np.asanyarray(
+            (('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
+                'FLOOR_STONE', 'FLOOR_STONE'),
+                ('FLOOR_STONE', 'BLOCK_STONE', 'BLOCK_STONE',
+                    'BLOCK_STONE', 'FLOOR_STONE'),
+                ('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
+                    'FLOOR_STONE', 'FLOOR_STONE'),
+                ('FLOOR_STONE', 'BLOCK_STONE', 'BLOCK_STONE',
+                    'BLOCK_STONE', 'FLOOR_STONE'),
+                ('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
+                    'FLOOR_STONE', 'FLOOR_STONE')))
+        blockinfo_dict = dict([
+            ('FLOOR_STONE',
+                templ.BlockDetails(
+                    'FLOOR_STONE', True, True, 46)),
+            ('BLOCK_STONE',
+                templ.BlockDetails(
+                    'BLOCK_STONE', False, False, 35))])
+
+        newarena = arena.Arena(template_array, blockinfo_dict)
+        chararray = np.empty_like(newarena.tile_array)
+        for i, v in np.ndenumerate(newarena.tile_array):
+            chararray[i] = v.block.char
+        self.assertTrue(np.equal(chararray, self.testarray).all())
+
+    def teardown(self):
         pass
 
 

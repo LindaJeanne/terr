@@ -1,14 +1,13 @@
-#import numpy as np
+import numpy as np
 
 
 class ArenaTile(object):
 
-    def __init__(self, x, y, blockinfo):
+    def __init__(self, coords, blockinfo):
         self.creature = False
         self.itemlist = list()
         self.block = blockinfo
-        self.x = x
-        self.y = y
+        self._coords = coords
 
     def add_creature(self, creature):
         if self.creature:
@@ -55,4 +54,11 @@ class ArenaTile(object):
 
 
 class Arena(object):
-    pass
+
+    def __init__(self, template_arr, blockinfo_arr):
+
+        self.tile_array = np.empty_like(template_arr, ArenaTile)
+
+        for i, v in np.ndenumerate(template_arr):
+            self.tile_array[i] = ArenaTile(
+                i, blockinfo_arr[v])

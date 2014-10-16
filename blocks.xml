@@ -1,0 +1,17 @@
+<blockList>
+	<block 
+		token="BLOCK_STONE"
+		isPassable="False"
+		isTransparent="False"
+		char="35"/>
+	<block 
+		token="FLOOR_STONE"
+		isPassable="True"
+		isTransparent="True"
+		char="46"/>
+	<block 
+		token="BLOCK_GLASS"
+		isPassable="False"
+		isTransparent="True"
+		char="34"/>
+</blockList>

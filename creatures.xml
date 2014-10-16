@@ -1,0 +1,8 @@
+<creatureList>
+	<creature
+		token="FIRE_ELEMENTAL"
+		char="69"/>
+	<creature
+		token="RABBIT"
+		char="114"/>
+</creatureList>

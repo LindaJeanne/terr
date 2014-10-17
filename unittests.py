@@ -5,28 +5,50 @@ import gameobjects as go
 import numpy as np
 
 
-class TemplModuleTests(unittest.TestCase):
+def create_test_glassblock():
+    return templ.BlockDetails(
+        'BLOCK_GLASS',
+        False,
+        True,
+        34)
+
+
+def create_test_pickaxe():
+    return templ.ItemDetails(
+        'PICKAXE',
+        91)
+
+
+def create_test_fire_elemental():
+    return templ.CreatureDetails(
+        'FIRE_ELEMENTAL',
+        69,
+        10,
+        (5, 11),
+        8,
+        (4, 9))
+
+
+def create_test_rabbit():
+    return templ.CreatureDetails(
+        'RABBIT',
+        114,
+        5,
+        (1, 3),
+        3,
+        (0, 2))
+
+
+class TemplBlocksTests(unittest.TestCase):
 
     def setUp(self):
-        self.blockinfo_state = templ.blockinfo
-        self.iteminfo_state = templ.iteminfo
-        self.creatureinfo_state = templ.creatureinfo
 
+        self.blockinfo_state = templ.blockinfo
         templ.blockinfo = dict()
-        templ.iteminfo = dict()
-        templ.creatreinfo = dict()
 
         templ.loadBlockXML('blocks.xml')
-        templ.loadItemXML('items.xml')
-        templ.loadCreatureXML('creatures.xml')
-
         assert(templ.blockinfo)
-        assert(templ.iteminfo)
-        assert(templ.creatureinfo)
-
         self.glassblock = templ.blockinfo['BLOCK_GLASS']
-        self.pickaxe = templ.iteminfo['PICKAXE']
-        self.fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL']
 
     def test_blockinfo_asTuple(self):
 
@@ -41,6 +63,20 @@ class TemplModuleTests(unittest.TestCase):
         self.assertTrue(self.glassblock.isTransparent)
         self.assertEqual(self.glassblock.char, 34)
 
+    def teardown(self):
+        templ.blockinfo = self.blockinfo_state
+
+
+class TemplItemTests(unittest.TestCase):
+    def setUp(self):
+
+        self.iteminfo_state = templ.iteminfo
+        templ.iteminfo = dict()
+
+        templ.loadItemXML('items.xml')
+        assert(templ.iteminfo)
+        self.pickaxe = templ.iteminfo['PICKAXE']
+
     def test_iteminfo_asTuple(self):
         self.assertEqual(
             self.pickaxe.as_tuple(),
@@ -50,25 +86,42 @@ class TemplModuleTests(unittest.TestCase):
         self.assertEqual(self.pickaxe.token, 'PICKAXE')
         self.assertEqual(self.pickaxe.char, 91)
 
+    def teardown(self):
+        templ.iteminfo = self.iteminfo_state
+
+
+class TemplCreatureTests(unittest.TestCase):
+
+    def setUp(self):
+
+        self.creatureinfo_state = templ.creatureinfo
+        templ.creatreinfo = dict()
+
+        templ.loadCreatureXML('creatures.xml')
+        assert(templ.creatureinfo)
+        self.fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL']
+
     def test_creatureinfo_asTuple(self):
         self.assertEqual(
             self.fire_elemental.as_tuple(),
-            ('FIRE_ELEMENTAL', 69))
+            ('FIRE_ELEMENTAL', 69, 10, (5, 11), 8, (4, 9)))
 
     def test_creatureinfo_load(self):
         self.assertEqual(self.fire_elemental.token, 'FIRE_ELEMENTAL')
         self.assertEqual(self.fire_elemental.char, 69)
+        self.assertEqual(self.fire_elemental.hit, 10)
+        self.assertEqual(self.fire_elemental.damage, (5, 11))
+        self.assertEqual(self.fire_elemental.dodge, 8)
+        self.assertEqual(self.fire_elemetnal.soak(4, 9))
 
     def teardown(self):
-        templ.blockinfo = self.blockinfo_state
-        templ.iteminfo = self.iteminfo_state
         templ.creatureinfo = self.creatureinfo_state
 
 
 class ArenaTileTests(unittest.TestCase):
 
     def setUp(self):
-        glassblock = templ.BlockDetails('BLOCK_GLASS', False, True, 34)
+        glassblock = create_test_glassblock()
         stonefloor = templ.BlockDetails('STONE_FLOOR', True, True, 46)
         self.arenatile = arena.ArenaTile((0, 0), glassblock)
         self.floortile = arena.ArenaTile((0, 1), stonefloor)
@@ -89,14 +142,14 @@ class ArenaTileTests(unittest.TestCase):
 
     def test_add_remove_creature(self):
         fire_elemental = go.Creature(
-            templ.CreatureDetails('FIRE_ELEMENTAL', 69))
+            create_test_fire_elemental())
 
         self.assertTrue(self.floortile.add_creature(fire_elemental))
         self.assertEqual(self.floortile.creature, fire_elemental)
         self.assertFalse(self.floortile.add_creature(fire_elemental))
 
         rabbit = go.Creature(
-            templ.CreatureDetails('RABBIT', 114))
+            create_test_rabbit())
 
         self.assertFalse(self.floortile.add_creature(rabbit))
         self.assertEqual(self.floortile.creature, fire_elemental)
@@ -108,7 +161,7 @@ class ArenaTileTests(unittest.TestCase):
 
     def test_add_remove_item(self):
         pickaxe = go.Item(
-            templ.ItemDetails('PICKAXE', 91))
+            create_test_pickaxe())
         apple = go.Item(
             templ.ItemDetails('APPLE', 37))
 
@@ -137,9 +190,10 @@ class ArenaTileTests(unittest.TestCase):
 
     def test_get_arena_tile_display_char(self):
 
-        pickaxe = go.Item(templ.ItemDetails('PICKAXE', 91))
+        pickaxe = go.Item(
+            create_test_pickaxe())
         fire_elemental = go.Creature(
-            templ.CreatureDetails('FIRE_ELEMENTAL', 69))
+            create_test_fire_elemental())
         player = go.Player()
 
         self.assertEqual(self.floortile.get_display_char(), 46)
@@ -168,7 +222,7 @@ class GameObjectTests(unittest.TestCase):
         pass
 
     def test_create_destroy_item(self):
-        pickaxe = go.Item(templ.ItemDetails('PICKAXE', 91))
+        pickaxe = go.Item(create_test_pickaxe())
 
         self.assertTrue(pickaxe)
         self.assertEqual(pickaxe.detail.char, 91)
@@ -179,7 +233,7 @@ class GameObjectTests(unittest.TestCase):
 
     def test_create_destroy_creature(self):
         fire_elemental = go.Creature(
-            templ.CreatureDetails('FIRE_ELEMENTAL', 69))
+            create_test_fire_elemental())
 
         self.assertTrue(fire_elemental)
         self.assertEqual(fire_elemental.detail.char, 69)
@@ -230,9 +284,9 @@ class ArenaTests(unittest.TestCase):
 
         self.newarena = arena.Arena(template_array, blockinfo_dict)
 
-        self.pickaxe = go.Item(templ.ItemDetails('PICKAXE', 91))
+        self.pickaxe = go.Item(create_test_pickaxe())
         self.fire_elemental = go.Creature(
-            templ.CreatureDetails('FIRE_ELEMENTAL', 69))
+            create_test_fire_elemental())
 
     def test_generate_2D_arena(self):
 

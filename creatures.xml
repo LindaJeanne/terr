@@ -1,8 +1,24 @@
 <creatureList>
 	<creature
 		token="FIRE_ELEMENTAL"
-		char="69"/>
+		char="69">
+		<combat
+			hit="10"
+			damage_low="5"
+			damage_high="11"
+			dodge="8"
+			soak_low="4"
+			soak_high="9"/>
+	</creature>
 	<creature
 		token="RABBIT"
-		char="114"/>
+		char="114">
+		<combat
+			hit="5"
+			damage_low="1"
+			damage_high="3"
+			dodge="3"
+			soak_low="0"
+			soak_high="2"/>
+	</creature>
 </creatureList>

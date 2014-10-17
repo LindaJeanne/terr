@@ -34,7 +34,8 @@ game_arena = arena.Arena(template_array, templ.blockinfo)
 
 player = go.Player()
 game_arena.add_creature(player, (0, 0))
-
+fire_elemental = go.Creature(templ.creatureinfo['FIRE_ELEMENTAL'])
+game_arena.add_creature(fire_elemental, (4, 4))
 
 display = cd.CursesDisplay()
 

@@ -88,6 +88,7 @@ class Arena(object):
         item.location.itemlist.remove(item)
         item.location = None
         self.itemset.remove(item)
+        item.destroy()
 
     def teleport_item(self, item, location):
         assert(item in self.itemset)
@@ -121,6 +122,7 @@ class Arena(object):
         creature.location.creature = None
         creature.location = None
         self.creatureset.remove(creature)
+        creature.destroy()
 
     def step_creature(self, creature, direction):
 

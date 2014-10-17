@@ -112,7 +112,7 @@ class TemplCreatureTests(unittest.TestCase):
         self.assertEqual(self.fire_elemental.hit, 10)
         self.assertEqual(self.fire_elemental.damage, (5, 11))
         self.assertEqual(self.fire_elemental.dodge, 8)
-        self.assertEqual(self.fire_elemetnal.soak(4, 9))
+        self.assertEqual(self.fire_elemental.soak, (4, 9))
 
     def teardown(self):
         templ.creatureinfo = self.creatureinfo_state

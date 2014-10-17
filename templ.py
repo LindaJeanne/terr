@@ -37,28 +37,25 @@ class BlockDetails(ObjDetails):
 
 
 class CreatureDetails(ObjDetails):
-    pass
-    #def __init__(self, token, char):
-        #super().__init__(token, char):
-        #self.token = token
-        #self.char = char
+    def __init__(self, token, char, hit, damage, dodge, soak):
+        super().__init__(token, char)
+        self.hit = hit
+        self.damage = damage
+        self.dodge = dodge
+        self.soak = soak
 
-    #def as_tuple(self):
-        #return((
-            #self.token,
-            #self.char))
+    def as_tuple(self):
+        return((
+            self.token,
+            self.char,
+            self.hit,
+            self.damage,
+            self.dodge,
+            self.soak))
 
 
 class ItemDetails(ObjDetails):
     pass
-    #def __init__(self, token, char):
-        #self.token = token
-        #self.char = char
-
-    #def as_tuple(self):
-        #return((
-            #self.token,
-            #self.char))
 
 
 def templXMLitr(xmlFile, roottag, elementtag):
@@ -93,6 +90,17 @@ def loadItemXML(xmlFile):
 def loadCreatureXML(xmlFile):
 
     for creatureel in templXMLitr(xmlFile, 'creatureList', 'creature'):
+
+        combat_info = creatureel.find('combat')
+
         creatureinfo[creatureel.attrib['token']] = CreatureDetails(
             creatureel.attrib['token'],
-            int(creatureel.attrib['char']))
+            int(creatureel.attrib['char']),
+            int(combat_info.attrib['hit']),
+            (
+                int(combat_info.attrib['damage_low']),
+                int(combat_info.attrib['damage_high'])),
+            int(combat_info.attrib['dodge']),
+            (
+                int(combat_info.attrib['soak_low']),
+                int(combat_info.attrib['soak_high'])))

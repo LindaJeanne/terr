@@ -7,6 +7,7 @@ class GameObject(object):
         assert(details.token)
         assert(details.char)
         self.detail = details
+        self.location = None
 
 
 class Item(GameObject):

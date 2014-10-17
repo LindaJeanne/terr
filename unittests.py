@@ -208,7 +208,6 @@ class ArenaTests(unittest.TestCase):
              (46, 35, 35, 35, 46),
              (46, 46, 46, 46, 46)))
 
-    def test_generate_2D_arena(self):
         template_array = np.asanyarray(
             (('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
                 'FLOOR_STONE', 'FLOOR_STONE'),
@@ -220,6 +219,7 @@ class ArenaTests(unittest.TestCase):
                     'BLOCK_STONE', 'FLOOR_STONE'),
                 ('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
                     'FLOOR_STONE', 'FLOOR_STONE')))
+
         blockinfo_dict = dict([
             ('FLOOR_STONE',
                 templ.BlockDetails(
@@ -228,11 +228,97 @@ class ArenaTests(unittest.TestCase):
                 templ.BlockDetails(
                     'BLOCK_STONE', False, False, 35))])
 
-        newarena = arena.Arena(template_array, blockinfo_dict)
-        chararray = np.empty_like(newarena.tile_array)
-        for i, v in np.ndenumerate(newarena.tile_array):
+        self.newarena = arena.Arena(template_array, blockinfo_dict)
+
+        self.pickaxe = go.Item(templ.ItemDetails('PICKAXE', 91))
+        self.fire_elemental = go.Creature(
+            templ.CreatureDetails('FIRE_ELEMENTAL', 69))
+
+    def test_generate_2D_arena(self):
+
+        chararray = np.empty_like(self.newarena.tile_array)
+        for i, v in np.ndenumerate(self.newarena.tile_array):
             chararray[i] = v.block.char
         self.assertTrue(np.equal(chararray, self.testarray).all())
+
+    def test_add_teleport_destroy_item(self):
+
+        self.newarena.add_item(self.pickaxe, (4, 4))
+        self.assertTrue(
+            self.pickaxe in self.newarena.tile_array[(4, 4)].itemlist)
+        self.assertTrue(
+            self.pickaxe.location is self.newarena.tile_array[(4, 4)])
+        self.assertTrue(
+            self.pickaxe in self.newarena.itemset)
+
+        self.newarena.teleport_item(self.pickaxe, (2, 2))
+        self.assertFalse(
+            self.pickaxe in self.newarena.tile_array[(4, 4)].itemlist)
+        self.assertTrue(
+            self.pickaxe in self.newarena.tile_array[(2, 2)].itemlist)
+        self.assertTrue(
+            self.pickaxe.location is self.newarena.tile_array[(2, 2)])
+        self.assertTrue(
+            self.pickaxe in self.newarena.itemset)
+
+        self.newarena.destroy_item(self.pickaxe)
+        self.assertFalse(
+            self.pickaxe in self.newarena.itemset)
+        self.assertFalse(self.pickaxe.location)
+        self.assertFalse(
+            self.pickaxe in self.newarena.tile_array[(2, 2)].itemlist)
+        self.assertFalse(
+            self.pickaxe in self.newarena.tile_array[(4, 4)].itemlist)
+
+    def test_add_teleport_destroy_creature(self):
+
+        self.newarena.add_creature(self.fire_elemental, (4, 4))
+        self.assertTrue(
+            self.fire_elemental in self.newarena.creatureset)
+
+        self.assertTrue(
+            self.newarena.tile_array[(4, 4)].creature is self.fire_elemental)
+
+        self.assertTrue(
+            self.fire_elemental.location is self.newarena.tile_array[(4, 4)])
+
+        self.newarena.teleport_creature(self.fire_elemental, (2, 2))
+        self.assertTrue(
+            self.fire_elemental in self.newarena.creatureset)
+        self.assertFalse(
+            self.newarena.tile_array[(4, 4)].creature is self.fire_elemental)
+        self.assertTrue(
+            self.newarena.tile_array[(2, 2)].creature is self.fire_elemental)
+        self.assertTrue(
+            self.fire_elemental.location is self.newarena.tile_array[(2, 2)])
+
+        self.newarena.destroy_creature(self.fire_elemental)
+        self.assertFalse(
+            self.fire_elemental in self.newarena.creatureset)
+        self.assertFalse(self.newarena.tile_array[(2, 2)].creature)
+        self.assertFalse(self.fire_elemental.location)
+
+    def test_step_creature(self):
+
+        self.newarena.add_creature(self.fire_elemental, (4, 4))
+
+        #out-of-range, shouldn't move
+        self.assertFalse(
+            self.newarena.step_creature(self.fire_elemental, arena.dir_south))
+        self.assertEqual(self.fire_elemental.location._coords[0], 4)
+        self.assertEqual(self.fire_elemental.location._coords[1], 4)
+
+        #this move should be legal
+        self.assertTrue(
+            self.newarena.step_creature(self.fire_elemental, arena.dir_north))
+        self.assertEqual(self.fire_elemental.location._coords[0], 4)
+        self.assertEqual(self.fire_elemental.location._coords[1], 3)
+
+        #This hits a wall, and therefore should not work.
+        self.assertFalse(
+            self.newarena.step_creature(self.fire_elemental, arena.dir_nw))
+        self.assertEqual(self.fire_elemental.location._coords[0], 4)
+        self.assertEqual(self.fire_elemental.location._coords[1], 3)
 
     def teardown(self):
         pass

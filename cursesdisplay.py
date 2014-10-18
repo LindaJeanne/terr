@@ -27,8 +27,9 @@ class CursesDisplay():
         curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
         curses.init_pair(5, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
-    def addPanel(screenToken, shape):
-        pass
+    def new_window(self, screenToken, lines, cols, upper_left_x, upper_left_y):
+        self.panels[screenToken] = curses.newwin(
+            lines, cols, upper_left_y, upper_left_x)
 
     def display_char(self, x, y, char, color=1, screenToken='SCREEN'):
         '''displays a character at a given location on the given screen.
@@ -38,8 +39,8 @@ class CursesDisplay():
 
         self.panels[screenToken].addch(y, x, char, curses.color_pair(color))
 
-    def display_string(self, string, x, y, color, screenToken='SCREEN'):
-        pass
+    def display_string(self, string, x, y, color=1, screenToken='SCREEN'):
+        self.panels[screenToken].addstr(y, x, string)
 
     def end_screen(self, screenToken):
         '''close out the screen with the given token.

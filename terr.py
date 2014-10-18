@@ -39,14 +39,19 @@ game_arena.add_creature(fire_elemental, (4, 4))
 
 display = cd.CursesDisplay()
 
+#display.new_window('MAP_WINDOW', 30, 80, 0, 0)
+#display.new_window('STATUS_LINE', 5, 80, 0, 31)
+
 exit_now = False
 
 while(not exit_now):
     for i, v in np.ndenumerate(game_arena.tile_array):
-        display.display_char(i[0], i[1], v.get_display_char())
+        display.display_char(i[0], i[1], v.get_display_char(), 1)
 
     keypressed = display.wait_char()
     #print("Key pressed:", keypressed)
+    display_string = "Key pressed: " + str(keypressed)
+    display.display_string(display_string, 1, 41)
 
     if keypressed == ord('q'):
         exit_now = True

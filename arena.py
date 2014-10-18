@@ -122,7 +122,6 @@ class Arena(object):
         creature.location.creature = None
         creature.location = None
         self.creatureset.remove(creature)
-        creature.destroy()
 
     def step_creature(self, creature, direction):
 
@@ -149,3 +148,9 @@ class Arena(object):
 
         else:
             return False  # Tile wasn't enterable.
+
+    def creature_death(self, creature):
+        assert(creature in self.creatureset)
+        self.destroy_creature(creature)
+        #placeholder for dynamic message
+        return "A creature has died!"

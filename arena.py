@@ -88,7 +88,6 @@ class Arena(object):
         item.location.itemlist.remove(item)
         item.location = None
         self.itemset.remove(item)
-        item.destroy()
 
     def teleport_item(self, item, location):
         assert(item in self.itemset)

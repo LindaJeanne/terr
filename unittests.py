@@ -227,9 +227,6 @@ class GameObjectTests(unittest.TestCase):
         self.assertTrue(pickaxe)
         self.assertEqual(pickaxe.detail.char, 91)
         self.assertEqual(pickaxe.detail.token, 'PICKAXE')
-        self.assertTrue(pickaxe in go.Item.index)
-        pickaxe.destroy()
-        self.assertFalse(pickaxe in go.Item.index)
 
     def test_create_destroy_creature(self):
         fire_elemental = go.Creature(
@@ -238,9 +235,6 @@ class GameObjectTests(unittest.TestCase):
         self.assertTrue(fire_elemental)
         self.assertEqual(fire_elemental.detail.char, 69)
         self.assertEqual(fire_elemental.detail.token, 'FIRE_ELEMENTAL')
-        self.assertTrue(fire_elemental in go.Creature.index)
-        fire_elemental.destroy()
-        self.assertFalse(fire_elemental in go.Creature.index)
 
     def test_create_player(self):
         player = go.Player()
@@ -373,6 +367,18 @@ class ArenaTests(unittest.TestCase):
             self.newarena.step_creature(self.fire_elemental, arena.dir_nw))
         self.assertEqual(self.fire_elemental.location._coords[0], 4)
         self.assertEqual(self.fire_elemental.location._coords[1], 3)
+
+    def teardown(self):
+        pass
+
+
+class MainLoopTests(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_creature_speed_obj(self):
+        pass
 
     def teardown(self):
         pass

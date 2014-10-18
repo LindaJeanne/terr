@@ -14,7 +14,7 @@ keypad_directions = dict((
     (49, arena.dir_sw),
     (52, arena.dir_west)))
 
-templ.loadBlockXML('blocks.xml')
+templ.load_templats()
 templ.loadCreatureXML('creatures.xml')
 templ.loadItemXML('items.xml')
 

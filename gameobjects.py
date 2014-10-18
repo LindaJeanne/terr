@@ -1,4 +1,11 @@
-import templ
+class PlayerDetails(object):
+
+    def __init__(self, token, char):
+        self.token = token
+        self.char = char
+
+    def as_tuple(self):
+        return((self.token, self.char))
 
 
 class GameObject(object):
@@ -25,4 +32,4 @@ class Creature(GameObject):
 class Player(GameObject):
 
     def __init__(self):
-        super().__init__(templ.ObjDetails('PLAYER', 64))
+        super().__init__(PlayerDetails('PLAYER', 64))

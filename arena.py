@@ -1,4 +1,6 @@
 import numpy as np
+import gameobjects as go
+import templ
 
 dir_north = (0, -1)
 dir_ne = (1, -1)
@@ -18,40 +20,6 @@ class ArenaTile(object):
         self.block = blockinfo
         self._coords = coords
 
-    def add_creature(self, creature):
-        if self.creature:
-            return False  # remove current creature before adding new one.
-        else:
-            self.creature = creature
-
-        assert(creature.detail.token)
-        assert(creature.detail.char)
-
-        return True
-
-    def rmv_creature(self):
-        if self.creature:
-            self.creature = False
-            return True
-        else:
-            return False  # There is no creature to remove
-
-    def add_item(self, item):
-        if item in self.itemlist:
-            return False  # we don't need to add it, it's there already
-        else:
-            assert(item.detail.token)
-            assert(item.detail.char)
-            self.itemlist.append(item)
-            return True
-
-    def rmv_item(self, item):
-        if item in self.itemlist:
-            self.itemlist.remove(item)
-            return True
-        else:
-            return False
-
     def get_display_char(self):
 
         if self.creature:
@@ -62,94 +30,188 @@ class ArenaTile(object):
             return self.block.char
 
 
-class Arena(object):
+class ArenaGenerator():
 
-    def __init__(self, template_arr, blockinfo_arr):
+    def run(self, shape, blockinfo):
+        new_arena = np.empty(shape, ArenaTile)
+        for i, v in np.ndenumerate(new_arena):
+            new_arena[i] = ArenaTile(i, blockinfo['FLOOR_STONE'])
+        return new_arena
 
-        self.tile_array = np.empty_like(template_arr, ArenaTile)
-        self.creatureset = set()
-        self.itemset = set()
 
-        for i, v in np.ndenumerate(template_arr):
-            self.tile_array[i] = ArenaTile(
-                i, blockinfo_arr[v])
+class UnitTestArenaGenerator(ArenaGenerator):
 
-    def add_item(self, item, location):
-        assert(self.tile_array[location])
-        assert(item not in self.itemset)
+    def run(self, shape, blockinfo):
 
-        self.tile_array[location].itemlist.append(item)
-        self.itemset.add(item)
-        item.location = self.tile_array[location]
+        new_arena = super().run(shape, blockinfo)
 
-    def destroy_item(self, item):
-        assert(item in self.itemset)
+        for i, v in np.ndenumerate(new_arena):
+            x_even = ((i[0] % 2) == 0)
+            y_even = ((i[1] % 2) == 0)
+            if x_even and y_even:
+                new_arena[i] = ArenaTile(i, blockinfo['BLOCK_STONE'])
 
-        item.location.itemlist.remove(item)
-        item.location = None
-        self.itemset.remove(item)
+        return new_arena
 
-    def teleport_item(self, item, location):
-        assert(item in self.itemset)
-        assert(self.tile_array[location])
 
-        item.location.itemlist.remove(item)
-        item.location = self.tile_array[location]
-        item.location.itemlist.append(item)
+_tileArray = np.array([])
+_itemSet = set()
+_creatureSet = set()
 
-    def add_creature(self, creature, location):
-        assert(self.tile_array[location])
-        assert(creature not in self.creatureset)
-        assert(not self.tile_array[location].creature)
 
-        self.tile_array[location].creature = creature
-        creature.location = self.tile_array[location]
-        self.creatureset.add(creature)
+def setup(generator, shape):
+    global _tileArray
+    _tileArray = generator.run(shape, templ.blockinfo)
 
-    def teleport_creature(self, creature, location):
-        assert(self.tile_array[location])
-        assert(creature in self.creatureset)
-        assert(not self.tile_array[location].creature)
 
-        creature.location.creature = None
-        self.tile_array[location].creature = creature
-        creature.location = self.tile_array[location]
+def create_creature(template, location):
+    global _tileArray
+    global _creatureSet
 
-    def destroy_creature(self, creature):
-        assert(creature in self.creatureset)
+    if not inside_arena(location):
+        return None
 
-        creature.location.creature = None
-        creature.location = None
-        self.creatureset.remove(creature)
+    if not _tileArray[location].block.isPassable:
+        return None
 
-    def step_creature(self, creature, direction):
+    if _tileArray[location].creature:
+        return None
 
-        assert(creature in self.creatureset)
-        old_x = creature.location._coords[0]
-        old_y = creature.location._coords[1]
-        old_loc = (old_x, old_y)
-        new_loc = tuple(np.add(old_loc, direction))
+    new_creature = go.Creature(template)
+    _tileArray[location].creature = new_creature
+    new_creature.location = _tileArray[location]
+    _creatureSet.add(new_creature)
+    return new_creature
 
-        x_in_bounds = self.tile_array.shape[0] > new_loc[0]
-        y_in_bounds = self.tile_array.shape[1] > new_loc[1]
 
-        if not (x_in_bounds and y_in_bounds):
-            return False  # can't move off the grid
+def teleport_creature(creature, location):
+    global _tileArray
+    global _creatureSet
 
-        elif self.tile_array[new_loc].creature:
-            return False  # alread a crature there.
+    assert(creature in _creatureSet)
 
-        elif self.tile_array[new_loc].block.isPassable:
-            self.tile_array[new_loc].creature = creature
-            creature.location = self.tile_array[new_loc]
-            self.tile_array[old_loc].creature = None
-            return True
+    if not inside_arena(location):
+        return False
+    if not _tileArray[location].block.isPassable:
+        return False
+    if _tileArray[location].creature:
+        return False
 
-        else:
-            return False  # Tile wasn't enterable.
+    creature.location.creature = None
+    creature.location = _tileArray[location]
+    creature.location.creature = creature
 
-    def creature_death(self, creature):
-        assert(creature in self.creatureset)
-        self.destroy_creature(creature)
-        #placeholder for dynamic message
-        return "A creature has died!"
+    return True
+
+
+def step_creature(creature, direction):
+    global _tileArray
+    global _creatureSet
+
+    assert(creature in _creatureSet)
+
+    old_loc = creature.location._coords
+    new_loc = tuple(np.add(old_loc, direction))
+
+    if not inside_arena(new_loc):
+        return False
+
+    if not _tileArray[new_loc].block.isPassable:
+        return False
+
+    if _tileArray[new_loc].creature:
+        return False
+
+    creature.location.creature = None
+    creature.location = _tileArray[new_loc]
+    creature.location.creature = creature
+
+    return True
+
+
+def destroy_creature(creature):
+    global _tileArray
+    global _creatureSet
+
+    assert(creature in _creatureSet)
+
+    creature.location.creature = None
+    creature.location = None
+    _creatureSet.remove(creature)
+
+
+def creature_death(creature):
+    #message, or whatever else happens here
+    destroy_creature(creature)
+
+
+def create_item(template, location):
+    global _tileArray
+    global _itemSet
+
+    if not inside_arena(location):
+        return None
+
+    if not _tileArray[location].block.isPassable:
+        return None
+
+    new_item = go.Item(template)
+
+    new_item.location = _tileArray[location]
+    new_item.location.itemlist.append(new_item)
+    _itemSet.add(new_item)
+
+    return new_item
+
+
+def teleport_item(item, location):
+    global _tileArray
+    global _itemSet
+
+    assert(item in _itemSet)
+
+    if not inside_arena(location):
+        return False
+
+    if not _tileArray[location].block.isPassable:
+        return False
+
+    item.location.itemlist.remove(item)
+    item.location = _tileArray[location]
+    item.location.itemlist.append(item)
+
+    return True
+
+
+def destroy_item(item):
+    global _tileArray
+    global _itemSet
+
+    if item not in _itemSet:
+        return False
+
+    item.location.itemlist.remove(item)
+    item.location = None
+    _itemSet.remove(item)
+
+    return True
+
+
+def inside_arena(point):
+    global _tileArray
+
+    if len(_tileArray.shape) != len(point):
+        # if 'point' has a different number of dimentions than the array,
+        # then it's not "inside"
+        return False
+
+    difference = np.subtract(_tileArray.shape, point)
+    #If any of the values in point are greater than the corresponding
+    #value of the arena's shape, then at least one of the element-wise
+    #difference elements will be negative.
+
+    for i in difference:
+        if i <= 0:
+            return False
+
+    return True

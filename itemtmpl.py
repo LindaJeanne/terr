@@ -3,6 +3,8 @@ class ItemDetails(object):
     def __init__(self, token, char):
         self.token = token
         self.char = char
+        self.turn_handler = None
+        self.combat_info = None
 
     def as_tuple(self):
         return((self.token, self.char))

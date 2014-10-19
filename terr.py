@@ -2,7 +2,7 @@ import numpy as np
 import cursesdisplay as cd
 import arena
 import templ
-import gameobjects as go
+#import gameobjects as go
 
 keypad_directions = dict((
     (55, arena.dir_nw),
@@ -14,28 +14,13 @@ keypad_directions = dict((
     (49, arena.dir_sw),
     (52, arena.dir_west)))
 
-templ.load_templats()
-templ.loadCreatureXML('creatures.xml')
-templ.loadItemXML('items.xml')
-
-template_array = np.asanyarray(
-    (('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
-        'FLOOR_STONE', 'FLOOR_STONE'),
-        ('FLOOR_STONE', 'BLOCK_STONE', 'BLOCK_STONE',
-            'BLOCK_STONE', 'FLOOR_STONE'),
-        ('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
-            'FLOOR_STONE', 'FLOOR_STONE'),
-        ('FLOOR_STONE', 'BLOCK_STONE', 'BLOCK_STONE',
-            'BLOCK_STONE', 'FLOOR_STONE'),
-        ('FLOOR_STONE', 'FLOOR_STONE', 'FLOOR_STONE',
-            'FLOOR_STONE', 'FLOOR_STONE')))
-
-game_arena = arena.Arena(template_array, templ.blockinfo)
-
-player = go.Player()
-game_arena.add_creature(player, (0, 0))
-fire_elemental = go.Creature(templ.creatureinfo['FIRE_ELEMENTAL'])
-game_arena.add_creature(fire_elemental, (4, 4))
+templ.load_templates()
+generator = arena.UnitTestArenaGenerator()
+arena.setup(generator, (20, 20))
+player = arena.create_player((5, 5))
+fire_elemental = arena.create_creature(
+    templ.creatureinfo['FIRE_ELEMENTAL'],
+    (7, 7))
 
 display = cd.CursesDisplay()
 
@@ -45,7 +30,7 @@ display = cd.CursesDisplay()
 exit_now = False
 
 while(not exit_now):
-    for i, v in np.ndenumerate(game_arena.tile_array):
+    for i, v in np.ndenumerate(arena._tileArray):
         display.display_char(i[0], i[1], v.get_display_char(), 1)
 
     keypressed = display.wait_char()
@@ -58,7 +43,8 @@ while(not exit_now):
     elif keypressed == 53:
         pass
     elif keypressed in range(49, 57):
-        game_arena.step_creature(player, keypad_directions[keypressed])
+        arena.step_creature(
+            player, keypad_directions[keypressed])
 
 display.wait_char()
 display.end_curses()

@@ -2,6 +2,7 @@ import unittest
 import templ
 import arena
 import gameobjects as go
+import action
 
 
 class TemplBlocksTests(unittest.TestCase):
@@ -65,16 +66,33 @@ class TemplCreatureTests(unittest.TestCase):
 
     def test_creatureinfo_asTuple(self):
         self.assertEqual(
-            self.fire_elemental.as_tuple(),
-            ('FIRE_ELEMENTAL', 69, 10, (5, 11), 8, (4, 9)))
+            self.fire_elemental.as_tuple(), (
+                'FIRE_ELEMENTAL',
+                69,
+                'NULL_TURN_HANDLER',
+                {
+                    'attack_handler': 'NULL_ATTACK_HANDLER',
+                    'defense_handler': 'NULL_DEFENSE_HANDLER',
+                    'hit': 10,
+                    'damage': (5, 11),
+                    'dodge': 8,
+                    'soak': (4, 9)}))
 
     def test_creatureinfo_load(self):
-        self.assertEqual(self.fire_elemental.token, 'FIRE_ELEMENTAL')
-        self.assertEqual(self.fire_elemental.char, 69)
-        self.assertEqual(self.fire_elemental.hit, 10)
-        self.assertEqual(self.fire_elemental.damage, (5, 11))
-        self.assertEqual(self.fire_elemental.dodge, 8)
-        self.assertEqual(self.fire_elemental.soak, (4, 9))
+
+        fe = templ.creatureinfo['FIRE_ELEMENTAL']
+
+        self.assertEqual(fe.token, 'FIRE_ELEMENTAL')
+        self.assertEqual(fe.char, 69)
+        self.assertEqual(fe.turn_handler, 'NULL_TURN_HANDLER')
+        self.assertEqual(
+            fe.combat_info['attack_handler'], 'NULL_ATTACK_HANDLER')
+        self.assertEqual(
+            fe.combat_info['defense_handler'], 'NULL_DEFENSE_HANDLER')
+        self.assertEqual(fe.combat_info['hit'], 10)
+        self.assertEqual(fe.combat_info['damage'], (5, 11))
+        self.assertEqual(fe.combat_info['dodge'], 8)
+        self.assertEqual(fe.combat_info['soak'], (4, 9))
 
     def teardown(self):
         pass
@@ -334,7 +352,7 @@ class TurnHandlerTests(unittest.TestCase):
 
     def test_turn_handler_slow(self):
 
-        turn_handler = go.TurnHandlerNull()
+        turn_handler = action.TurnHandlerNull()
         self.assertFalse(turn_handler._skip)
         self.assertFalse(turn_handler._extra)
         self.assertEqual(turn_handler._mode, 'NORMAL')
@@ -365,7 +383,7 @@ class TurnHandlerTests(unittest.TestCase):
 
     def test_turn_handler_fast(self):
 
-        turn_handler = go.TurnHandlerNull()
+        turn_handler = action.TurnHandlerNull()
         self.assertFalse(turn_handler._skip)
         self.assertFalse(turn_handler._extra)
         self.assertEqual(turn_handler._mode, 'NORMAL')

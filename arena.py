@@ -64,6 +64,26 @@ def setup(generator, shape):
     _tileArray = generator.run(shape, templ.blockinfo)
 
 
+def create_player(location):
+    global _tileArray
+    global _creatureSet
+
+    if not inside_arena(location):
+        return False
+
+    if not _tileArray[location].block.isPassable:
+        return False
+
+    if _tileArray[location].creature:
+        return False
+
+    player = go.Player()
+    _tileArray[location].creature = player
+    player.location = _tileArray[location]
+    _creatureSet.add(player)
+    return player
+
+
 def create_creature(template, location):
     global _tileArray
     global _creatureSet

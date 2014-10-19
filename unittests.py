@@ -327,13 +327,73 @@ class ArenaTests(unittest.TestCase):
         pass
 
 
-class MainLoopTests(unittest.TestCase):
+class TurnHandlerTests(unittest.TestCase):
 
     def setUp(self):
         pass
 
-    def test_creature_speed_obj(self):
-        pass
+    def test_turn_handler_slow(self):
+
+        turn_handler = go.TurnHandlerNull()
+        self.assertFalse(turn_handler._skip)
+        self.assertFalse(turn_handler._extra)
+        self.assertEqual(turn_handler._mode, 'NORMAL')
+
+        for i in range(0, 10):
+            turn_handler.next()
+            self.assertFalse(turn_handler._skip)
+            self.assertFalse(turn_handler._extra)
+
+        turn_handler.slow(4, 20)
+
+        for i in range(0, 5):
+            self.assertTrue(turn_handler._skip)
+            self.assertFalse(turn_handler._extra)
+            self.assertEqual(turn_handler._mode, 'SLOW')
+            turn_handler.next()
+
+            for j in range(0, 3):
+                self.assertFalse(turn_handler._skip)
+                self.assertFalse(turn_handler._extra)
+                self.assertEqual(turn_handler._mode, 'SLOW')
+                turn_handler.next()
+
+        turn_handler.slow(3, 20)
+        self.assertEqual(turn_handler._mode, 'SLOW')
+        turn_handler.fast(5, 30)
+        self.assertEqual(turn_handler._mode, 'NORMAL')
+
+    def test_turn_handler_fast(self):
+
+        turn_handler = go.TurnHandlerNull()
+        self.assertFalse(turn_handler._skip)
+        self.assertFalse(turn_handler._extra)
+        self.assertEqual(turn_handler._mode, 'NORMAL')
+
+        for i in range(0, 10):
+            turn_handler.next()
+            self.assertFalse(turn_handler._skip)
+            self.assertFalse(turn_handler._extra)
+
+        turn_handler.fast(4, 20)
+
+        for i in range(0, 5):
+
+            self.assertFalse(turn_handler._skip)
+            self.assertTrue(turn_handler._extra)
+            self.assertEqual(turn_handler._mode, 'FAST')
+            turn_handler.next()
+
+            for j in range(0, 3):
+                self.assertFalse(turn_handler._skip)
+                self.assertFalse(turn_handler._extra)
+                self.assertEqual(turn_handler._mode, 'FAST')
+                turn_handler.next()
+
+        turn_handler.fast(3, 20)
+        self.assertEqual(turn_handler._mode, 'FAST')
+        turn_handler.slow(5, 30)
+        self.assertEqual(turn_handler._mode, 'NORMAL')
 
     def teardown(self):
         pass

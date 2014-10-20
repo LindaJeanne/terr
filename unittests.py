@@ -11,14 +11,6 @@ class TemplBlocksTests(unittest.TestCase):
         templ.load_templates()
         self.blocks = templ.blockinfo
 
-    def test_blockinfo_asTuple(self):
-
-        glassblock = self.blocks['BLOCK_GLASS']
-
-        self.assertEqual(
-            glassblock.as_tuple(),
-            ('BLOCK_GLASS', False, True, 34))
-
     def test_blockinfo_load(self):
         glassblock = self.blocks['BLOCK_GLASS']
 
@@ -37,11 +29,6 @@ class TemplItemTests(unittest.TestCase):
         templ.load_templates()
         self.pickaxe = templ.iteminfo['PICKAXE']
 
-    def test_iteminfo_asTuple(self):
-        self.assertEqual(
-            self.pickaxe.as_tuple(),
-            ('PICKAXE', 91))
-
     def test_iteminfo_load(self):
         self.assertEqual(self.pickaxe.token, 'PICKAXE')
         self.assertEqual(self.pickaxe.char, 91)
@@ -56,20 +43,6 @@ class TemplCreatureTests(unittest.TestCase):
 
         templ.load_templates()
         self.fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL']
-
-    def test_creatureinfo_asTuple(self):
-        self.assertEqual(
-            self.fire_elemental.as_tuple(), (
-                'FIRE_ELEMENTAL',
-                69,
-                'DefaultTurnHandler',
-                {
-                    'attack_handler': 'DefaultAttackHandler',
-                    'defense_handler': 'DefaultDefenseHandler',
-                    'hit': 10,
-                    'damage': (5, 11),
-                    'dodge': 8,
-                    'soak': (4, 9)}))
 
     def test_creatureinfo_load(self):
 
@@ -146,10 +119,11 @@ class GameObjectTests(unittest.TestCase):
         self.assertEqual(fire_elemental.detail.token, 'FIRE_ELEMENTAL')
 
     def test_create_player(self):
-        player = go.Player(self.the_arena)
+        player = go.Player(
+            templ.playerclassinfo['PLAYER_DEFAULT'], self.the_arena)
         self.assertTrue(player)
         self.assertEqual(player.detail.char, 64)
-        self.assertEqual(player.detail.token, 'PLAYER')
+        self.assertEqual(player.detail.token, 'PLAYER_DEFAULT')
 
     def teardwon(self):
         pass

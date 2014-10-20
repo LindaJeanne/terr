@@ -1,23 +1,18 @@
-class ItemDetails(object):
+import templtempl
 
-    def __init__(self, token, char):
-        self.token = token
-        self.char = char
-        self.turn_handler = None
-        self.combat_info = None
 
-    def as_tuple(self):
-        return((self.token, self.char))
+class ItemTemplate(templtempl.TemplateTemplate):
+    pass
 
 
 def load_items():
 
     iteminfo = dict()
 
-    iteminfo['PICKAXE'] = ItemDetails(
+    iteminfo['PICKAXE'] = ItemTemplate(
         'PICKAXE', 91)
 
-    iteminfo['APPLE'] = ItemDetails(
+    iteminfo['APPLE'] = ItemTemplate(
         'APPLE', 37)
 
     return iteminfo

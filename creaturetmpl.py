@@ -1,30 +1,14 @@
-class CreatureDetails(object):
-    #def __init__(self, token, char, hit, damage, dodge, soak):
-        #self.token = token
-        #self.char = char
-        #self.hit = hit
-        #self.damage = damage
-        #self.dodge = dodge
-        #self.soak = soak
+import templtempl
 
-    def __init__(self, token, char, turn_handler, combat_info):
-        self.token = token
-        self.char = char
-        self.turn_handler = turn_handler
-        self.combat_info = combat_info
 
-    def as_tuple(self):
-        return((
-            self.token,
-            self.char,
-            self.turn_handler,
-            self.combat_info))
+class CreatureTemplate(templtempl.TemplateTemplate):
+    pass
 
 
 def load_creatures():
     creatureinfo = dict()
 
-    creatureinfo['FIRE_ELEMENTAL'] = CreatureDetails(
+    creatureinfo['FIRE_ELEMENTAL'] = CreatureTemplate(
         token="FIRE_ELEMENTAL",
         char=69,
         turn_handler="DefaultTurnHandler",
@@ -36,7 +20,7 @@ def load_creatures():
             'dodge': 8,
             'soak': (4, 9)})
 
-    creatureinfo['RABBIT'] = CreatureDetails(
+    creatureinfo['RABBIT'] = CreatureTemplate(
         token="RABBIT",
         char=114,
         turn_handler="DefaultTurnHandler",

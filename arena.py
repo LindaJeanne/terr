@@ -72,7 +72,7 @@ class Arena(object):
         self._itemSet = set()
         self._creatureSet = set()
 
-    def create_player(self, location):
+    def create_player(self, template, location):
 
         if not self.inside_arena(location):
             return False
@@ -83,7 +83,7 @@ class Arena(object):
         if self._tileArray[location].creature:
             return False
 
-        player = go.Player(self)
+        player = go.Player(template, self)
         self._tileArray[location].creature = player
         player.location = self._tileArray[location]
         self._creatureSet.add(player)

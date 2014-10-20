@@ -16,15 +16,14 @@ keypad_directions = dict((
 templ.load_templates()
 generator = arena.UnitTestArenaGenerator()
 the_arena = generator.create((20, 20), templ.blockinfo)
-player = the_arena.create_player((5, 5))
+player = the_arena.create_player(
+    templ.playerclassinfo['PLAYER_DEFAULT'],
+    (5, 5))
 fire_elemental = the_arena.create_creature(
     templ.creatureinfo['FIRE_ELEMENTAL'],
     (7, 7))
 
 cd.setup()
-
-#display.new_window('MAP_WINDOW', 30, 80, 0, 0)
-#display.new_window('STATUS_LINE', 5, 80, 0, 31)
 
 exit_now = False
 

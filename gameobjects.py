@@ -1,24 +1,6 @@
 import action
 
 
-class PlayerDetails(object):
-
-    def __init__(self, token, char):
-        self.token = token
-        self.char = char
-        self.turn_handler = 'PlayerTurnHandler'
-        self.combat_info = {
-            'attack_handler': 'PlayerAttackHandler',
-            'defense_handler': 'PlayerDefenseHandler',
-            'hit': 5,
-            'damage': (5, 5),
-            'dodge': 5,
-            'soak': (5, 5)}
-
-    def as_tuple(self):
-        return((self.token, self.char))
-
-
 class GameObject(object):
 
     has_turn_list = list()
@@ -70,5 +52,5 @@ class Creature(GameObject):
 
 class Player(GameObject):
 
-    def __init__(self, arena):
-        super().__init__(PlayerDetails('PLAYER', 64), arena)
+    def __init__(self, playerdetails, arena):
+        super().__init__(playerdetails, arena)

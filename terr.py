@@ -2,6 +2,7 @@ import numpy as np
 import cursesdisplay as cd
 import arena
 import templ
+import action
 #import gameobjects as go
 
 keypad_directions = dict((
@@ -48,3 +49,5 @@ while(not exit_now):
 
 display.wait_char()
 display.end_curses()
+
+print("actoin.py", vars(action))

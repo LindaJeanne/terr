@@ -11,6 +11,8 @@ class BlockDetails(object):
         self.char = char
         self.isPassable = isPassable
         self.isTransparent = isTransparent
+        self.turn_handler = None
+        self.combat_info = None
 
     def as_tuple(self):
         return((

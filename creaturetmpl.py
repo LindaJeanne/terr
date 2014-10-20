@@ -27,10 +27,10 @@ def load_creatures():
     creatureinfo['FIRE_ELEMENTAL'] = CreatureDetails(
         token="FIRE_ELEMENTAL",
         char=69,
-        turn_handler="NULL_TURN_HANDLER",
+        turn_handler="DefaultTurnHandler",
         combat_info={
-            'attack_handler': "NULL_ATTACK_HANDLER",
-            'defense_handler': "NULL_DEFENSE_HANDLER",
+            'attack_handler': "DefaultAttackHandler",
+            'defense_handler': "DefaultDefenseHandler",
             'hit': 10,
             'damage': (5, 11),
             'dodge': 8,
@@ -39,10 +39,10 @@ def load_creatures():
     creatureinfo['RABBIT'] = CreatureDetails(
         token="RABBIT",
         char=114,
-        turn_handler="NULL_TURN_HANDLER",
+        turn_handler="DefaultTurnHandler",
         combat_info={
-            'attack_handler': "NULL_ATTACK_HANDLER",
-            'defense_handler': "NULL_DEFENSE_HANDLER",
+            'attack_handler': "DefaultAttackHandler",
+            'defense_handler': "DefaultDefenseHandler",
             'hit': 5,
             'damage': (1, 3),
             'dodge': 3,

@@ -1,4 +1,3 @@
-
 turnHandlers = {}
 attackHandlers = {}
 defenseHandlers = {}
@@ -89,7 +88,11 @@ class TurnHandler(object):
             self._extra = True
 
 
-class TurnHandlerNull(TurnHandler):
+class DefaultTurnHandler(TurnHandler):
+    pass
+
+
+class PlayerTurnHandler(TurnHandler):
     pass
 
 
@@ -107,8 +110,28 @@ class TurnHandlerPrint(TurnHandler):
 
 
 class AttackHandler(object):
+    def __init__(self, hit, damage):
+        self.hit = hit
+        self.damage = damage
+
+
+class DefaultAttackHandler(AttackHandler):
+    pass
+
+
+class PlayerAttackHandler(AttackHandler):
     pass
 
 
 class DefenseHandler(object):
+    def __init__(self, dodge, soak):
+        self.dodge = dodge
+        self.soak = soak
+
+
+class DefaultDefenseHandler(DefenseHandler):
+    pass
+
+
+class PlayerDefenseHandler(DefenseHandler):
     pass

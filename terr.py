@@ -15,9 +15,9 @@ keypad_directions = dict((
 
 templ.load_templates()
 generator = arena.UnitTestArenaGenerator()
-arena.setup(generator, (20, 20))
-player = arena.create_player((5, 5))
-fire_elemental = arena.create_creature(
+the_arena = generator.create((20, 20), templ.blockinfo)
+player = the_arena.create_player((5, 5))
+fire_elemental = the_arena.create_creature(
     templ.creatureinfo['FIRE_ELEMENTAL'],
     (7, 7))
 
@@ -29,7 +29,7 @@ cd.setup()
 exit_now = False
 
 while(not exit_now):
-    for i, v in np.ndenumerate(arena._tileArray):
+    for i, v in np.ndenumerate(the_arena._tileArray):
         cd.display_char(i[0], i[1], v.get_display_char(), 1)
 
     keypressed = cd.wait_char()
@@ -41,7 +41,7 @@ while(not exit_now):
     elif keypressed == 53:
         pass
     elif keypressed in range(49, 57):
-        arena.step_creature(
+        the_arena.step_creature(
             player, keypad_directions[keypressed])
 
 cd.end_curses()

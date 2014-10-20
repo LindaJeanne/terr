@@ -1,38 +1,18 @@
-turnHandlers = {}
-attackHandlers = {}
-defenseHandlers = {}
+import display
+
 hasTurn = list()
-
-
-def load_action_handlers():
-    global turnHandlers
-    global attackHandlers
-    global defenseHandlers
-
-    turnHandlers = {
-        'NULL_TURN_HANDLER': None,
-        'PLAYER_TURN_HANDLER': None}
-
-    attackHandlers = {
-        'NULL_ATTACK_HANDLER': None,
-        'PLAYER_ATTACK_HANDLER': None}
-
-    defenseHandlers = {
-        'NULL_DEFENSE_HANDLER': None,
-        'PLAYER_DEFENSE_HANDLER': None}
-
-load_action_handlers()
 
 
 class TurnHandler(object):
 
-    def __init__(self):
+    def __init__(self, actor):
         self._skip = False
         self._extra = False
         self._countdown = 0
         self._modulo = 0
         self._mode = 'NORMAL'
         self._ticker = 0
+        self._actor = actor
 
     def take_turn(self):
         self.next()
@@ -89,16 +69,63 @@ class TurnHandler(object):
 
 
 class DefaultTurnHandler(TurnHandler):
+
     pass
 
 
 class PlayerTurnHandler(TurnHandler):
-    pass
+
+    def __init__(self, actor):
+        super().__init__(actor)
+
+        self.movement = {
+            55: self._actor.arena.dir_nw,
+            56: self._actor.arena.dir_north,
+            57: self._actor.arena.dir_ne,
+            54: self._actor.arena.dir_se,
+            50: self._actor.arena.dir_south,
+            49: self._actor.arena.dir_sw,
+            52: self._actor.arena.dir_west}
+
+        self.non_turn = {
+            #ord('q'): self._actor.arena.quit
+        }
+
+        self.turn = {
+            #ord('5'): self._actor.arena.pass_turn
+        }
+
+    def take_turn(self, actor):
+        self.next()
+        if self._skip:
+            return False
+
+        end_turn = False
+
+        while not end_turn:
+
+            end_turn = self._handle_key(display.wait_char(), actor)
+
+        if self._extra:
+            self.take_turn(actor)
+
+    def _handle_key(self, keypressed, actor):
+
+        #if keypressed in keys.movement:
+            #actor.arena.step_creature(actor, keys.movement[keypressed])
+            #return True
+        #elif keypressed in keys.turn:
+            #keys.turn[keypressed]
+            #return True
+        #elif keypressed in keys.non_turn:
+            #keys.non_turn[keypressed]
+
+        return False
 
 
 class TurnHandlerPrint(TurnHandler):
 
-    def take_turn(self):
+    def take_turn(self, actor):
         self.next()
         if self._skip:
             return False
@@ -110,7 +137,8 @@ class TurnHandlerPrint(TurnHandler):
 
 
 class AttackHandler(object):
-    def __init__(self, hit, damage):
+    def __init__(self, actor, hit, damage):
+        self._actor = actor
         self.hit = hit
         self.damage = damage
 
@@ -124,7 +152,8 @@ class PlayerAttackHandler(AttackHandler):
 
 
 class DefenseHandler(object):
-    def __init__(self, dodge, soak):
+    def __init__(self, actor, dodge, soak):
+        self._actor = actor
         self.dodge = dodge
         self.soak = soak
 

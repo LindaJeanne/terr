@@ -23,15 +23,16 @@ class GameObject(object):
 
     has_turn_list = list()
 
-    def __init__(self, details):
+    def __init__(self, details, arena):
         assert(details.token)
         assert(details.char)
         self.detail = details
         self.location = None
+        self.arena = arena
 
         if details.turn_handler:
             self.turn_handler = vars(
-                action)[details.turn_handler]()
+                action)[details.turn_handler](self)
             action.hasTurn.append(self)
         else:
             self.turn_handler = None
@@ -40,11 +41,13 @@ class GameObject(object):
 
             self.attack_handler = vars(
                 action)[details.combat_info['attack_handler']](
+                self,
                 details.combat_info['hit'],
                 details.combat_info['damage'])
 
             self.defense_handler = vars(
                 action)[details.combat_info['defense_handler']](
+                self,
                 details.combat_info['dodge'],
                 details.combat_info['soak'])
         else:
@@ -55,17 +58,17 @@ class GameObject(object):
 
 class Item(GameObject):
 
-    def __init__(self, itemdetails):
-        super().__init__(itemdetails)
+    def __init__(self, itemdetails, arena):
+        super().__init__(itemdetails, arena)
 
 
 class Creature(GameObject):
 
-    def __init__(self, creaturedetails):
-        super().__init__(creaturedetails)
+    def __init__(self, creaturedetails, arena):
+        super().__init__(creaturedetails, arena)
 
 
 class Player(GameObject):
 
-    def __init__(self):
-        super().__init__(PlayerDetails('PLAYER', 64))
+    def __init__(self, arena):
+        super().__init__(PlayerDetails('PLAYER', 64), arena)

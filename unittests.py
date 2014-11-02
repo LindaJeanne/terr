@@ -447,5 +447,58 @@ class ActionHandlerTests(unittest.TestCase):
     def teardown(self):
         self.arena.destroy_creature(self.fe)
 
+#=========================================================================
+# new tests begin here
+#=========================================================================
+
+
+class TemplateTests(unittest.TestCase):
+
+    def setUp(self):
+        templ.load_templates()
+
+    def test_create_block(self):
+
+        new_glass_block = templ.blockinfo['BLOCK_GLASS'].create()
+
+        self.assertTrue(new_glass_block)
+        self.assertEqual(new_glass_block.token, 'BLOCK_GLASS')
+        self.assertEqual(new_glass_block.glyph, 34)
+        self.assertFalse(new_glass_block.detail.template['is_walkable'])
+        self.assertTrue(new_glass_block.detail.template['is_transparent'])
+
+    def test_create_creature(self):
+
+        new_creature = templ.creatureinfo['FIRE_ELEMENTAL'].create()
+
+        self.assertTrue(new_creature)
+        self.assertEqual(new_creature.token, 'FIRE_ELEMENTAL')
+        self.assertEqual(new_creature.glyph, ord('E'))
+        self.assertTrue(new_creature.attack_handler)
+        self.assertTrue(new_creature.defense_handler)
+        self.assertTrue(new_creature.turn_handler)
+
+    def test_create_player(self):
+
+        new_player = templ.playerclassinfo['PLAYER_DEFAULT'].create()
+
+        self.assertTrue(new_player)
+        self.assertEqual(new_player.token, 'PLAYER_DEFAULT')
+        self.assertEqual(new_player.glyph, ord('@'))
+        self.assertTrue(new_player.turn_handler)
+        self.assertTrue(new_player.attack_handler)
+        self.assertTrue(new_player.defense_handler)
+
+    def test_create_item(self):
+
+        new_item = templ.iteminfo['PICKAXE'].create()
+
+        self.assertTrue(new_item)
+        self.assertEqual(new_item.token, 'PICKAXE')
+        self.assertEqual(new_item.glyph, ord('['))
+
+    def teardown(self):
+        pass
+
 if __name__ == '__main__':
     unittest.main()

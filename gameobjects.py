@@ -9,6 +9,8 @@ class GameObject(object):
         assert(details.token)
         assert(details.glyph)
 
+        self.token = details.token
+        self.glyph = details.glyph
         self.detail = details
         self.location = None
         self.arena = arena
@@ -43,23 +45,23 @@ class GameObject(object):
 
 class Block(GameObject):
 
-    def __init__(self, blockdetails, arena):
+    def __init__(self, blockdetails, arena=None):
         super().__init__(blockdetails, arena)
 
 
 class Item(GameObject):
 
-    def __init__(self, itemdetails, arena):
+    def __init__(self, itemdetails, arena=None):
         super().__init__(itemdetails, arena)
 
 
 class Creature(GameObject):
 
-    def __init__(self, creaturedetails, arena):
+    def __init__(self, creaturedetails, arena=None):
         super().__init__(creaturedetails, arena)
 
 
 class Player(GameObject):
 
-    def __init__(self, playerdetails, arena):
+    def __init__(self, playerdetails, arena=None):
         super().__init__(playerdetails, arena)

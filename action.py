@@ -1,4 +1,5 @@
 import display
+import arena
 
 hasTurn = list()
 
@@ -79,13 +80,13 @@ class PlayerTurnHandler(TurnHandler):
         super().__init__(actor)
 
         self.movement = {
-            55: self._actor.arena.dir_nw,
-            56: self._actor.arena.dir_north,
-            57: self._actor.arena.dir_ne,
-            54: self._actor.arena.dir_se,
-            50: self._actor.arena.dir_south,
-            49: self._actor.arena.dir_sw,
-            52: self._actor.arena.dir_west}
+            55: arena.Arena.dir_nw,
+            56: arena.Arena.dir_north,
+            57: arena.Arena.dir_ne,
+            54: arena.Arena.dir_se,
+            50: arena.Arena.dir_south,
+            49: arena.Arena.dir_sw,
+            52: arena.Arena.dir_west}
 
         self.non_turn = {
             #ord('q'): self._actor.arena.quit

@@ -53,15 +53,18 @@ class Item(GameObject):
 
     def __init__(self, itemdetails, arena=None):
         super().__init__(itemdetails, arena)
+        self.tile = None
 
 
 class Creature(GameObject):
 
     def __init__(self, creaturedetails, arena=None):
         super().__init__(creaturedetails, arena)
+        self.tile = None
 
 
 class Player(GameObject):
 
     def __init__(self, playerdetails, arena=None):
         super().__init__(playerdetails, arena)
+        self.tile = None

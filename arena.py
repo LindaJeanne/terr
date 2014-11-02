@@ -16,17 +16,17 @@ class ArenaTile(object):
     def __init__(self, coords, blockinfo):
         self.creature = None
         self.itemlist = list()
-        self.block = blockinfo
+        self.block = blockinfo.template
         self._coords = coords
 
     def get_display_char(self):
 
         if self.creature:
-            return self.creature.detail.char
+            return self.creature.detail.glyph
         elif self.itemlist:
-            return self.itemlist[-1].detail.char
+            return self.itemlist[-1].detail.glyph
         else:
-            return self.block.char
+            return self.block['glyph']
 
 
 class ArenaGenerator(object):
@@ -77,7 +77,7 @@ class Arena(object):
         if not self.inside_arena(location):
             return False
 
-        if not self._tileArray[location].block.isPassable:
+        if not self._tileArray[location].block['is_walkable']:
             return False
 
         if self._tileArray[location].creature:
@@ -94,7 +94,7 @@ class Arena(object):
         if not self.inside_arena(location):
             return None
 
-        if not self._tileArray[location].block.isPassable:
+        if not self._tileArray[location].block['is_walkable']:
             return None
 
         if self._tileArray[location].creature:
@@ -112,7 +112,7 @@ class Arena(object):
 
         if not self.inside_arena(location):
             return False
-        if not self._tileArray[location].block.isPassable:
+        if not self._tileArray[location].block['is_walkable']:
             return False
         if self._tileArray[location].creature:
             return False
@@ -133,7 +133,7 @@ class Arena(object):
         if not self.inside_arena(new_loc):
             return False
 
-        if not self._tileArray[new_loc].block.isPassable:
+        if not self._tileArray[new_loc].block['is_walkable']:
             return False
 
         if self._tileArray[new_loc].creature:
@@ -162,7 +162,7 @@ class Arena(object):
         if not self.inside_arena(location):
             return None
 
-        if not self._tileArray[location].block.isPassable:
+        if not self._tileArray[location].block['is_walkable']:
             return None
 
         new_item = go.Item(template, self)
@@ -180,7 +180,7 @@ class Arena(object):
         if not self.inside_arena(location):
             return False
 
-        if not self._tileArray[location].block.isPassable:
+        if not self._tileArray[location].block['is_walkable']:
             return False
 
         item.location.itemlist.remove(item)

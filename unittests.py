@@ -15,9 +15,9 @@ class TemplBlocksTests(unittest.TestCase):
         glassblock = self.blocks['BLOCK_GLASS']
 
         self.assertEqual(glassblock.token, 'BLOCK_GLASS')
-        self.assertFalse(glassblock.isPassable)
-        self.assertTrue(glassblock.isTransparent)
-        self.assertEqual(glassblock.char, 34)
+        self.assertFalse(glassblock.template['is_walkable'])
+        self.assertTrue(glassblock.template['is_transparent'])
+        self.assertEqual(glassblock.glyph, 34)
 
     def teardown(self):
         pass
@@ -31,7 +31,7 @@ class TemplItemTests(unittest.TestCase):
 
     def test_iteminfo_load(self):
         self.assertEqual(self.pickaxe.token, 'PICKAXE')
-        self.assertEqual(self.pickaxe.char, 91)
+        self.assertEqual(self.pickaxe.glyph, 91)
 
     def teardown(self):
         templ.iteminfo = self.iteminfo_state
@@ -49,16 +49,18 @@ class TemplCreatureTests(unittest.TestCase):
         fe = templ.creatureinfo['FIRE_ELEMENTAL']
 
         self.assertEqual(fe.token, 'FIRE_ELEMENTAL')
-        self.assertEqual(fe.char, 69)
-        self.assertEqual(fe.turn_handler, 'DefaultTurnHandler')
+        self.assertEqual(fe.glyph, 69)
+        self.assertEqual(fe.template['turn_handler'], 'DefaultTurnHandler')
+
+        combat = fe.template['combat_info']
         self.assertEqual(
-            fe.combat_info['attack_handler'], 'DefaultAttackHandler')
+            combat['attack_handler'], 'DefaultAttackHandler')
         self.assertEqual(
-            fe.combat_info['defense_handler'], 'DefaultDefenseHandler')
-        self.assertEqual(fe.combat_info['hit'], 10)
-        self.assertEqual(fe.combat_info['damage'], (5, 11))
-        self.assertEqual(fe.combat_info['dodge'], 8)
-        self.assertEqual(fe.combat_info['soak'], (4, 9))
+            combat['defense_handler'], 'DefaultDefenseHandler')
+        self.assertEqual(combat['hit'], 10)
+        self.assertEqual(combat['damage'], (5, 11))
+        self.assertEqual(combat['dodge'], 8)
+        self.assertEqual(combat['soak'], (4, 9))
 
     def teardown(self):
         pass
@@ -79,14 +81,14 @@ class ArenaTileTests(unittest.TestCase):
 
     def test_create_arena_tile(self):
         self.assertEqual(
-            self.arenatile.block.token,
+            self.arenatile.block['token'],
             'BLOCK_GLASS')
         self.assertFalse(self.arenatile.creature)
         self.assertFalse(self.arenatile.itemlist)
-        self.assertFalse(self.arenatile.block.isPassable)
-        self.assertTrue(self.arenatile.block.isTransparent)
+        self.assertFalse(self.arenatile.block['is_walkable'])
+        self.assertTrue(self.arenatile.block['is_transparent'])
         self.assertEqual(
-            self.arenatile.block.char,
+            self.arenatile.block['glyph'],
             34)
         self.assertEqual(self.arenatile._coords[0], 0)
         self.assertEqual(self.arenatile._coords[1], 0)
@@ -107,7 +109,7 @@ class GameObjectTests(unittest.TestCase):
         pickaxe = go.Item(templ.iteminfo['PICKAXE'], self.the_arena)
 
         self.assertTrue(pickaxe)
-        self.assertEqual(pickaxe.detail.char, 91, self.the_arena)
+        self.assertEqual(pickaxe.detail.glyph, 91, self.the_arena)
         self.assertEqual(pickaxe.detail.token, 'PICKAXE')
 
     def test_create_destroy_creature(self):
@@ -115,14 +117,14 @@ class GameObjectTests(unittest.TestCase):
             templ.creatureinfo['FIRE_ELEMENTAL'], self.the_arena)
 
         self.assertTrue(fire_elemental)
-        self.assertEqual(fire_elemental.detail.char, 69)
+        self.assertEqual(fire_elemental.detail.glyph, 69)
         self.assertEqual(fire_elemental.detail.token, 'FIRE_ELEMENTAL')
 
     def test_create_player(self):
         player = go.Player(
             templ.playerclassinfo['PLAYER_DEFAULT'], self.the_arena)
         self.assertTrue(player)
-        self.assertEqual(player.detail.char, 64)
+        self.assertEqual(player.detail.glyph, 64)
         self.assertEqual(player.detail.token, 'PLAYER_DEFAULT')
 
     def teardwon(self):
@@ -145,18 +147,18 @@ class ArenaTests(unittest.TestCase):
     def test_generate_2D_arena(self):
 
         self.assertEqual(
-            self.arena._tileArray[(4, 4)].block.token,
+            self.arena._tileArray[(4, 4)].block['token'],
             'BLOCK_STONE')
 
-        self.assertFalse(self.arena._tileArray[(4, 4)].block.isPassable)
-        self.assertFalse(self.arena._tileArray[(4, 4)].block.isTransparent)
+        self.assertFalse(self.arena._tileArray[(4, 4)].block['is_walkable'])
+        self.assertFalse(self.arena._tileArray[(4, 4)].block['is_transparent'])
 
         self.assertEqual(
-            self.arena._tileArray[(5, 5)].block.token,
+            self.arena._tileArray[(5, 5)].block['token'],
             'FLOOR_STONE')
 
-        self.assertTrue(self.arena._tileArray[(5, 5)].block.isPassable)
-        self.assertTrue(self.arena._tileArray[(5, 5)].block.isTransparent)
+        self.assertTrue(self.arena._tileArray[(5, 5)].block['is_walkable'])
+        self.assertTrue(self.arena._tileArray[(5, 5)].block['is_transparent'])
 
     def test_add_item(self):
 

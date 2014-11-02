@@ -1,18 +1,14 @@
-import templtempl
-
-
-class ItemTemplate(templtempl.TemplateTemplate):
-    pass
+import templ
 
 
 def load_items():
 
-    iteminfo = dict()
-
-    iteminfo['PICKAXE'] = ItemTemplate(
-        'PICKAXE', 91)
-
-    iteminfo['APPLE'] = ItemTemplate(
-        'APPLE', 37)
+    iteminfo = {
+        'PICKAXE': templ.Template({
+            'token': 'PICKAXE',
+            'glyph': ord('[')}),
+        'APPLE': templ.Template({
+            'token': 'APPLE',
+            'glyph': ord('%')})}
 
     return iteminfo

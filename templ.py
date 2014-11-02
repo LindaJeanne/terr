@@ -9,6 +9,19 @@ iteminfo = dict()
 playerclassinfo = dict()
 
 
+class Template(object):
+
+    all_templates = set()
+
+    def __init__(self, template):
+        assert(template['token'])
+        assert(template['glyph'])
+
+        self.token = template['token']
+        self.glyph = template['glyph']
+        self.template = template
+
+
 def load_templates():
     global blockinfo
     global creatureinfo

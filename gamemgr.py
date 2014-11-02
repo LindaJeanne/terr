@@ -7,7 +7,7 @@ def setup(generator, shape):
     global the_arena
 
     templ.load_templates()
-    the_arena = generator.create(shape, templ.blockinfo)
+    the_arena = generator.create(shape=shape, blockinfo=templ.blockinfo)
 
 
 def add_creature(creature, location):
@@ -26,6 +26,7 @@ def add_creature(creature, location):
     creature.tile = the_arena._tileArray[location]
     creature.location = location
     the_arena._creatureSet.add(creature)
+    creature.arena = the_arena
 
     return True
 
@@ -64,6 +65,7 @@ def add_item(item, location):
     the_arena._tileArray[location].itemlist.append(item)
     item.location = location
     item.tile = the_arena._tileArray[location]
+    item.arena = the_arena
 
     return True
 

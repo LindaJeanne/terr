@@ -106,21 +106,6 @@ class GameObjectTests(unittest.TestCase):
         self.the_arena = generator.create(
             shape=(20, 20), blockinfo=templ.blockinfo)
 
-    def test_create_destroy_item(self):
-        pickaxe = go.Item(templ.iteminfo['PICKAXE'], self.the_arena)
-
-        self.assertTrue(pickaxe)
-        self.assertEqual(pickaxe.detail.glyph, 91, self.the_arena)
-        self.assertEqual(pickaxe.detail.token, 'PICKAXE')
-
-    def test_create_destroy_creature(self):
-        fire_elemental = go.Creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], self.the_arena)
-
-        self.assertTrue(fire_elemental)
-        self.assertEqual(fire_elemental.detail.glyph, 69)
-        self.assertEqual(fire_elemental.detail.token, 'FIRE_ELEMENTAL')
-
     def test_create_player(self):
         player = go.Player(
             templ.playerclassinfo['PLAYER_DEFAULT'], self.the_arena)
@@ -136,14 +121,10 @@ class ArenaTests(unittest.TestCase):
 
     def setUp(self):
 
-        templ.load_templates()
-
-        generator = arena.UnitTestArenaGenerator()
-        self.arena = generator.create((20, 20), templ.blockinfo)
-
-        self.pickaxe = go.Item(templ.iteminfo['PICKAXE'], self.arena)
-        self.fire_elemental = go.Creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], self.arena)
+        gamemgr.setup(
+            arena.UnitTestArenaGenerator(),
+            (20, 20))
+        self.arena = gamemgr.the_arena
 
     def test_generate_2D_arena(self):
 
@@ -161,142 +142,10 @@ class ArenaTests(unittest.TestCase):
         self.assertTrue(self.arena._tileArray[(5, 5)].block['is_walkable'])
         self.assertTrue(self.arena._tileArray[(5, 5)].block['is_transparent'])
 
-    def test_add_item(self):
-
-        valid_pickaxe = self.arena.create_item(
-            templ.iteminfo['PICKAXE'], (7, 7))
-        pickaxe_in_solid_wall = self.arena.create_item(
-            templ.iteminfo['PICKAXE'], (6, 6))
-        pickaxe_out_of_bounds = self.arena.create_item(
-            templ.iteminfo['PICKAXE'], (22, 22))
-
-        self.assertTrue(valid_pickaxe)
-        self.assertFalse(pickaxe_in_solid_wall)
-        self.assertFalse(pickaxe_out_of_bounds)
-
-        self.assertTrue(valid_pickaxe in self.arena._itemSet)
-        self.assertFalse(pickaxe_in_solid_wall in self.arena._itemSet)
-        self.assertFalse(pickaxe_out_of_bounds in self.arena._itemSet)
-
-        self.assertTrue(
-            valid_pickaxe in self.arena._tileArray[(7, 7)].itemlist)
-
-        self.assertEqual(len(self.arena._tileArray[(6, 6)].itemlist), 0)
-
-        self.assertTrue(self.arena.destroy_item(valid_pickaxe))
-        self.assertFalse(self.arena.destroy_item(pickaxe_in_solid_wall))
-        self.assertFalse(self.arena.destroy_item(pickaxe_out_of_bounds))
-
-    def test_teleport_item(self):
-
-        teleporting_pickaxe = self.arena.create_item(
-            templ.iteminfo['PICKAXE'], (9, 9))
-        teleporting_apple = self.arena.create_item(
-            templ.iteminfo['APPLE'], (9, 9))
-
-        self.assertTrue(teleporting_pickaxe)
-        self.assertTrue(teleporting_apple)
-
-        self.assertTrue(self.arena.teleport_item(
-            teleporting_pickaxe, (11, 11)))
-        self.assertFalse(
-            teleporting_pickaxe in self.arena._tileArray[(9, 9)].itemlist)
-        self.assertTrue(
-            teleporting_apple in self.arena._tileArray[(9, 9)].itemlist)
-
-        self.assertTrue(
-            teleporting_pickaxe in self.arena._tileArray[(11, 11)].itemlist)
-
-        self.assertFalse(self.arena.teleport_item(
-            teleporting_pickaxe, (23, 23)))
-
-        self.assertFalse(self.arena.teleport_item(
-            teleporting_pickaxe, (12, 12)))
-        self.assertTrue(
-            teleporting_pickaxe in self.arena._tileArray[(11, 11)].itemlist)
-        self.assertFalse(
-            teleporting_pickaxe in self.arena._tileArray[(12, 12)].itemlist)
-
-        self.arena.destroy_item(teleporting_pickaxe)
-        self.arena.destroy_item(teleporting_apple)
-
-    def test_destroy_item(self):
-
-        disappearing_pickaxe = self.arena.create_item(
-            templ.iteminfo['PICKAXE'], (11, 11))
-
-        self.assertTrue(disappearing_pickaxe in self.arena._itemSet)
-        self.assertTrue(
-            disappearing_pickaxe in self.arena._tileArray[(11, 11)].itemlist)
-
-        self.assertTrue(self.arena.destroy_item(disappearing_pickaxe))
-        self.assertFalse(disappearing_pickaxe in self.arena._itemSet)
-        self.assertFalse(
-            disappearing_pickaxe in self.arena._tileArray[(11, 11)].itemlist)
-
-    def test_create_creature(self):
-
-        valid_fire_elemental = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (5, 5))
-        fire_elemental_in_wall = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (6, 6))
-        fire_elemental_out_of_bounds = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (23, 23))
-
-        self.assertTrue(valid_fire_elemental)
-        self.assertFalse(fire_elemental_in_wall)
-        self.assertFalse(fire_elemental_out_of_bounds)
-
-        self.assertTrue(valid_fire_elemental in self.arena._creatureSet)
-        self.assertTrue(
-            valid_fire_elemental is self.arena._tileArray[5, 5].creature)
-        self.assertFalse(self.arena._tileArray[6, 6].creature)
-        self.assertFalse(
-            self.arena.create_creature('FIRE_ELEMENTAL', (5, 5)))
-
-        self.arena.destroy_creature(valid_fire_elemental)
-
-    def test_teleport_creature(self):
-
-        fire_elemental = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (3, 3))
-        rabbit = self.arena.create_creature(
-            templ.creatureinfo['RABBIT'], (5, 5))
-
-        self.assertFalse(
-            self.arena.teleport_creature(fire_elemental, (5, 5)))
-        self.assertTrue(
-            self.arena._tileArray[(5, 5)].creature is rabbit)
-        self.assertTrue(
-            self.arena._tileArray[(3, 3)].creature is fire_elemental)
-
-        self.assertTrue(
-            self.arena.teleport_creature(fire_elemental, (7, 7)))
-        self.assertFalse(
-            self.arena._tileArray[(3, 3)].creature)
-        self.assertTrue(
-            self.arena._tileArray[(7, 7)].creature is fire_elemental)
-
-        self.arena.destroy_creature(fire_elemental)
-        self.arena.destroy_creature(rabbit)
-
-    def test_destroy_creature(self):
-        fire_elemental = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (5, 5))
-
-        self.assertTrue(fire_elemental)
-        self.assertTrue(fire_elemental in self.arena._creatureSet)
-        self.assertTrue(
-            fire_elemental is self.arena._tileArray[(5, 5)].creature)
-
-        self.arena.destroy_creature(fire_elemental)
-        self.assertFalse(fire_elemental in self.arena._creatureSet)
-        self.assertFalse(self.arena._tileArray[(5, 5)].creature)
-
     def test_step_creature(self):
 
-        fire_elemental = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (5, 19))
+        fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
+        gamemgr.add_creature(fire_elemental, (5, 19))
         self.assertTrue(fire_elemental)
 
         #south: out-of-range, shouldn't move.
@@ -304,7 +153,7 @@ class ArenaTests(unittest.TestCase):
             fire_elemental, arena.dir_south))
         self.assertTrue(
             self.arena._tileArray[(5, 19)].creature is fire_elemental)
-        self.assertEqual(fire_elemental.location._coords, (5, 19))
+        self.assertEqual(fire_elemental.tile._coords, (5, 19))
 
         #this move should be legal.
         self.assertTrue(self.arena.step_creature(
@@ -312,16 +161,14 @@ class ArenaTests(unittest.TestCase):
         self.assertTrue(
             self.arena._tileArray[(5, 18)].creature is fire_elemental)
         self.assertFalse(self.arena._tileArray[(5, 19)].creature)
-        self.assertEqual(fire_elemental.location._coords, (5, 18))
+        self.assertEqual(fire_elemental.tile._coords, (5, 18))
 
         #walking into a wall shouldn't work.
         self.assertFalse(
             self.arena.step_creature(fire_elemental, arena.dir_east))
-        self.assertEqual(fire_elemental.location._coords, (5, 18))
+        self.assertEqual(fire_elemental.tile._coords, (5, 18))
         self.assertTrue(
             self.arena._tileArray[(5, 18)].creature is fire_elemental)
-
-        self.arena.destroy_creature(fire_elemental)
 
     def teardown(self):
         pass
@@ -402,13 +249,15 @@ class TurnHandlerTests(unittest.TestCase):
 class ActionHandlerTests(unittest.TestCase):
 
     def setUp(self):
-        templ.load_templates()
-        generator = arena.UnitTestArenaGenerator()
-        self.arena = generator.create((20, 20), templ.blockinfo)
 
-        self.fe = self.arena.create_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'],
-            (5, 5))
+        gamemgr.setup(
+            arena.UnitTestArenaGenerator(),
+            (20, 20))
+
+        self.arena = gamemgr.the_arena
+
+        self.fe = templ.creatureinfo['FIRE_ELEMENTAL'].create()
+        gamemgr.add_creature(self.fe, (5, 5))
 
     def test_turn_handler(self):
 

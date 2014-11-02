@@ -85,49 +85,16 @@ class Arena(object):
 
         player = go.Player(template, self)
         self._tileArray[location].creature = player
-        player.location = self._tileArray[location]
+        player.location = location
+        player.tile = self._tileArray[location]
         self._creatureSet.add(player)
         return player
-
-    def create_creature(self, template, location):
-
-        if not self.inside_arena(location):
-            return None
-
-        if not self._tileArray[location].block['is_walkable']:
-            return None
-
-        if self._tileArray[location].creature:
-            return None
-
-        new_creature = go.Creature(template, self)
-        self._tileArray[location].creature = new_creature
-        new_creature.location = self._tileArray[location]
-        self._creatureSet.add(new_creature)
-        return new_creature
-
-    def teleport_creature(self, creature, location):
-
-        assert(creature in self._creatureSet)
-
-        if not self.inside_arena(location):
-            return False
-        if not self._tileArray[location].block['is_walkable']:
-            return False
-        if self._tileArray[location].creature:
-            return False
-
-        creature.location.creature = None
-        creature.location = self._tileArray[location]
-        creature.location.creature = creature
-
-        return True
 
     def step_creature(self, creature, direction):
 
         assert(creature in self._creatureSet)
 
-        old_loc = creature.location._coords
+        old_loc = creature.tile._coords
         new_loc = tuple(np.add(old_loc, direction))
 
         if not self.inside_arena(new_loc):
@@ -139,64 +106,9 @@ class Arena(object):
         if self._tileArray[new_loc].creature:
             return False
 
-        creature.location.creature = None
-        creature.location = self._tileArray[new_loc]
-        creature.location.creature = creature
-
-        return True
-
-    def destroy_creature(self, creature):
-
-        assert(creature in self._creatureSet)
-
-        creature.location.creature = None
-        creature.location = None
-        self._creatureSet.remove(creature)
-
-    def creature_death(self, creature):
-        #message, or whatever else happens here
-        self.destroy_creature(creature)
-
-    def create_item(self, template, location):
-
-        if not self.inside_arena(location):
-            return None
-
-        if not self._tileArray[location].block['is_walkable']:
-            return None
-
-        new_item = go.Item(template, self)
-
-        new_item.location = self._tileArray[location]
-        new_item.location.itemlist.append(new_item)
-        self._itemSet.add(new_item)
-
-        return new_item
-
-    def teleport_item(self, item, location):
-
-        assert(item in self._itemSet)
-
-        if not self.inside_arena(location):
-            return False
-
-        if not self._tileArray[location].block['is_walkable']:
-            return False
-
-        item.location.itemlist.remove(item)
-        item.location = self._tileArray[location]
-        item.location.itemlist.append(item)
-
-        return True
-
-    def destroy_item(self, item):
-
-        if item not in self._itemSet:
-            return False
-
-        item.location.itemlist.remove(item)
-        item.location = None
-        self._itemSet.remove(item)
+        creature.tile.creature = None
+        creature.tile = self._tileArray[new_loc]
+        creature.tile.creature = creature
 
         return True
 

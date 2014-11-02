@@ -2,6 +2,7 @@ import numpy as np
 import display as cd
 import arena
 import templ
+import gamemgr
 
 keypad_directions = dict((
     (55, arena.dir_nw),
@@ -13,15 +14,18 @@ keypad_directions = dict((
     (49, arena.dir_sw),
     (52, arena.dir_west)))
 
-templ.load_templates()
-generator = arena.UnitTestArenaGenerator()
-the_arena = generator.create((20, 20), templ.blockinfo)
+gamemgr.setup(
+    arena.UnitTestArenaGenerator(),
+    (40, 40))
+
+the_arena = gamemgr.the_arena
+
 player = the_arena.create_player(
     templ.playerclassinfo['PLAYER_DEFAULT'],
     (5, 5))
-fire_elemental = the_arena.create_creature(
-    templ.creatureinfo['FIRE_ELEMENTAL'],
-    (7, 7))
+
+fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
+gamemgr.add_creature(fire_elemental, (7, 7))
 
 cd.setup()
 

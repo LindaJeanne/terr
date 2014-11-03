@@ -47,20 +47,31 @@ class Block(GameObject):
 
     def __init__(self, blockdetails, arena=None):
         super().__init__(blockdetails, arena)
+        self.creature = None
+        self.itemlist = list()
+
+    def get_glyph(self):
+
+        if self.creature:
+            return self.creature.glyph
+        elif self.itemlist:
+            return self.itemlist[-1].glyph
+        else:
+            return self.glyph
 
 
 class Item(GameObject):
 
     def __init__(self, itemdetails, arena=None):
         super().__init__(itemdetails, arena)
-        self.tile = None
+        self.block = None
 
 
 class Creature(GameObject):
 
     def __init__(self, creaturedetails, arena=None):
         super().__init__(creaturedetails, arena)
-        self.tile = None
+        self.block = None
 
 
 class AiCreature(Creature):

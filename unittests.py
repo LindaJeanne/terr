@@ -67,35 +67,35 @@ class TemplCreatureTests(unittest.TestCase):
         pass
 
 
-class ArenaTileTests(unittest.TestCase):
+#class ArenaTileTests(unittest.TestCase):
 
-    def setUp(self):
-        templ.load_templates()
-        generator = arena.UnitTestArenaGenerator()
-        self.arena = generator.create((20, 20), templ.blockinfo)
+#    def setUp(self):
+#        templ.load_templates()
+#        generator = arena.UnitTestArenaGenerator()
+#        self.arena = generator.create((20, 20), templ.blockinfo)
 
-        self.glassblock = templ.blockinfo['BLOCK_GLASS']
-        self.stonefloor = templ.blockinfo['FLOOR_STONE']
+#        self.glassblock = templ.blockinfo['BLOCK_GLASS']
+#        self.stonefloor = templ.blockinfo['FLOOR_STONE']
 
-        self.arenatile = arena.ArenaTile((0, 0), self.glassblock)
-        self.floortile = arena.ArenaTile((0, 1), self.stonefloor)
+#        self.arenatile = arena.ArenaTile((0, 0), self.glassblock)
+#        self.floortile = arena.ArenaTile((0, 1), self.stonefloor)
 
-    def test_create_arena_tile(self):
-        self.assertEqual(
-            self.arenatile.block['token'],
-            'BLOCK_GLASS')
-        self.assertFalse(self.arenatile.creature)
-        self.assertFalse(self.arenatile.itemlist)
-        self.assertFalse(self.arenatile.block['is_walkable'])
-        self.assertTrue(self.arenatile.block['is_transparent'])
-        self.assertEqual(
-            self.arenatile.block['glyph'],
-            34)
-        self.assertEqual(self.arenatile._coords[0], 0)
-        self.assertEqual(self.arenatile._coords[1], 0)
+#    def test_create_arena_tile(self):
+#        self.assertEqual(
+#            self.arenatile.block['token'],
+#            'BLOCK_GLASS')
+#        self.assertFalse(self.arenatile.creature)
+#        self.assertFalse(self.arenatile.itemlist)
+#        self.assertFalse(self.arenatile.block['is_walkable'])
+#        self.assertTrue(self.arenatile.block['is_transparent'])
+#        self.assertEqual(
+#            self.arenatile.block['glyph'],
+#            34)
+#        self.assertEqual(self.arenatile._coords[0], 0)
+#        self.assertEqual(self.arenatile._coords[1], 0)
 
-    def teardown(self):
-        pass
+#    def teardown(self):
+#        pass
 
 
 class GameObjectTests(unittest.TestCase):
@@ -128,47 +128,46 @@ class ArenaTests(unittest.TestCase):
 
     def test_generate_2D_arena(self):
 
-        self.assertEqual(
-            self.arena._tileArray[(4, 4)].block['token'],
-            'BLOCK_STONE')
+        wall_block = gamemgr.get_block((4, 4))
+        floor_block = gamemgr.get_block((5, 5))
 
-        self.assertFalse(self.arena._tileArray[(4, 4)].block['is_walkable'])
-        self.assertFalse(self.arena._tileArray[(4, 4)].block['is_transparent'])
+        self.assertEqual(wall_block.token, 'BLOCK_STONE')
+        self.assertFalse(wall_block.detail.template['is_walkable'])
+        self.assertFalse(wall_block.detail.template['is_transparent'])
 
-        self.assertEqual(
-            self.arena._tileArray[(5, 5)].block['token'],
-            'FLOOR_STONE')
+        self.assertEqual(floor_block.token, 'FLOOR_STONE')
+        self.assertTrue(floor_block.detail.template['is_walkable'])
+        self.assertTrue(floor_block.detail.template['is_transparent'])
 
-        self.assertTrue(self.arena._tileArray[(5, 5)].block['is_walkable'])
-        self.assertTrue(self.arena._tileArray[(5, 5)].block['is_transparent'])
+    #def test_step_creature(self):
 
-    def test_step_creature(self):
+    #    the_tile = gamemgr.get_block(5, 19)
 
-        fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
-        gamemgr.add_creature(fire_elemental, (5, 19))
-        self.assertTrue(fire_elemental)
+    #    fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
+    #    gamemgr.add_creature(fire_elemental, (5, 19))
+    #    self.assertTrue(fire_elemental)
 
-        #south: out-of-range, shouldn't move.
-        self.assertFalse(self.arena.step_creature(
-            fire_elemental, arena.dir_south))
-        self.assertTrue(
-            self.arena._tileArray[(5, 19)].creature is fire_elemental)
-        self.assertEqual(fire_elemental.tile._coords, (5, 19))
+    #    #south: out-of-range, shouldn't move.
+    #    self.assertFalse(self.arena.step_creature(
+    #        fire_elemental, arena.dir_south))
+    #    self.assertTrue(
+    #        self.arena._tileArray[(5, 19)].creature is fire_elemental)
+    #    self.assertEqual(fire_elemental.tile._coords, (5, 19))
 
-        #this move should be legal.
-        self.assertTrue(self.arena.step_creature(
-            fire_elemental, arena.dir_north))
-        self.assertTrue(
-            self.arena._tileArray[(5, 18)].creature is fire_elemental)
-        self.assertFalse(self.arena._tileArray[(5, 19)].creature)
-        self.assertEqual(fire_elemental.tile._coords, (5, 18))
+    #    #this move should be legal.
+    #    self.assertTrue(self.arena.step_creature(
+    #        fire_elemental, arena.dir_north))
+    #    self.assertTrue(
+    #        self.arena._tileArray[(5, 18)].creature is fire_elemental)
+    #    self.assertFalse(self.arena._tileArray[(5, 19)].creature)
+    #    self.assertEqual(fire_elemental.tile._coords, (5, 18))
 
-        #walking into a wall shouldn't work.
-        self.assertFalse(
-            self.arena.step_creature(fire_elemental, arena.dir_east))
-        self.assertEqual(fire_elemental.tile._coords, (5, 18))
-        self.assertTrue(
-            self.arena._tileArray[(5, 18)].creature is fire_elemental)
+    #    #walking into a wall shouldn't work.
+    #    self.assertFalse(
+    #        self.arena.step_creature(fire_elemental, arena.dir_east))
+    #    self.assertEqual(fire_elemental.tile._coords, (5, 18))
+    #    self.assertTrue(
+    #        self.arena._tileArray[(5, 18)].creature is fire_elemental)
 
     def teardown(self):
         pass
@@ -362,20 +361,18 @@ class GameManagerTests(unittest.TestCase):
     def test_createArena(self):
         the_arena = gamemgr.the_arena
 
+        wall_block = gamemgr.get_block((4, 4))
+        floor_block = gamemgr.get_block((5, 5))
+
         self.assertTrue(the_arena)
-        self.assertEqual(
-            the_arena._tileArray[(4, 4)].block['token'],
-            'BLOCK_STONE')
 
-        self.assertFalse(the_arena._tileArray[(4, 4)].block['is_walkable'])
-        self.assertFalse(the_arena._tileArray[(4, 4)].block['is_transparent'])
+        self.assertEqual(wall_block.token, 'BLOCK_STONE')
+        self.assertFalse(wall_block.detail.template['is_walkable'])
+        self.assertFalse(wall_block.detail.template['is_transparent'])
 
-        self.assertEqual(
-            the_arena._tileArray[(5, 5)].block['token'],
-            'FLOOR_STONE')
-
-        self.assertTrue(the_arena._tileArray[(5, 5)].block['is_walkable'])
-        self.assertTrue(the_arena._tileArray[(5, 5)].block['is_transparent'])
+        self.assertEqual(floor_block.token, 'FLOOR_STONE')
+        self.assertTrue(floor_block.detail.template['is_walkable'])
+        self.assertTrue(floor_block.detail.template['is_transparent'])
 
     def test_add_creature(self):
 
@@ -390,11 +387,12 @@ class GameManagerTests(unittest.TestCase):
 
         #adding to a valid tile should succeed
         self.assertTrue(gamemgr.add_creature(fire_elemental, (5, 5)))
-        self.assertTrue(
-            gamemgr.the_arena._tileArray[(5, 5)].creature is fire_elemental)
-        self.assertEqual(fire_elemental.location, (5, 5))
-        self.assertTrue(
-            fire_elemental.tile is gamemgr.the_arena._tileArray[(5, 5)])
+
+        valid_tile = gamemgr.get_block((5, 5))
+
+        self.assertTrue(valid_tile.creature is fire_elemental)
+        self.assertEqual(fire_elemental.location, valid_tile.location)
+        self.assertTrue(fire_elemental.block is valid_tile)
 
         #adding a creature that's already been added should fail
         self.assertFalse(gamemgr.add_creature(fire_elemental, (7, 7)))
@@ -418,14 +416,16 @@ class GameManagerTests(unittest.TestCase):
 
         pickaxe = templ.iteminfo['PICKAXE'].create()
 
+        the_tile = gamemgr.get_block((5, 5))
+
         #adding to a valid tile should succeed
         self.assertTrue(gamemgr.add_item(pickaxe, (5, 5)))
-        self.assertTrue(pickaxe in gamemgr.the_arena._itemSet)
-        self.assertTrue(
-            pickaxe.tile is gamemgr.the_arena._tileArray[(5, 5)])
+
+        self.assertTrue(pickaxe in gamemgr.the_arena.itemset)
+        self.assertEqual(pickaxe.location, the_tile.location)
+        self.assertTrue(pickaxe.block is the_tile)
         self.assertEqual(pickaxe.location, (5, 5))
-        self.assertTrue(
-            pickaxe in gamemgr.the_arena._tileArray[(5, 5)].itemlist)
+        self.assertTrue(pickaxe in the_tile.itemlist)
 
         #adding an item that's already been added should fail
         self.assertFalse(gamemgr.add_item(pickaxe, (7, 7)))
@@ -433,13 +433,12 @@ class GameManagerTests(unittest.TestCase):
         #should be able to have more than one item on a tile
         apple = templ.iteminfo['APPLE'].create()
         self.assertTrue(gamemgr.add_item(apple, (5, 5)))
-        self.assertTrue(
-            apple in gamemgr.the_arena._tileArray[(5, 5)].itemlist)
-        self.assertTrue(
-            pickaxe in gamemgr.the_arena._tileArray[(5, 5)].itemlist)
-        self.assertTrue(
-            apple in gamemgr.the_arena._itemSet)
-        self.assertTrue(apple.tile is pickaxe.tile)
+
+        self.assertTrue(apple in the_tile.itemlist)
+        self.assertTrue(pickaxe in the_tile.itemlist)
+        self.assertTrue(apple in gamemgr.the_arena.itemset)
+        self.assertTrue(apple.block is pickaxe.block)
+        self.assertTrue(apple.block is the_tile)
         self.assertEqual(apple.location, pickaxe.location)
 
     def test_add_player(self):
@@ -465,14 +464,15 @@ class TestTeleportItem(unittest.TestCase):
 
         pickaxe = templ.iteminfo['PICKAXE'].create()
         gamemgr.add_item(pickaxe, (3, 3))
-        self.assertTrue(
-            pickaxe in gamemgr.the_arena._tileArray[(3, 3)].itemlist)
+        pickaxeblock = gamemgr.get_block((3, 3))
+
+        self.assertTrue(pickaxe in pickaxeblock.itemlist)
         self.pa = pickaxe
 
         apple = templ.iteminfo['APPLE'].create()
         gamemgr.add_item(apple, (5, 5))
-        self.assertTrue(
-            apple in gamemgr.the_arena._tileArray[(5, 5)].itemlist)
+        appleblock = gamemgr.get_block((5, 5))
+        self.assertTrue(apple in appleblock.itemlist)
         self.ap = apple
 
     def test_no_teleport_out_of_arena_bounds(self):
@@ -497,10 +497,10 @@ class TestTeleportItem(unittest.TestCase):
 
     def _validate_item(self, item, old_loc, new_loc):
 
-        old_tile = gamemgr.the_arena._tileArray[(old_loc)]
-        new_tile = gamemgr.the_arena._tileArray[(new_loc)]
+        old_tile = gamemgr.get_block(old_loc)
+        new_tile = gamemgr.get_block(new_loc)
 
-        self.assertTrue(item.tile is new_tile)
+        self.assertTrue(item.block is new_tile)
         self.assertTrue(item in new_tile.itemlist)
         self.assertFalse(item in old_tile.itemlist)
         self.assertEqual(item.location, new_loc)
@@ -517,7 +517,7 @@ class TestTeleportCreature(unittest.TestCase):
         fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
         gamemgr.add_creature(fire_elemental, (9, 9))
         self.assertTrue(
-            gamemgr.the_arena._tileArray[(9, 9)].creature is fire_elemental)
+            gamemgr.the_arena.blockArray[(9, 9)].creature is fire_elemental)
 
         self.fe = fire_elemental
 
@@ -533,7 +533,7 @@ class TestTeleportCreature(unittest.TestCase):
         rabbit = templ.creatureinfo['RABBIT'].create()
         gamemgr.add_creature(rabbit, (11, 11))
         self.assertTrue(
-            gamemgr.the_arena._tileArray[(11, 11)].creature is rabbit)
+            gamemgr.the_arena.blockArray[(11, 11)].creature is rabbit)
         self.assertFalse(gamemgr.teleport_creature(self.fe, (11, 11)))
 
     def test_no_teleport_creature_that_wasnt_added(self):
@@ -545,20 +545,82 @@ class TestTeleportCreature(unittest.TestCase):
 
         #double-checking that the fire elemental is where we first put him
         self.assertTrue(
-            gamemgr.the_arena._tileArray[(9, 9)].creature is self.fe)
+            gamemgr.the_arena.blockArray[(9, 9)].creature is self.fe)
         self.assertEqual(self.fe.location, (9, 9))
 
         #now to a teleport that should work
         self.assertTrue(gamemgr.teleport_creature(self.fe, (15, 15)))
 
         self.assertTrue(
-            gamemgr.the_arena._tileArray[(15, 15)].creature is self.fe)
+            gamemgr.the_arena.blockArray[(15, 15)].creature is self.fe)
 
-        self.assertFalse(gamemgr.the_arena._tileArray[(9, 9)].creature)
+        self.assertFalse(gamemgr.the_arena.blockArray[(9, 9)].creature)
 
         self.assertEqual(self.fe.location, (15, 15))
         self.assertTrue(
-            self.fe.tile is gamemgr.the_arena._tileArray[(15, 15)])
+            self.fe.block is gamemgr.the_arena.blockArray[(15, 15)])
+
+#==============================================================================
+# replace/merge ArenaTile with Block
+#==============================================================================
+
+
+class BlockGetGlyphTests(unittest.TestCase):
+
+    def setUp(self):
+
+        gamemgr.setup(
+            arena.UnitTestArenaGenerator(),
+            (40, 40))
+
+        self.pl = templ.playerclassinfo['PLAYER_DEFAULT'].create()
+        self.pa = templ.iteminfo['PICKAXE'].create()
+        self.ap = templ.iteminfo['APPLE'].create()
+        self.fe = templ.creatureinfo['FIRE_ELEMENTAL'].create()
+
+        self.assertTrue(gamemgr.add_player(self.pl, (5, 5)))
+        self.assertTrue(gamemgr.add_creature(self.fe, (7, 7)))
+        self.assertTrue(gamemgr.add_item(self.pa, (7, 7)))
+        self.assertTrue(gamemgr.add_item(self.ap, (7, 7)))
+
+    def test_empty_tile_gets_block_glyph(self):
+
+        self.assertEqual(
+            gamemgr.get_block((9, 9)).get_glyph(),
+            ord('.'))
+
+        self.assertEqual(
+            gamemgr.get_block((10, 10)).get_glyph(),
+            ord('#'))
+
+    def test_items_no_creatre_gets_last_item_glyph(self):
+
+        assert(gamemgr.teleport_item(self.pa, (11, 11)))
+        assert(gamemgr.teleport_item(self.ap, (11, 11)))
+
+        self.assertEqual(
+            gamemgr.get_block((11, 11)).get_glyph(),
+            ord('%'))
+
+    def test_creature_and_items_gets_creature_glyph(self):
+
+        assert(gamemgr.teleport_item(self.pa, (13, 13)))
+        assert(gamemgr.teleport_item(self.ap, (13, 13)))
+        assert(gamemgr.teleport_creature(self.fe, (13, 13)))
+
+        self.assertEqual(
+            gamemgr.get_block((13, 13)).get_glyph(),
+            ord('E'))
+
+    def test_player_and_items_gets_player_glyph(self):
+
+        assert(gamemgr.teleport_item(self.pa, (15, 15)))
+        assert(gamemgr.teleport_item(self.ap, (15, 15)))
+        assert(gamemgr.teleport_creature(self.pl, (15, 15)))
+
+        self.assertEqual(
+            gamemgr.get_block((15, 15)).get_glyph(),
+            ord('@'))
 
 
 if __name__ == '__main__':

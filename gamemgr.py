@@ -10,22 +10,23 @@ def setup(generator, shape):
     the_arena = generator.create(shape=shape, blockinfo=templ.blockinfo)
 
 
+def get_block(location):
+    return the_arena.blockArray[location]
+
+
 def add_creature(creature, location):
     global the_arena
 
-    if not _valid_move(location):
+    if not _valid_move_creature(location):
         return False
 
-    if creature in the_arena._creatureSet:
+    if creature in the_arena.creatureset:
         return False
 
-    if the_arena._tileArray[location].creature:
-        return False
-
-    the_arena._tileArray[location].creature = creature
-    creature.tile = the_arena._tileArray[location]
+    the_arena.blockArray[location].creature = creature
+    creature.block = the_arena.blockArray[location]
     creature.location = location
-    the_arena._creatureSet.add(creature)
+    the_arena.creatureset.add(creature)
     creature.arena = the_arena
 
     return True
@@ -34,19 +35,16 @@ def add_creature(creature, location):
 def teleport_creature(creature, location):
     global the_arena
 
-    if not _valid_move(location):
+    if not _valid_move_creature(location):
         return False
 
-    if creature not in the_arena._creatureSet:
+    if creature not in the_arena.creatureset:
         return False
 
-    if the_arena._tileArray[location].creature:
-        return False
-
-    creature.tile.creature = None
-    creature.tile = the_arena._tileArray[(location)]
+    creature.block.creature = None
+    creature.block = the_arena.blockArray[location]
     creature.location = location
-    creature.tile.creature = creature
+    creature.block.creature = creature
 
     return True
 
@@ -54,17 +52,17 @@ def teleport_creature(creature, location):
 def add_item(item, location):
     global the_arena
 
-    if not _valid_move(location):
+    if not _valid_move_item(location):
         return False
 
-    if item in the_arena._itemSet:
+    if item in the_arena.itemset:
         return False
 
-    the_arena._itemSet.add(item)
+    the_arena.itemset.add(item)
 
-    the_arena._tileArray[location].itemlist.append(item)
     item.location = location
-    item.tile = the_arena._tileArray[location]
+    item.block = the_arena.blockArray[location]
+    item.block.itemlist.append(item)
     item.arena = the_arena
 
     return True
@@ -73,16 +71,16 @@ def add_item(item, location):
 def teleport_item(item, location):
     global the_arena
 
-    if not _valid_move(location):
+    if not _valid_move_item(location):
         return False
 
-    if item not in the_arena._itemSet:
+    if item not in the_arena.itemset:
         return False
 
-    item.tile.itemlist.remove(item)
+    item.block.itemlist.remove(item)
     item.location = location
-    item.tile = the_arena._tileArray[location]
-    item.tile.itemlist.append(item)
+    item.block = the_arena.blockArray[location]
+    item.block.itemlist.append(item)
 
     return True
 
@@ -90,7 +88,7 @@ def teleport_item(item, location):
 def add_player(player, location):
     global the_arena
 
-    if not _valid_move(location):
+    if not _valid_move_creature(location):
         return False
 
     the_arena.player = player
@@ -99,16 +97,24 @@ def add_player(player, location):
     return True
 
 
-def _valid_move(location):
+def _valid_move_creature(location):
+
+    if not _valid_move_item(location):
+        return False
+
+    if the_arena.blockArray[location].creature:
+        return False
+
+    return True
+
+
+def _valid_move_item(location):
     global the_arena
 
     if not the_arena.inside_arena(location):
         return False
 
-    if not the_arena._tileArray[location].block['is_walkable']:
-        return False
-
-    if the_arena._tileArray[location].creature:
+    if not get_block(location).detail.template['is_walkable']:
         return False
 
     return True

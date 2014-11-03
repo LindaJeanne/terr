@@ -31,8 +31,8 @@ cd.setup()
 exit_now = False
 
 while(not exit_now):
-    for i, v in np.ndenumerate(the_arena._tileArray):
-        cd.display_char(i[0], i[1], v.get_display_char(), 1)
+    for i, v in np.ndenumerate(the_arena.blockArray):
+        cd.display_char(i[0], i[1], v.get_glyph(), 1)
 
     keypressed = cd.wait_char()
     display_string = "Key pressed: " + str(keypressed)
@@ -43,7 +43,13 @@ while(not exit_now):
     elif keypressed == 53:
         pass
     elif keypressed in range(49, 57):
-        the_arena.step_creature(
-            player, keypad_directions[keypressed])
+        #the_arena.step_creature(
+        #    player, keypad_directions[keypressed])
+        new_loc = np.add(
+            player.location,
+            keypad_directions[keypressed])
+        gamemgr.teleport_creature(
+            player,
+            tuple(new_loc))
 
 cd.end_curses()

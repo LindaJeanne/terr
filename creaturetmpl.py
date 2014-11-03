@@ -28,6 +28,12 @@ def load_creatures():
                 'hit': 5,
                 'damage': (1, 3),
                 'dodge': 3,
-                'soak': (0, 2)}})}
+                'soak': (0, 2)}}),
+
+        'NORTH_GOING_ZAX': templ.Template({
+            'token': 'NORTH_GOING_ZAX',
+            'glyph': ord('Z'),
+            'objclass': 'NorthGoingZax',
+            'turn_handler': 'DefaultTurnHandler'})}
 
     return creatureinfo

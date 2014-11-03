@@ -1,4 +1,6 @@
 import action
+import gamemgr
+import numpy as np
 
 
 class GameObject(object):
@@ -43,6 +45,18 @@ class GameObject(object):
             self.stats = None
 
 
+class HasTurn(object):
+    pass
+
+
+class HasAiTurn(HasTurn):
+    pass
+
+
+class HasPlayerTurn(HasTurn):
+    pass
+
+
 class Block(GameObject):
 
     def __init__(self, blockdetails, arena=None):
@@ -78,6 +92,22 @@ class AiCreature(Creature):
 
     def __init__(self, creaturedetails, arena=None):
         super().__init__(creaturedetails, arena)
+
+
+class NorthGoingZax(AiCreature, HasAiTurn):
+    '''For unit testsing'''
+
+    def __init__(self, creaturedetails, arena=None):
+        super().__init__(creaturedetails, arena)
+
+    def take_turn(self):
+        new_loc = tuple(np.add(self.location, (0, -1)))
+        result = gamemgr.teleport_creature(self, new_loc)
+        if not result:
+            result = gamemgr.teleport_creature(self, (25, 25))
+            if not result:
+                gamemgr.teleport_creature(self, (33, 33))
+        return 10
 
 
 class Player(Creature):

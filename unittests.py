@@ -4,6 +4,7 @@ import arena
 import gameobjects as go
 import action
 import gamemgr
+import turnmgr
 
 
 class TemplBlocksTests(unittest.TestCase):
@@ -67,37 +68,6 @@ class TemplCreatureTests(unittest.TestCase):
         pass
 
 
-#class ArenaTileTests(unittest.TestCase):
-
-#    def setUp(self):
-#        templ.load_templates()
-#        generator = arena.UnitTestArenaGenerator()
-#        self.arena = generator.create((20, 20), templ.blockinfo)
-
-#        self.glassblock = templ.blockinfo['BLOCK_GLASS']
-#        self.stonefloor = templ.blockinfo['FLOOR_STONE']
-
-#        self.arenatile = arena.ArenaTile((0, 0), self.glassblock)
-#        self.floortile = arena.ArenaTile((0, 1), self.stonefloor)
-
-#    def test_create_arena_tile(self):
-#        self.assertEqual(
-#            self.arenatile.block['token'],
-#            'BLOCK_GLASS')
-#        self.assertFalse(self.arenatile.creature)
-#        self.assertFalse(self.arenatile.itemlist)
-#        self.assertFalse(self.arenatile.block['is_walkable'])
-#        self.assertTrue(self.arenatile.block['is_transparent'])
-#        self.assertEqual(
-#            self.arenatile.block['glyph'],
-#            34)
-#        self.assertEqual(self.arenatile._coords[0], 0)
-#        self.assertEqual(self.arenatile._coords[1], 0)
-
-#    def teardown(self):
-#        pass
-
-
 class GameObjectTests(unittest.TestCase):
 
     def setUp(self):
@@ -138,36 +108,6 @@ class ArenaTests(unittest.TestCase):
         self.assertEqual(floor_block.token, 'FLOOR_STONE')
         self.assertTrue(floor_block.detail.template['is_walkable'])
         self.assertTrue(floor_block.detail.template['is_transparent'])
-
-    #def test_step_creature(self):
-
-    #    the_tile = gamemgr.get_block(5, 19)
-
-    #    fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
-    #    gamemgr.add_creature(fire_elemental, (5, 19))
-    #    self.assertTrue(fire_elemental)
-
-    #    #south: out-of-range, shouldn't move.
-    #    self.assertFalse(self.arena.step_creature(
-    #        fire_elemental, arena.dir_south))
-    #    self.assertTrue(
-    #        self.arena._tileArray[(5, 19)].creature is fire_elemental)
-    #    self.assertEqual(fire_elemental.tile._coords, (5, 19))
-
-    #    #this move should be legal.
-    #    self.assertTrue(self.arena.step_creature(
-    #        fire_elemental, arena.dir_north))
-    #    self.assertTrue(
-    #        self.arena._tileArray[(5, 18)].creature is fire_elemental)
-    #    self.assertFalse(self.arena._tileArray[(5, 19)].creature)
-    #    self.assertEqual(fire_elemental.tile._coords, (5, 18))
-
-    #    #walking into a wall shouldn't work.
-    #    self.assertFalse(
-    #        self.arena.step_creature(fire_elemental, arena.dir_east))
-    #    self.assertEqual(fire_elemental.tile._coords, (5, 18))
-    #    self.assertTrue(
-    #        self.arena._tileArray[(5, 18)].creature is fire_elemental)
 
     def teardown(self):
         pass
@@ -621,6 +561,77 @@ class BlockGetGlyphTests(unittest.TestCase):
         self.assertEqual(
             gamemgr.get_block((15, 15)).get_glyph(),
             ord('@'))
+
+#======================================================================
+# Beginning revamp of turn handling
+#======================================================================
+
+
+class TurnManagerTests(unittest.TestCase):
+
+    def setUp(self):
+        gamemgr.setup(
+            arena.UnitTestArenaGenerator(),
+            (40, 40))
+
+        self.ngz = templ.creatureinfo['NORTH_GOING_ZAX'].create()
+        assert(gamemgr.add_creature(self.ngz, (35, 35)))
+        self.other_ngz = templ.creatureinfo['NORTH_GOING_ZAX'].create()
+        assert(gamemgr.add_creature(self.other_ngz, (37, 37)))
+
+        self.zaxlist = list()
+        self.zaxlist.append(self.ngz)
+        self.zaxlist.append(self.other_ngz)
+        turnmgr.setup(self.zaxlist)
+
+    def test_setup(self):
+
+        self.assertTrue(gamemgr.the_arena)
+        self.assertTrue(self.ngz)
+        self.assertEqual(turnmgr._counter, 0)
+        self.assertTrue(turnmgr._tickloop[turnmgr._counter] is self.zaxlist)
+
+    def test_take_turn_function(self):
+
+        self.assertEqual(self.ngz.take_turn(), 10)
+        self.assertEqual(self.ngz.location, (35, 34))
+
+    def test_tick_loop(self):
+
+        turnmgr.tick()
+        self.assertEqual(self.ngz.location, (35, 34))
+        self.assertEqual(self.other_ngz.location, (37, 36))
+
+        self.assertEqual(turnmgr._counter, 1)
+        self.assertEqual(turnmgr._tickloop[0], list())
+
+        self.assertTrue(self.ngz in turnmgr._tickloop[10])
+        self.assertTrue(self.other_ngz in turnmgr._tickloop[10])
+
+        for i in range(0, 9):
+            turnmgr.tick()
+
+        self.assertEqual(turnmgr._counter, 10)
+        self.assertEqual(self.ngz.location, (35, 34))
+        self.assertEqual(self.other_ngz.location, (37, 36))
+
+        turnmgr.tick()
+
+        self.assertEqual(self.ngz.location, (35, 33))
+        self.assertEqual(self.other_ngz.location, (37, 35))
+
+        for i in range(0, 999):
+            turnmgr.tick()
+
+        self.assertEqual(turnmgr._counter, 10)
+        self.assertEqual(self.ngz.location, (25, 12))
+        self.assertEqual(self.other_ngz.location, (25, 14))
+
+        turnmgr.tick()
+
+        self.assertEqual(turnmgr._counter, 11)
+        self.assertEqual(self.ngz.location, (25, 11))
+        self.assertEqual(self.other_ngz.location, (25, 13))
 
 
 if __name__ == '__main__':

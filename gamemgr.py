@@ -10,6 +10,14 @@ def setup(generator, shape):
     the_arena = generator.create(shape=shape, blockinfo=templ.blockinfo)
 
 
+def playermsg(msg):
+    pass
+
+
+def generalmsg(msg):
+    pass
+
+
 def get_block(location):
     return the_arena.blockArray[location]
 

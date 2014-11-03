@@ -111,12 +111,13 @@ class Arena(object):
             # then it's not "inside"
             return False
 
-        #difference = np.subtract(self._tileArray.shape, point)
-        difference = np.subtract(self.blockArray.shape, point)
-        #If any of the values in point are greater than the corresponding
-        #value of the arena's shape, then at least one of the element-wise
-        #difference elements will be negative.
+        #if any coord is less than zero, it's out of bounds
+        for i in point:
+            if i < 0:
+                return False
 
+        #check if any coord too large
+        difference = np.subtract(self.blockArray.shape, point)
         for i in difference:
             if i <= 0:
                 return False

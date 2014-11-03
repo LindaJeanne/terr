@@ -1,6 +1,8 @@
 import templ
+import display
 
 the_arena = None
+turn_list = list()
 
 
 def setup(generator, shape):
@@ -24,12 +26,15 @@ def get_block(location):
 
 def add_creature(creature, location):
     global the_arena
+    global turn_list
 
     if not _valid_move_creature(location):
         return False
 
     if creature in the_arena.creatureset:
         return False
+
+    turn_list.append(creature)
 
     the_arena.blockArray[location].creature = creature
     creature.block = the_arena.blockArray[location]
@@ -95,6 +100,7 @@ def teleport_item(item, location):
 
 def add_player(player, location):
     global the_arena
+    global turn_list
 
     if not _valid_move_creature(location):
         return False
@@ -126,3 +132,8 @@ def _valid_move_item(location):
         return False
 
     return True
+
+
+def quit():
+    display.end_curses()
+    raise SystemExit

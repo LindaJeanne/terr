@@ -12,24 +12,6 @@ dir_west = (-1, 0)
 dir_nw = (-1, -1)
 
 
-#class ArenaTile(object):
-
-#    def __init__(self, coords, blockinfo):
-#        self.creature = None
-#        self.itemlist = list()
-#        self.block = blockinfo.template
-#        self._coords = coords
-
-#    def get_display_char(self):
-
-#        if self.creature:
-#            return self.creature.detail.glyph
-#        elif self.itemlist:
-#            return self.itemlist[-1].detail.glyph
-#        else:
-#            return self.block['glyph']
-
-
 class ArenaGenerator(object):
 
     def create(self, shape, blockinfo):
@@ -73,35 +55,10 @@ class Arena(object):
 
     def __init__(self, shape):
         '''Use and ArenaGenerator rather than instantizing directly'''
-        #self._tileArray = np.empty(shape, ArenaTile)
-        #self._itemSet = set()
-        #self._creatureSet = set()
 
         self.blockArray = np.empty(shape, go.Block)
         self.itemset = set()
         self.creatureset = set()
-
-    #def step_creature(self, creature, direction):
-
-    #    assert(creature in self.creatureset)
-
-    #    old_loc = creature.tile._coords
-    #    new_loc = tuple(np.add(old_loc, direction))
-
-    #    if not self.inside_arena(new_loc):
-    #        return False
-
-    #    if not self._tileArray[new_loc].block['is_walkable']:
-    #        return False
-
-    #    if self._tileArray[new_loc].creature:
-    #        return False
-
-    #    creature.tile.creature = None
-    #    creature.tile = self._tileArray[new_loc]
-    #    creature.tile.creature = creature
-
-    #    return True
 
     def inside_arena(self, point):
 

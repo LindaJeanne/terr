@@ -1,6 +1,7 @@
 import action
 import gamemgr
 import numpy as np
+import turnmgr
 
 
 class GameObject(object):
@@ -45,18 +46,6 @@ class GameObject(object):
             self.stats = None
 
 
-class HasTurn(object):
-    pass
-
-
-class HasAiTurn(HasTurn):
-    pass
-
-
-class HasPlayerTurn(HasTurn):
-    pass
-
-
 class Block(GameObject):
 
     def __init__(self, blockdetails, arena=None):
@@ -88,13 +77,13 @@ class Creature(GameObject):
         self.block = None
 
 
-class AiCreature(Creature):
+class AiCreature(Creature, turnmgr.HasAiTurn):
 
     def __init__(self, creaturedetails, arena=None):
         super().__init__(creaturedetails, arena)
 
 
-class NorthGoingZax(AiCreature, HasAiTurn):
+class NorthGoingZax(AiCreature):
     '''For unit testsing'''
 
     def __init__(self, creaturedetails, arena=None):
@@ -110,7 +99,7 @@ class NorthGoingZax(AiCreature, HasAiTurn):
         return 10
 
 
-class Player(Creature):
+class Player(Creature, turnmgr.HasPlayerTurn):
 
     def __init__(self, playerdetails, arena=None):
-        super().__init__(playerdetails, arena)
+        super(Creature, self).__init__(playerdetails, arena)

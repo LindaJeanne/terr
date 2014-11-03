@@ -87,6 +87,18 @@ def teleport_item(item, location):
     return True
 
 
+def add_player(player, location):
+    global the_arena
+
+    if not _valid_move(location):
+        return False
+
+    the_arena.player = player
+    add_creature(player, location)
+
+    return True
+
+
 def _valid_move(location):
     global the_arena
 

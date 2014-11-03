@@ -442,8 +442,14 @@ class GameManagerTests(unittest.TestCase):
         self.assertTrue(apple.tile is pickaxe.tile)
         self.assertEqual(apple.location, pickaxe.location)
 
-    def test_teleport_item(self):
-        pass
+    def test_add_player(self):
+
+        the_player = templ.playerclassinfo['PLAYER_DEFAULT'].create()
+
+        self.assertTrue(gamemgr.add_player(the_player, (13, 13)))
+
+        self.assertTrue(gamemgr.the_arena.player is the_player)
+        self.assertTrue(the_player.arena is gamemgr.the_arena)
 
     def teardown(self):
         pass
@@ -553,6 +559,7 @@ class TestTeleportCreature(unittest.TestCase):
         self.assertEqual(self.fe.location, (15, 15))
         self.assertTrue(
             self.fe.tile is gamemgr.the_arena._tileArray[(15, 15)])
+
 
 if __name__ == '__main__':
     unittest.main()

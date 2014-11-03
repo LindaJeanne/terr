@@ -20,9 +20,8 @@ gamemgr.setup(
 
 the_arena = gamemgr.the_arena
 
-player = the_arena.create_player(
-    templ.playerclassinfo['PLAYER_DEFAULT'],
-    (5, 5))
+player = templ.playerclassinfo['PLAYER_DEFAULT'].create()
+gamemgr.add_player(player, (5, 5))
 
 fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
 gamemgr.add_creature(fire_elemental, (7, 7))

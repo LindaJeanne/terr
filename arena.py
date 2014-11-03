@@ -1,5 +1,4 @@
 import numpy as np
-import gameobjects as go
 
 dir_north = (0, -1)
 dir_ne = (1, -1)
@@ -71,24 +70,6 @@ class Arena(object):
         self._tileArray = np.empty(shape, ArenaTile)
         self._itemSet = set()
         self._creatureSet = set()
-
-    def create_player(self, template, location):
-
-        if not self.inside_arena(location):
-            return False
-
-        if not self._tileArray[location].block['is_walkable']:
-            return False
-
-        if self._tileArray[location].creature:
-            return False
-
-        player = go.Player(template, self)
-        self._tileArray[location].creature = player
-        player.location = location
-        player.tile = self._tileArray[location]
-        self._creatureSet.add(player)
-        return player
 
     def step_creature(self, creature, direction):
 

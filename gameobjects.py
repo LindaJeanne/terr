@@ -63,8 +63,13 @@ class Creature(GameObject):
         self.tile = None
 
 
-class Player(GameObject):
+class AiCreature(Creature):
+
+    def __init__(self, creaturedetails, arena=None):
+        super().__init__(creaturedetails, arena)
+
+
+class Player(Creature):
 
     def __init__(self, playerdetails, arena=None):
         super().__init__(playerdetails, arena)
-        self.tile = None

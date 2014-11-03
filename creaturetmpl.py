@@ -7,7 +7,7 @@ def load_creatures():
         'FIRE_ELEMENTAL': templ.Template({
             'token': 'FIRE_ELEMENTAL',
             'glyph': ord('E'),
-            'objclass': 'Creature',
+            'objclass': 'AiCreature',
             'turn_handler': 'DefaultTurnHandler',
             'combat_info': {
                 'attack_handler': 'DefaultAttackHandler',
@@ -20,7 +20,7 @@ def load_creatures():
         'RABBIT': templ.Template({
             'token': 'RABBIT',
             'glyph': ord('r'),
-            'objclass': 'Creature',
+            'objclass': 'AiCreature',
             'turn_handler': 'DefaultTurnHandler',
             'combat_info': {
                 'attack_handler': 'DefaultAttackHandler',

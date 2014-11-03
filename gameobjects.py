@@ -1,4 +1,3 @@
-import action
 import gamemgr
 import numpy as np
 import turnmgr
@@ -17,33 +16,6 @@ class GameObject(object):
         self.detail = details
         self.location = None
         self.arena = arena
-
-        if 'turn_handler' in details.template:
-            self.turn_handler = vars(
-                action)[details.template['turn_handler']](self)
-            action.hasTurn.append(self)
-        else:
-            self.turn_handler = None
-
-        if 'combat_info' in details.template:
-
-            combat = details.template['combat_info']
-
-            self.attack_handler = vars(
-                action)[combat['attack_handler']](
-                self,
-                combat['hit'],
-                combat['damage'])
-
-            self.defense_handler = vars(
-                action)[combat['defense_handler']](
-                self,
-                combat['dodge'],
-                combat['soak'])
-        else:
-            self.attack_handler = None
-            self.defense_handler = None
-            self.stats = None
 
 
 class Block(GameObject):

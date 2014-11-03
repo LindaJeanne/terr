@@ -1,5 +1,5 @@
 import numpy as np
-import gameobjects as go
+import gameobj as go
 import templ
 
 dir_north = (0, -1)

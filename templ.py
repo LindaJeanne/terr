@@ -2,7 +2,7 @@ import blocktmpl
 import creaturetmpl
 import itemtmpl
 import playertempl
-import gameobjects
+import gameobj
 
 blockinfo = dict()
 creatureinfo = dict()
@@ -25,7 +25,7 @@ class Template(object):
 
     def create(self):
         obj_classname = self.template['objclass']
-        obj_class = getattr(gameobjects, obj_classname)
+        obj_class = getattr(gameobj, obj_classname)
 
         return obj_class(self)
 

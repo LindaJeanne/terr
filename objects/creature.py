@@ -2,6 +2,10 @@ from . import gameobj
 from . import action
 
 
+class HasAiTurn(gameobj.HasTurn):
+    pass
+
+
 class Creature(gameobj.GameObject):
 
     def __init__(self, creaturedetails):
@@ -53,7 +57,7 @@ class Creature(gameobj.GameObject):
         return True
 
 
-class AiCreature(Creature, gameobj.HasAiTurn):
+class AiCreature(Creature, HasAiTurn):
 
     def __init__(self, creaturedetails):
         super().__init__(creaturedetails)

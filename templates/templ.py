@@ -1,8 +1,7 @@
-import blocktmpl
-import creaturetmpl
-import itemtmpl
-import playertempl
-import gameobj
+from . import blocks
+from . import creatures
+from . import items
+from . import playerclasses
 
 blockinfo = dict()
 creatureinfo = dict()
@@ -15,6 +14,7 @@ class Template(object):
     all_templates = set()
 
     def __init__(self, template):
+
         assert(template['token'])
         assert(template['glyph'])
         assert(template['objclass'])
@@ -23,11 +23,14 @@ class Template(object):
         self.glyph = template['glyph']
         self.template = template
 
-    def create(self):
-        obj_classname = self.template['objclass']
-        obj_class = getattr(gameobj, obj_classname)
 
-        return obj_class(self)
+def load_template_list(inlist):
+    outlist = {}
+    for i in inlist:
+        token = i['token']
+        outlist[token] = Template(i)
+
+    return outlist
 
 
 def load_templates():
@@ -36,7 +39,7 @@ def load_templates():
     global iteminfo
     global playerclassinfo
 
-    blockinfo = blocktmpl.load_blocks()
-    creatureinfo = creaturetmpl.load_creatures()
-    iteminfo = itemtmpl.load_items()
-    playerclassinfo = playertempl.load_playerclasses()
+    blockinfo = load_template_list(blocks.tmpl)
+    creatureinfo = load_template_list(creatures.tmpl)
+    iteminfo = load_template_list(items.tmpl)
+    playerclassinfo = load_template_list(playerclasses.tmpl)

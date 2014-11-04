@@ -1,6 +1,6 @@
 import numpy as np
-import gameobj as go
-import templ
+import gameobj
+import templates.templ as templ
 
 dir_north = (0, -1)
 dir_ne = (1, -1)
@@ -19,7 +19,8 @@ class ArenaGenerator(object):
         new_arena = Arena(shape)
 
         for i, v in np.ndenumerate(new_arena.blockArray):
-            new_arena.blockArray[i] = templ.blockinfo['FLOOR_STONE'].create()
+            stone_floor_block = gameobj.create(templ.blockinfo['FLOOR_STONE'])
+            new_arena.blockArray[i] = stone_floor_block
             new_arena.blockArray[i].location = i
 
         return new_arena
@@ -35,7 +36,8 @@ class UnitTestArenaGenerator(ArenaGenerator):
             x_even = ((i[0] % 2) == 0)
             y_even = ((i[1] % 2) == 0)
             if x_even and y_even:
-                new_block = templ.blockinfo['BLOCK_STONE'].create()
+                new_block = gameobj.create(
+                    templ.blockinfo['BLOCK_STONE'])
                 new_block.location = i
                 new_arena.blockArray[i] = new_block
 
@@ -56,7 +58,7 @@ class Arena(object):
     def __init__(self, shape):
         '''Use and ArenaGenerator rather than instantizing directly'''
 
-        self.blockArray = np.empty(shape, go.Block)
+        self.blockArray = np.empty(shape, gameobj.Block)
         self.itemset = set()
         self.creatureset = set()
 

@@ -1,7 +1,7 @@
 import numpy as np
 import display as cd
 import arena
-import templ
+import templates.templ as templ
 import gamemgr
 import turnmgr
 
@@ -21,14 +21,12 @@ gamemgr.setup(
 
 the_arena = gamemgr.the_arena
 
-player = templ.playerclassinfo['PLAYER_DEFAULT'].create()
-gamemgr.add_player(player, (5, 5))
-
-fire_elemental = templ.creatureinfo['FIRE_ELEMENTAL'].create()
-gamemgr.add_creature(fire_elemental, (7, 7))
-
-zax = templ.creatureinfo['NORTH_GOING_ZAX'].create()
-gamemgr.add_creature(zax, (31, 31))
+gamemgr.new_player(
+    templ.playerclassinfo['PLAYER_DEFAULT'], (5, 5))
+gamemgr.new_creature(
+    templ.creatureinfo['FIRE_ELEMENTAL'], (7, 7))
+gamemgr.new_creature(
+    templ.creatureinfo['NORTH_GOING_ZAX'], (31, 31))
 
 cd.setup()
 
@@ -39,29 +37,3 @@ while(True):
         cd.display_char(i[0], i[1], v.get_glyph(), 1)
 
     turnmgr.tick()
-
-#exit_now = False
-
-#while(not exit_now):
-#    for i, v in np.ndenumerate(the_arena.blockArray):
-#        cd.display_char(i[0], i[1], v.get_glyph(), 1)
-
-#    keypressed = cd.wait_char()
-#    display_string = "Key pressed: " + str(keypressed)
-#    cd.display_string(display_string, 1, 41)
-
-#    if keypressed == ord('q'):
-#        exit_now = True
-#    elif keypressed == 53:
-#        pass
-#    elif keypressed in range(49, 57):
-#        #the_arena.step_creature(
-#        #    player, keypad_directions[keypressed])
-#        new_loc = np.add(
-#            player.location,
-#            keypad_directions[keypressed])
-#        gamemgr.teleport_creature(
-#            player,
-#            tuple(new_loc))
-
-#cd.end_curses()

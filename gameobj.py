@@ -74,4 +74,11 @@ class NorthGoingZax(AiCreature):
 class Player(Creature, turnmgr.HasPlayerTurn):
 
     def __init__(self, playerdetails, arena=None):
-        super(Creature, self).__init__(playerdetails, arena)
+        super().__init__(playerdetails, arena)
+
+
+def create(template):
+
+    class_name = template.template['objclass']
+    the_class = globals()[class_name]
+    return the_class(template)

@@ -33,3 +33,6 @@ while(True):
         cd.display_char(i[0], i[1], v.get_glyph(), 1)
 
     turnmgr.tick()
+
+    cd.display_bottom_message(
+        "Tick Counter is:" + str(turnmgr._counter))

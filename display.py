@@ -10,6 +10,31 @@ COLOR_YELLOW_ON_BLACK = 5
 
 _screenlist = {}
 
+#screen regions
+
+SCREEN_REGION_TOPMSG = (1, 0)
+SCREEN_REGION_MAPWIN = (1, 3)
+SCREEN_REGION_LOWMSG = (1, 43)
+SCREEN_REGION_RIGHTBAR = (45, 5)
+
+
+def display_top_message(msg):
+    display_string(
+        msg,
+        SCREEN_REGION_TOPMSG[0],
+        SCREEN_REGION_TOPMSG[1])
+
+    refresh()
+
+
+def display_bottom_message(msg):
+    display_string(
+        msg,
+        SCREEN_REGION_LOWMSG[0],
+        SCREEN_REGION_LOWMSG[1])
+
+    refresh()
+
 
 def setup():
     global _screen_list
@@ -33,14 +58,26 @@ def new_window(screenToken, lines, cols, upper_left_x, upper_left_y):
         lines, cols, upper_left_y, upper_left_x)
 
 
-def display_char(x, y, char, color=1, screenToken='SCREEN'):
+def display_char(
+        x, y, char,
+        color=1,
+        screenToken='SCREEN',
+        region=None):
     '''displays a character at a given location on the given screen.
 
     'color' is a number representing a curses color pair; those
     initialized in this class are given as class-level constants'''
 
     global _screenlist
-    _screenlist[screenToken].addch(y, x, char, curses.color_pair(color))
+    global SCREEN_REGION_MAPWIN
+
+    if not region:
+        region = SCREEN_REGION_MAPWIN
+
+    aj_x = x + region[0]
+    aj_y = y + region[1]
+
+    _screenlist[screenToken].addch(aj_y, aj_x, char, curses.color_pair(color))
 
 
 def display_string(string, x, y, color=1, screenToken='SCREEN'):

@@ -82,6 +82,7 @@ class HasPlayerTurn(HasTurn):
     def take_turn(self):
 
         keypressed = display.wait_char()
+        display.display_top_message("Key pressed =" + str(keypressed))
 
         if keypressed in self.movement_keys:
             new_loc = tuple(np.add(

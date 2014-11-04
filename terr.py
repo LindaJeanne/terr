@@ -1,7 +1,6 @@
 import numpy as np
 import display as cd
 import arena
-import templates.templ as templ
 import gamemgr
 import turnmgr
 
@@ -21,12 +20,9 @@ gamemgr.setup(
 
 the_arena = gamemgr.the_arena
 
-gamemgr.new_player(
-    templ.playerclassinfo['PLAYER_DEFAULT'], (5, 5))
-gamemgr.new_creature(
-    templ.creatureinfo['FIRE_ELEMENTAL'], (7, 7))
-gamemgr.new_creature(
-    templ.creatureinfo['NORTH_GOING_ZAX'], (31, 31))
+gamemgr.new_player('PLAYER_DEFAULT', (5, 5))
+gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7))
+gamemgr.new_creature('NORTH_GOING_ZAX', (31, 31))
 
 cd.setup()
 

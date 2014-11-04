@@ -66,7 +66,7 @@ class GameObjectTests(unittest.TestCase):
 
     def test_create_player(self):
         player = gameobj.Player(
-            templ.playerclassinfo['PLAYER_DEFAULT'], self.the_arena)
+            templ.playerclassinfo['PLAYER_DEFAULT'])
         self.assertTrue(player)
         self.assertEqual(player.detail.glyph, 64)
         self.assertEqual(player.detail.token, 'PLAYER_DEFAULT')
@@ -174,24 +174,19 @@ class GameManagerTests(unittest.TestCase):
 
     def test_not_adding_creature_to_invalide_location(self):
 
-        the_template = templ.creatureinfo['FIRE_ELEMENTAL']
-
         #non-walkable tile
-        self.assertFalse(gamemgr.new_creature(the_template, (4, 4)))
+        self.assertFalse(gamemgr.new_creature('FIRE_ELEMENTAL', (4, 4)))
 
         #out-of-bounds tile
-        self.assertFalse(gamemgr.new_creature(the_template, (85, 85)))
+        self.assertFalse(gamemgr.new_creature('FIRE_ELEMENTAL', (85, 85)))
 
         #creature_already_present
-        self.assertTrue(gamemgr.new_creature(
-            templ.creatureinfo['RABBIT'], (7, 7)))
-        self.assertFalse(gamemgr.new_creature(the_template, (7, 7)))
+        self.assertTrue(gamemgr.new_creature('RABBIT', (7, 7)))
+        self.assertFalse(gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7)))
 
     def test_add_creature(self):
 
-        the_template = templ.creatureinfo['FIRE_ELEMENTAL']
-        fire_elemental = gamemgr.new_creature(the_template, (5, 5))
-
+        fire_elemental = gamemgr.new_creature('FIRE_ELEMENTAL', (5, 5))
         self.assertTrue(fire_elemental)
 
         the_tile = gamemgr.get_block((5, 5))
@@ -204,20 +199,17 @@ class GameManagerTests(unittest.TestCase):
 
     def test_not_adding_item_to_invalide_location(self):
 
-        the_template = templ.iteminfo['PICKAXE']
-
         #non-walkable tile
-        self.assertFalse(gamemgr.new_item(the_template, (4, 4)))
+        self.assertFalse(gamemgr.new_item('PICKAXE', (4, 4)))
 
         #out-of-bounds tile
-        self.assertFalse(gamemgr.new_item(the_template, (85, 85)))
+        self.assertFalse(gamemgr.new_item('PICKAXE', (85, 85)))
 
     def test_add_single_item_to_tile(self):
 
-        the_template = templ.iteminfo['PICKAXE']
         the_tile = gamemgr.get_block((5, 5))
 
-        pickaxe = gamemgr.new_item(the_template, (5, 5))
+        pickaxe = gamemgr.new_item('PICKAXE', (5, 5))
 
         self.assertTrue(pickaxe)
         self.assertTrue(pickaxe in gamemgr.the_arena.itemset)
@@ -228,10 +220,9 @@ class GameManagerTests(unittest.TestCase):
 
     def test_add_multiple_items_to_tile(self):
 
-        pickaxe = gamemgr.new_item(
-            templ.iteminfo['PICKAXE'], (5, 5))
-        apple = gamemgr.new_item(
-            templ.iteminfo['APPLE'], (5, 5))
+        pickaxe = gamemgr.new_item('PICKAXE', (5, 5))
+        apple = gamemgr.new_item('APPLE', (5, 5))
+
         the_tile = gamemgr.get_block((5, 5))
 
         self.assertTrue(pickaxe)
@@ -250,11 +241,9 @@ class GameManagerTests(unittest.TestCase):
 
     def test_add_player(self):
 
-        the_player = gamemgr.new_player(
-            templ.playerclassinfo['PLAYER_DEFAULT'], (13, 13))
+        the_player = gamemgr.new_player('PLAYER_DEFAULT', (13, 13))
 
         self.assertTrue(the_player)
-        self.assertTrue(the_player.arena is gamemgr.the_arena)
         self.assertTrue(
             gamemgr.the_arena.player is the_player)
         self.assertTrue(
@@ -272,8 +261,7 @@ class TestTeleportItem(unittest.TestCase):
             arena.UnitTestArenaGenerator(),
             (40, 40))
 
-        pickaxe = gamemgr.new_item(
-            templ.iteminfo['PICKAXE'], (3, 3))
+        pickaxe = gamemgr.new_item('PICKAXE', (3, 3))
         pickaxeblock = gamemgr.get_block((3, 3))
 
         self.assertTrue(pickaxe)
@@ -283,8 +271,7 @@ class TestTeleportItem(unittest.TestCase):
 
         self.pa = pickaxe
 
-        apple = gamemgr.new_item(
-            templ.iteminfo['APPLE'], (5, 5))
+        apple = gamemgr.new_item('APPLE', (5, 5))
         appleblock = gamemgr.get_block((5, 5))
 
         self.assertTrue(apple)
@@ -328,8 +315,7 @@ class TestTeleportCreature(unittest.TestCase):
             arena.UnitTestArenaGenerator(),
             (40, 40))
 
-        self.fe = gamemgr.new_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (9, 9))
+        self.fe = gamemgr.new_creature('FIRE_ELEMENTAL', (9, 9))
         self.assertTrue(self.fe)
 
     def test_no_teleport_to_non_walkable_tile(self):
@@ -341,8 +327,7 @@ class TestTeleportCreature(unittest.TestCase):
     def test_no_teleport_onto_other_creature(self):
 
         #teleporting on top of another creature should not work
-        rabbit = gamemgr.new_creature(
-            templ.creatureinfo['RABBIT'], (11, 11))
+        rabbit = gamemgr.new_creature('RABBIT', (11, 11))
         self.assertTrue(rabbit)
 
         self.assertFalse(gamemgr.teleport_creature(self.fe, (11, 11)))
@@ -382,17 +367,11 @@ class BlockGetGlyphTests(unittest.TestCase):
             arena.UnitTestArenaGenerator(),
             (40, 40))
 
-        self.pl = gamemgr.new_player(
-            templ.playerclassinfo['PLAYER_DEFAULT'], (5, 5))
+        self.pl = gamemgr.new_player('PLAYER_DEFAULT', (5, 5))
 
-        self.pa = gamemgr.new_item(
-            templ.iteminfo['PICKAXE'], (7, 7))
-
-        self.ap = gamemgr. new_item(
-            templ.iteminfo['APPLE'], (7, 7))
-
-        self.fe = gamemgr.new_creature(
-            templ.creatureinfo['FIRE_ELEMENTAL'], (7, 7))
+        self.pa = gamemgr.new_item('PICKAXE', (7, 7))
+        self.ap = gamemgr. new_item('APPLE', (7, 7))
+        self.fe = gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7))
 
         self.assertTrue(self.pl)
         self.assertTrue(self.pa)
@@ -446,10 +425,8 @@ class TurnManagerTests(unittest.TestCase):
             arena.UnitTestArenaGenerator(),
             (40, 40))
 
-        self.ngz = gamemgr.new_creature(
-            templ.creatureinfo['NORTH_GOING_ZAX'], (35, 35))
-        self.other_ngz = gamemgr.new_creature(
-            templ.creatureinfo['NORTH_GOING_ZAX'], (37, 37))
+        self.ngz = gamemgr.new_creature('NORTH_GOING_ZAX', (35, 35))
+        self.other_ngz = gamemgr.new_creature('NORTH_GOING_ZAX', (37, 37))
 
         self.assertTrue(self.ngz)
         self.assertTrue(self.other_ngz)

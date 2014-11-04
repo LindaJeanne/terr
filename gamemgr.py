@@ -25,19 +25,22 @@ def get_block(location):
     return the_arena.blockArray[location]
 
 
-def new_creature(template, location):
+def new_creature(templ_token, location):
     global the_arena
     global turn_list
 
-    if not _valid_move_creature(location):
+    if not gameobj.Creature.is_valid_tile(the_arena, location):
         return False
 
-    the_creature = gameobj.create(template)
-    turn_list.append(the_creature)
-    the_creature.arena = the_arena
-    the_arena.creatureset.add(the_creature)
+    assert(templ_token in templ.creatureinfo)
+    template = templ.creatureinfo[templ_token]
 
-    _set_creature_location(the_creature, location)
+    the_creature = gameobj.create(template)
+    the_creature.add_to_arena(the_arena, location)
+    #turn_list.append(the_creature)
+    #the_arena.creatureset.add(the_creature)
+
+    #_set_creature_location(the_creature, location)
 
     return the_creature
 
@@ -45,10 +48,10 @@ def new_creature(template, location):
 def teleport_creature(creature, location):
     global the_arena
 
-    if not _valid_move_creature(location):
+    if not gameobj.Creature.is_valid_tile(the_arena, location):
         return False
 
-    if creature not in the_arena.creatureset:
+    if not creature in the_arena.creatureset:
         return False
 
     _set_creature_location(creature, location)
@@ -56,18 +59,21 @@ def teleport_creature(creature, location):
     return True
 
 
-def new_item(template, location):
+def new_item(templ_token, location):
 
     global the_arena
 
-    if not _valid_move_item(location):
+    if not gameobj.Item.is_valid_tile(the_arena, location):
         return False
 
-    the_item = gameobj.create(template)
-    the_item.arena = the_arena
-    the_arena.itemset.add(the_item)
+    assert(templ_token in templ.iteminfo)
+    template = templ.iteminfo[templ_token]
 
-    _set_item_location(the_item, location)
+    the_item = gameobj.create(template)
+    the_item.add_to_arena(the_arena, location)
+
+    #the_arena.itemset.add(the_item)
+    #_set_item_location(the_item, location)
 
     return the_item
 
@@ -75,10 +81,10 @@ def new_item(template, location):
 def teleport_item(item, location):
     global the_arena
 
-    if not _valid_move_item(location):
+    if not item.is_valid_tile(the_arena, location):
         return False
 
-    if item not in the_arena.itemset:
+    if not item in the_arena.itemset:
         return False
 
     _set_item_location(item, location)
@@ -86,20 +92,23 @@ def teleport_item(item, location):
     return True
 
 
-def new_player(tempalte, location):
+def new_player(templ_token, location):
     global the_arena
     global turn_list
 
-    if not _valid_move_creature(location):
+    if not gameobj.Player.is_valid_tile(the_arena, location):
         return False
 
-    the_player = gameobj.create(tempalte)
-    the_arena.player = the_player
-    the_player.arena = the_arena
-    turn_list.append(the_player)
-    the_arena.creatureset.add(the_player)
+    assert(templ_token in templ.playerclassinfo)
+    template = templ.playerclassinfo[templ_token]
+    the_player = gameobj.create(template)
+    the_player.add_to_arena(the_arena, location)
 
-    _set_creature_location(the_player, location)
+    #the_arena.player = the_player
+    #turn_list.append(the_player)
+    #the_arena.creatureset.add(the_player)
+
+    #_set_creature_location(the_player, location)
 
     return the_player
 
@@ -120,29 +129,6 @@ def _set_item_location(item, location):
     item.block = get_block(location)
     item.block.itemlist.append(item)
     item.location = location
-
-
-def _valid_move_creature(location):
-
-    if not _valid_move_item(location):
-        return False
-
-    if the_arena.blockArray[location].creature:
-        return False
-
-    return True
-
-
-def _valid_move_item(location):
-    global the_arena
-
-    if not the_arena.inside_arena(location):
-        return False
-
-    if not get_block(location).detail.template['is_walkable']:
-        return False
-
-    return True
 
 
 def quit():

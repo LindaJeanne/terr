@@ -32,7 +32,7 @@ while(True):
     for i, v in np.ndenumerate(the_arena.blockArray):
         cd.display_char(i[0], i[1], v.get_glyph(), 1)
 
-    turnmgr.tick()
+    turnmgr.tick(gamemgr)
 
     cd.display_bottom_message(
         "Tick Counter is:" + str(turnmgr._counter))

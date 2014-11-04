@@ -19,6 +19,7 @@ SCREEN_REGION_RIGHTBAR = (45, 5)
 
 
 def display_top_message(msg):
+
     display_string(
         msg,
         SCREEN_REGION_TOPMSG[0],
@@ -69,6 +70,7 @@ def display_char(
     initialized in this class are given as class-level constants'''
 
     global _screenlist
+
     global SCREEN_REGION_MAPWIN
 
     if not region:
@@ -80,9 +82,21 @@ def display_char(
     _screenlist[screenToken].addch(aj_y, aj_x, char, curses.color_pair(color))
 
 
-def display_string(string, x, y, color=1, screenToken='SCREEN'):
+def display_string(
+        string, x, y,
+        color=1, screenToken='SCREEN',
+        region=None):
     global _screenlist
-    _screenlist[screenToken].addstr(y, x, string)
+
+    global SCREEN_REGION_TOPMSG
+
+    if not region:
+        region = SCREEN_REGION_TOPMSG
+
+    adj_x = x + region[0]
+    adj_y = y + region[1]
+
+    _screenlist[screenToken].addstr(adj_y, adj_x, string)
 
 
 def end_screen(screenToken):

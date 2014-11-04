@@ -1,5 +1,5 @@
 from . import gameobj
-import numpy as np
+from . import action
 
 
 class Creature(gameobj.GameObject):
@@ -66,12 +66,17 @@ class NorthGoingZax(AiCreature):
         super().__init__(creaturedetails)
 
     def take_turn(self):
-        new_loc = tuple(np.add(self.location, (0, -1)))
-        if not self.teleport(new_loc):
-            if not self.teleport((25, 25)):
-                self.teleport((33, 33))
 
-        return 10
+        action_list = list()
+
+        action_list.append(
+            action.StepAction((0, -1)))
+        action_list.append(
+            action.TeleportAction((25, 25)))
+        action_list.append(
+            action.TeleportAction((33, 33)))
+
+        return action_list
 
 
 def create(template):

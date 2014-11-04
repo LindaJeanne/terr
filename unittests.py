@@ -427,14 +427,9 @@ class TurnManagerTests(unittest.TestCase):
         self.assertEqual(turnmgr._counter, 0)
         self.assertTrue(turnmgr._tickloop[turnmgr._counter] is self.zaxlist)
 
-    def test_take_turn_function(self):
-
-        self.assertEqual(self.ngz.take_turn(), 10)
-        self.assertEqual(self.ngz.location, (35, 34))
-
     def test_tick_loop(self):
 
-        turnmgr.tick()
+        turnmgr.tick(gamemgr)
         self.assertEqual(self.ngz.location, (35, 34))
         self.assertEqual(self.other_ngz.location, (37, 36))
 
@@ -445,25 +440,25 @@ class TurnManagerTests(unittest.TestCase):
         self.assertTrue(self.other_ngz in turnmgr._tickloop[10])
 
         for i in range(0, 9):
-            turnmgr.tick()
+            turnmgr.tick(gamemgr)
 
         self.assertEqual(turnmgr._counter, 10)
         self.assertEqual(self.ngz.location, (35, 34))
         self.assertEqual(self.other_ngz.location, (37, 36))
 
-        turnmgr.tick()
+        turnmgr.tick(gamemgr)
 
         self.assertEqual(self.ngz.location, (35, 33))
         self.assertEqual(self.other_ngz.location, (37, 35))
 
         for i in range(0, 999):
-            turnmgr.tick()
+            turnmgr.tick(gamemgr)
 
         self.assertEqual(turnmgr._counter, 10)
         self.assertEqual(self.ngz.location, (25, 12))
         self.assertEqual(self.other_ngz.location, (25, 14))
 
-        turnmgr.tick()
+        turnmgr.tick(gamemgr)
 
         self.assertEqual(turnmgr._counter, 11)
         self.assertEqual(self.ngz.location, (25, 11))

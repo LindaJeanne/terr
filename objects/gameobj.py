@@ -1,5 +1,5 @@
 import display
-import numpy as np
+from . import action
 
 
 class GameObject(object):
@@ -41,7 +41,9 @@ def create(template):
 class HasTurn(object):
 
     def take_turn(self):
-        return 10
+        action_list = list()
+        action_list.append(action.NullAction())
+        return action_list
 
 
 class HasAiTurn(HasTurn):
@@ -54,8 +56,8 @@ class HasPlayerTurn(HasTurn):
         ord('7'): (-1, -1),
         ord('8'): (0, -1),
         ord('9'): (1, -1),
-        ord('4'): (1, 0),
-        ord('6'): (-1, 0),
+        ord('4'): (-1, 0),
+        ord('6'): (1, 0),
         ord('1'): (-1, 1),
         ord('2'): (0, 1),
         ord('3'): (1, 1)}
@@ -67,22 +69,22 @@ class HasPlayerTurn(HasTurn):
 
     def take_turn(self):
 
+        action_list = list()
+
         keypressed = display.wait_char()
         display.display_top_message("Key pressed =" + str(keypressed))
 
         if keypressed in self.movement_keys:
-            new_loc = tuple(np.add(
-                self.location,
-                self.movement_keys[keypressed]))
-            self.teleport(new_loc)
-            return 10
+            action_list.append(
+                action.StepAction(self.movement_keys[keypressed]))
 
-        if keypressed in self.turn_action_keys:
-            pass
+        elif keypressed in self.turn_action_keys:
+            action_list.append(action.NullAction())
 
-        if keypressed in self.free_action_keys:
-            #temporary, until I can get input organized.
-            display.end_curses()
-            raise SystemExit
+        elif keypressed in self.free_action_keys:
+            action_list.append(action.QuitAction())
 
-        return 10
+        else:
+            action_list.append(action.NullAction())
+
+        return action_list

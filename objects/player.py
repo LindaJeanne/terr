@@ -1,8 +1,8 @@
-import turnmgr
+from . import gameobj
 from . import creature
 
 
-class Player(creature.Creature, turnmgr.HasPlayerTurn):
+class Player(creature.Creature, gameobj.HasPlayerTurn):
 
     def __init__(self, playerdetails):
         super().__init__(playerdetails)

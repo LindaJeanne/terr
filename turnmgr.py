@@ -1,5 +1,4 @@
 import numpy as np
-import display
 
 LOOP_SIZE = 1000
 _tickloop = np.empty((LOOP_SIZE), list)
@@ -50,53 +49,3 @@ def _increment_counter():
     global _counter
 
     _counter = (_counter + 1) % LOOP_SIZE
-
-
-class HasTurn(object):
-
-    def take_turn(self):
-        return 10
-
-
-class HasAiTurn(HasTurn):
-    pass
-
-
-class HasPlayerTurn(HasTurn):
-
-    movement_keys = {
-        ord('7'): (-1, -1),
-        ord('8'): (0, -1),
-        ord('9'): (1, -1),
-        ord('4'): (1, 0),
-        ord('6'): (-1, 0),
-        ord('1'): (-1, 1),
-        ord('2'): (0, 1),
-        ord('3'): (1, 1)}
-
-    turn_action_keys = {}
-
-    free_action_keys = {
-        ord('q'): 'quit'}
-
-    def take_turn(self):
-
-        keypressed = display.wait_char()
-        display.display_top_message("Key pressed =" + str(keypressed))
-
-        if keypressed in self.movement_keys:
-            new_loc = tuple(np.add(
-                self.location,
-                self.movement_keys[keypressed]))
-            self.teleport(new_loc)
-            return 10
-
-        if keypressed in self.turn_action_keys:
-            pass
-
-        if keypressed in self.free_action_keys:
-            #temporary, until I can get input organized.
-            display.end_curses()
-            raise SystemExit
-
-        return 10

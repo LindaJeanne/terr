@@ -1,5 +1,4 @@
 from . import gameobj
-import turnmgr
 import numpy as np
 
 
@@ -54,7 +53,7 @@ class Creature(gameobj.GameObject):
         return True
 
 
-class AiCreature(Creature, turnmgr.HasAiTurn):
+class AiCreature(Creature, gameobj.HasAiTurn):
 
     def __init__(self, creaturedetails):
         super().__init__(creaturedetails)

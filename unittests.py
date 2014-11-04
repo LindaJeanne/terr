@@ -1,7 +1,9 @@
 import unittest
 import templates.templ as templ
 import arena
-import gameobj
+import objects.creature as crea
+import objects.player as pl
+import objects.item as it
 import gamemgr
 import turnmgr
 
@@ -56,25 +58,6 @@ class TemplCreatureTests(unittest.TestCase):
         pass
 
 
-class GameObjectTests(unittest.TestCase):
-
-    def setUp(self):
-        templ.load_templates
-        generator = arena.UnitTestArenaGenerator()
-        self.the_arena = generator.create(
-            shape=(20, 20), blockinfo=templ.blockinfo)
-
-    def test_create_player(self):
-        player = gameobj.Player(
-            templ.playerclassinfo['PLAYER_DEFAULT'])
-        self.assertTrue(player)
-        self.assertEqual(player.detail.glyph, 64)
-        self.assertEqual(player.detail.token, 'PLAYER_DEFAULT')
-
-    def teardwon(self):
-        pass
-
-
 class ArenaTests(unittest.TestCase):
 
     def setUp(self):
@@ -108,8 +91,8 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_block(self):
 
-        new_glass_block = gameobj.create(
-            templ.blockinfo['BLOCK_GLASS'])
+        new_glass_block = arena.create_block(
+            'BLOCK_GLASS', arena.Arena((10, 10)), (0, 0))
 
         self.assertTrue(new_glass_block)
         self.assertEqual(new_glass_block.token, 'BLOCK_GLASS')
@@ -119,7 +102,7 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_creature(self):
 
-        new_creature = gameobj.create(
+        new_creature = crea.create(
             templ.creatureinfo['FIRE_ELEMENTAL'])
 
         self.assertTrue(new_creature)
@@ -128,7 +111,7 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_player(self):
 
-        new_player = gameobj.create(
+        new_player = pl.create(
             templ.playerclassinfo['PLAYER_DEFAULT'])
 
         self.assertTrue(new_player)
@@ -137,7 +120,7 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_item(self):
 
-        new_item = gameobj.create(
+        new_item = it.create(
             templ.iteminfo['PICKAXE'])
 
         self.assertTrue(new_item)
@@ -282,19 +265,19 @@ class TestTeleportItem(unittest.TestCase):
         self.ap = apple
 
     def test_no_teleport_out_of_arena_bounds(self):
-        self.assertFalse(gamemgr.teleport_item(self.pa, (80, 80)))
+        self.assertFalse(self.pa.teleport((80, 80)))
 
     def test_no_teleport_inside_of_walls(self):
-        self.assertFalse(gamemgr.teleport_item(self.pa, (4, 4)))
+        self.assertFalse(self.pa.teleport((4, 4)))
 
     def test_teleport_item_to_empty_square(self):
-        self.assertTrue(gamemgr.teleport_item(self.pa, (9, 9)))
+        self.assertTrue(self.pa.teleport((9, 9)))
         self._validate_item(self.pa, (3, 3), (9, 9))
 
     def test_teleport_item_to_another_item(self):
-        self.assertTrue(gamemgr.teleport_item(self.pa, (5, 5)))
-        self._validate_item(self.pa, (9, 9), (5, 5))
+        self.assertTrue(self.pa.teleport((5, 5)))
         self._validate_item(self.pa, (3, 3), (5, 5))
+        self._validate_item(self.ap, (3, 3), (5, 5))
 
     def _validate_item(self, item, old_loc, new_loc):
 
@@ -319,10 +302,10 @@ class TestTeleportCreature(unittest.TestCase):
         self.assertTrue(self.fe)
 
     def test_no_teleport_to_non_walkable_tile(self):
-        self.assertFalse(gamemgr.teleport_creature(self.fe, (4, 4)))
+        self.assertFalse(self.fe.teleport((4, 4)))
 
     def test_no_teleport_to_outside_arena(self):
-        self.assertFalse(gamemgr.teleport_creature(self.fe, (80, 80)))
+        self.assertFalse(self.fe.teleport((80, 80)))
 
     def test_no_teleport_onto_other_creature(self):
 
@@ -330,14 +313,14 @@ class TestTeleportCreature(unittest.TestCase):
         rabbit = gamemgr.new_creature('RABBIT', (11, 11))
         self.assertTrue(rabbit)
 
-        self.assertFalse(gamemgr.teleport_creature(self.fe, (11, 11)))
+        self.assertFalse(self.fe.teleport((11, 11)))
 
     def test_no_teleport_creature_that_wasnt_added(self):
 
-        rabbit = gameobj.create(templ.creatureinfo['RABBIT'])
+        rabbit = crea.create(templ.creatureinfo['RABBIT'])
         self.assertTrue(rabbit)
 
-        self.assertFalse(gamemgr.teleport_creature(rabbit, (19, 19)))
+        self.assertFalse(rabbit.teleport((19, 19)))
 
     def test_valid_creature_teleportation(self):
 
@@ -347,7 +330,7 @@ class TestTeleportCreature(unittest.TestCase):
         self.assertEqual(self.fe.location, (9, 9))
 
         #now to a teleport that should work
-        self.assertTrue(gamemgr.teleport_creature(self.fe, (15, 15)))
+        self.assertTrue(self.fe.teleport((15, 15)))
 
         self.assertTrue(
             gamemgr.the_arena.blockArray[(15, 15)].creature is self.fe)
@@ -370,7 +353,7 @@ class BlockGetGlyphTests(unittest.TestCase):
         self.pl = gamemgr.new_player('PLAYER_DEFAULT', (5, 5))
 
         self.pa = gamemgr.new_item('PICKAXE', (7, 7))
-        self.ap = gamemgr. new_item('APPLE', (7, 7))
+        self.ap = gamemgr.new_item('APPLE', (7, 7))
         self.fe = gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7))
 
         self.assertTrue(self.pl)
@@ -390,8 +373,8 @@ class BlockGetGlyphTests(unittest.TestCase):
 
     def test_items_no_creatre_gets_last_item_glyph(self):
 
-        self.assertTrue(gamemgr.teleport_item(self.pa, (11, 11)))
-        self.assertTrue(gamemgr.teleport_item(self.ap, (11, 11)))
+        self.assertTrue(self.pa.teleport((11, 11)))
+        self.assertTrue(self.ap.teleport((11, 11)))
 
         self.assertEqual(
             gamemgr.get_block((11, 11)).get_glyph(),
@@ -399,9 +382,10 @@ class BlockGetGlyphTests(unittest.TestCase):
 
     def test_creature_and_items_gets_creature_glyph(self):
 
-        self.assertTrue(gamemgr.teleport_item(self.pa, (13, 13)))
-        self.assertTrue(gamemgr.teleport_item(self.ap, (13, 13)))
-        self.assertTrue(gamemgr.teleport_creature(self.fe, (13, 13)))
+        self.assertTrue(self.pa.teleport((13, 13)))
+        self.assertTrue(self.ap.teleport((13, 13)))
+
+        self.assertTrue(self.fe.teleport((13, 13)))
 
         self.assertEqual(
             gamemgr.get_block((13, 13)).get_glyph(),
@@ -409,9 +393,9 @@ class BlockGetGlyphTests(unittest.TestCase):
 
     def test_player_and_items_gets_player_glyph(self):
 
-        self.assertTrue(gamemgr.teleport_item(self.pa, (15, 15)))
-        self.assertTrue(gamemgr.teleport_item(self.ap, (15, 15)))
-        self.assertTrue(gamemgr.teleport_creature(self.pl, (15, 15)))
+        self.assertTrue(self.pa.teleport((15, 15)))
+        self.assertTrue(self.ap.teleport((15, 15)))
+        self.assertTrue(self.pl.teleport((15, 15)))
 
         self.assertEqual(
             gamemgr.get_block((15, 15)).get_glyph(),

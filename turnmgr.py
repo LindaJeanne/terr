@@ -1,5 +1,5 @@
 import numpy as np
-import gamemgr
+import display
 
 LOOP_SIZE = 1000
 _tickloop = np.empty((LOOP_SIZE), list)
@@ -28,20 +28,20 @@ def tick():
     _increment_counter()
 
 
-def _advance_turn(gameobj, num_ticks):
+def _advance_turn(the_obj, num_ticks):
 
     global LOOP_SIZE
     global _tickloop
     global _counter
 
-    assert(gameobj in _tickloop[_counter])
+    assert(the_obj in _tickloop[_counter])
     new_tick = (_counter + num_ticks) % LOOP_SIZE
 
     if not _tickloop[new_tick]:
         _tickloop[new_tick] = list()
 
-    _tickloop[_counter].remove(gameobj)
-    _tickloop[new_tick].append(gameobj)
+    _tickloop[_counter].remove(the_obj)
+    _tickloop[new_tick].append(the_obj)
 
 
 def _increment_counter():
@@ -81,23 +81,21 @@ class HasPlayerTurn(HasTurn):
 
     def take_turn(self):
 
-        keypressed = gamemgr.display.wait_char()
+        keypressed = display.wait_char()
 
         if keypressed in self.movement_keys:
             new_loc = tuple(np.add(
                 self.location,
                 self.movement_keys[keypressed]))
-            gamemgr.teleport_creature(self, new_loc)
+            self.teleport(new_loc)
             return 10
 
         if keypressed in self.turn_action_keys:
-            the_method = getattr(
-                gamemgr, self.turn_action_keys[keypressed])
-            return the_method()
+            pass
 
         if keypressed in self.free_action_keys:
-            the_method = getattr(
-                gamemgr, self.free_action_keys[keypressed])
-            return the_method()
+            #temporary, until I can get input organized.
+            display.end_curses()
+            raise SystemExit
 
         return 10

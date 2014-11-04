@@ -1,7 +1,7 @@
-from . import blocks
-from . import creatures
-from . import items
-from . import playerclasses
+from . import blocktmpl
+from . import creaturetmpl
+from . import itemtmpl
+from . import playertmpl
 
 blockinfo = dict()
 creatureinfo = dict()
@@ -39,7 +39,7 @@ def load_templates():
     global iteminfo
     global playerclassinfo
 
-    blockinfo = load_template_list(blocks.tmpl)
-    creatureinfo = load_template_list(creatures.tmpl)
-    iteminfo = load_template_list(items.tmpl)
-    playerclassinfo = load_template_list(playerclasses.tmpl)
+    blockinfo = load_template_list(blocktmpl.tmpl)
+    creatureinfo = load_template_list(creaturetmpl.tmpl)
+    iteminfo = load_template_list(itemtmpl.tmpl)
+    playerclassinfo = load_template_list(playertmpl.tmpl)

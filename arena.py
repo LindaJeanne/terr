@@ -1,5 +1,4 @@
 import numpy as np
-import gameobj
 import templates.templ as templ
 
 dir_north = (0, -1)
@@ -12,6 +11,39 @@ dir_west = (-1, 0)
 dir_nw = (-1, -1)
 
 
+class Block(object):
+
+    def __init__(self, blockdetails):
+        assert(blockdetails.token)
+        assert(blockdetails.glyph)
+
+        self.token = blockdetails.token
+        self.glyph = blockdetails.glyph
+        self.detail = blockdetails
+        self.location = None
+        self.creature = None
+        self.itemlist = list()
+
+    def get_glyph(self):
+
+        if self.creature:
+            return self.creature.glyph
+        elif self.itemlist:
+            return self.itemlist[-1].glyph
+        else:
+            return self.glyph
+
+
+def create_block(token, arena, location):
+
+    assert(token in templ.blockinfo)
+    assert(arena.inside_arena(location))
+
+    new_block = Block(templ.blockinfo[token])
+    new_block.location = location
+    return new_block
+
+
 class ArenaGenerator(object):
 
     def create(self, shape, blockinfo):
@@ -19,9 +51,7 @@ class ArenaGenerator(object):
         new_arena = Arena(shape)
 
         for i, v in np.ndenumerate(new_arena.blockArray):
-            stone_floor_block = gameobj.create(templ.blockinfo['FLOOR_STONE'])
-            new_arena.blockArray[i] = stone_floor_block
-            new_arena.blockArray[i].location = i
+            new_arena.blockArray[i] = create_block('FLOOR_STONE', new_arena, i)
 
         return new_arena
 
@@ -36,10 +66,8 @@ class UnitTestArenaGenerator(ArenaGenerator):
             x_even = ((i[0] % 2) == 0)
             y_even = ((i[1] % 2) == 0)
             if x_even and y_even:
-                new_block = gameobj.create(
-                    templ.blockinfo['BLOCK_STONE'])
-                new_block.location = i
-                new_arena.blockArray[i] = new_block
+                new_arena.blockArray[i] = create_block(
+                    'BLOCK_STONE', new_arena, i)
 
         return new_arena
 
@@ -58,7 +86,7 @@ class Arena(object):
     def __init__(self, shape):
         '''Use and ArenaGenerator rather than instantizing directly'''
 
-        self.blockArray = np.empty(shape, gameobj.Block)
+        self.blockArray = np.empty(shape, Block)
         self.itemset = set()
         self.creatureset = set()
 

@@ -1,75 +1,14 @@
 import numpy as np
-import templates.templ as templ
 import networkx as nx
 import compassrose as cr
-
-
-class Node(object):
-
-    def __init__(self, blockdetails):
-        assert(blockdetails.token)
-        assert(blockdetails.glyph)
-
-        self.token = blockdetails.token
-        self.glyph = blockdetails.glyph
-        self.detail = blockdetails
-        self.location = None
-        self.creature = None
-        self.itemlist = list()
-
-    def get_glyph(self):
-
-        if self.creature:
-            return self.creature.glyph
-        elif self.itemlist:
-            return self.itemlist[-1].glyph
-        else:
-            return self.glyph
-
-
-def create_block(token, arena=None, location=None):
-
-    assert(token in templ.blockinfo)
-    if arena:
-        assert(arena.in_bounds(location))
-
-    new_block = Node(templ.blockinfo[token])
-    new_block.location = location
-    return new_block
-
-
-class GridGenerator(object):
-
-    def create(self, shape):
-
-        new_grid = np.empty(shape, object)
-
-        for i, v in np.ndenumerate(new_grid):
-            new_grid[i] = 'FLOOR_STONE'
-
-        return new_grid
-
-
-class UnitTestGridGenerator(GridGenerator):
-
-    def create(self, shape):
-
-        new_grid = super().create(shape)
-
-        for i, v in np.ndenumerate(new_grid):
-            x_even = ((i[0] % 2) == 0)
-            y_even = ((i[1] % 2) == 0)
-            if x_even and y_even:
-                new_grid[i] = 'BLOCK_STONE'
-
-        return new_grid
+import node
 
 
 class Arena(object):
 
     def __init__(self, tokenarray):
 
-        self.grid = np.empty(tokenarray.shape, Node)
+        self.grid = np.empty(tokenarray.shape, node.Node)
         self.graph = nx.DiGraph()
         self.creatureset = set()
         self.itemset = set()
@@ -81,7 +20,7 @@ class Arena(object):
     def _build_nodes(self, tokenarray):
 
         for i, v in np.ndenumerate(tokenarray):
-            self.grid[i] = create_block(tokenarray[i], self, i)
+            self.grid[i] = node.Node(tokenarray[i], self, i)
             self.graph.add_node(self.grid[i])
 
     def _build_edges(self):
@@ -91,8 +30,22 @@ class Arena(object):
             for neighbor in rose.iter_vectors_weights():
                 point = neighbor['vector']
                 if self.in_bounds(point):
-                    self.graph.add_edge(
-                        self.grid[i], self.grid[point])
+                    self._add_edge(self.grid[i], neighbor)
+
+    def _add_edge(self, source, neighbor):
+
+        point = neighbor['vector']
+
+        isPassable = all((
+            source.isPassable,
+            self.grid[point].isPassable))
+
+        self.graph.add_edge(
+            source,
+            self.grid[point],
+            {
+                'weight': neighbor['weight'],
+                'is_passable': isPassable})
 
     def in_bounds(self, point):
 
@@ -114,7 +67,7 @@ class Arena(object):
 
         assert(self.in_bounds(location))
         assert(not self.grid[location].creature)
-        if not self.grid[location].detail.template['is_walkable']:
+        if not self.grid[location].isPassable:
             raise Exception("non walkable block error")
 
         if creature in self.creatureset:
@@ -140,7 +93,7 @@ class Arena(object):
     def place_item(self, item, location):
 
         assert(self.in_bounds(location))
-        if not self.grid[location].detail.template['is_walkable']:
+        if not self.grid[location].isPassable:
             raise Exception("Trying to place item on non walkable tile")
 
         if item in self.itemset:
@@ -161,3 +114,19 @@ class Arena(object):
         item.contain = None
         item.arena = None
         self.itemset.remove(item)
+
+
+class Arena2D(Arena):
+
+    def __init__(self, tokenarray):
+        assert(len(tokenarray.shape) == 2)
+
+        super().__init__(tokenarray)
+
+
+class Arena3D(Arena):
+
+    def __init__(self, tokenarray):
+        assert(len(tokenarray.shape) == 3)
+
+        super().__init__(tokenarray)

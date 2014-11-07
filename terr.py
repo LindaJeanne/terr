@@ -1,11 +1,11 @@
 import numpy as np
 import display as cd
-import arena
 import gamemgr
 import turnmgr
+import gridgen
 
 gamemgr.setup(
-    arena.UnitTestGridGenerator(),
+    gridgen.UnitTestGridGenerator(),
     (40, 40))
 
 the_arena = gamemgr.the_arena

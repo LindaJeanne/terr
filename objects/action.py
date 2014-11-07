@@ -15,13 +15,12 @@ class MovementAction(Action):
 
     def execute(self, actor, the_gamemgr):
 
-        if actor.teleport(self.location):
-                return 10
+        try:
+            the_gamemgr.the_arena.place_creature(actor, self.location)
+        except:
+            return 0
 
-        #the_gamemgr.display.display_top_message(
-        #    actor.token + "Tried to move but failed.")
-
-        return 0
+        return 10
 
 
 class StepAction(MovementAction):
@@ -33,7 +32,7 @@ class StepAction(MovementAction):
     def execute(self, actor, the_gamemgr):
 
         new_loc = tuple(np.add(
-            actor.location, self.direction))
+            actor.node.location, self.direction))
 
         self.location = new_loc
 

@@ -1,63 +1,28 @@
-from . import gameobj
 from . import action
 
 
-class HasAiTurn(gameobj.HasTurn):
-    pass
+class HasTurn(object):
+
+    def take_turn(self):
+        action_list = list()
+        action_list.append(action.NullAction())
+        return action_list
 
 
-class Creature(gameobj.GameObject):
+class Creature(object):
 
     def __init__(self, creaturedetails):
-        super().__init__(creaturedetails)
-        self.block = None
+        assert(creaturedetails.token)
+        assert(creaturedetails.glyph)
 
-    @classmethod
-    def is_valid_tile(cls, arena, location):
-        if not super().is_valid_tile(arena, location):
-            return False
-
-        if arena.blockArray[location].creature:
-            return False
-
-        return True
-
-    def add_to_arena(self, arena, location):
-
-        if not self.is_valid_tile(arena, location):
-            return False
-
-        if self in arena.creatureset:
-            return False
-
-        arena.creatureset.add(self)
-        arena.blockArray[location].creature = self
-        self.block = arena.blockArray[location]
-        self.location = location
-        self.arena = arena
-
-        return True
-
-    def teleport(self, location):
-
-        if not self.arena:
-            return False
-
-        if not self.is_valid_tile(self.arena, location):
-            return False
-
-        if self not in self.arena.creatureset:
-            return False
-
-        self.block.creature = None
-        self.block = self.arena.blockArray[location]
-        self.location = location
-        self.block.creature = self
-
-        return True
+        self.token = creaturedetails.token
+        self.glyph = creaturedetails.glyph
+        self.detail = creaturedetails
+        self.arena = None
+        self.node = None
 
 
-class AiCreature(Creature, HasAiTurn):
+class AiCreature(Creature, HasTurn):
 
     def __init__(self, creaturedetails):
         super().__init__(creaturedetails)

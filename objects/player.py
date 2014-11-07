@@ -1,20 +1,12 @@
-from . import gameobj
 from . import creature
 from . import action
 import display
+import compassrose as cr
 
 
-class HasPlayerTurn(gameobj.HasTurn):
+class Player(creature.Creature, creature.HasTurn):
 
-    movement_keys = {
-        ord('7'): (-1, -1),
-        ord('8'): (0, -1),
-        ord('9'): (1, -1),
-        ord('4'): (-1, 0),
-        ord('6'): (1, 0),
-        ord('1'): (-1, 1),
-        ord('2'): (0, 1),
-        ord('3'): (1, 1)}
+    movement_keys = cr.key_dirs
 
     turn_action_keys = {}
 
@@ -43,19 +35,8 @@ class HasPlayerTurn(gameobj.HasTurn):
 
         return action_list
 
-
-class Player(creature.Creature, HasPlayerTurn):
-
     def __init__(self, playerdetails):
         super().__init__(playerdetails)
-
-    def add_to_arena(self, arena, location):
-        if not super().add_to_arena(arena, location):
-            return False
-
-        arena.player = self
-
-        return True
 
 
 def create(template):

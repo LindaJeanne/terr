@@ -157,15 +157,24 @@ class GameManagerTests(unittest.TestCase):
 
     def test_not_adding_creature_to_invalide_location(self):
 
-        #non-walkable tile
-        self.assertFalse(gamemgr.new_creature('FIRE_ELEMENTAL', (4, 4)))
+        # non-walkable tile
+        self.assertRaises(
+            Exception,
+            gamemgr.new_creature,
+            ('FIRE_ELEMENTAL', (4, 4)))
 
-        #out-of-bounds tile
-        self.assertFalse(gamemgr.new_creature('FIRE_ELEMENTAL', (85, 85)))
+        # out-of-bounds tile
+        self.assertRaises(
+            Exception,
+            gamemgr.new_creature,
+            ('FIRE_ELEMENTAL', (85, 85)))
 
-        #creature_already_present
-        self.assertTrue(gamemgr.new_creature('RABBIT', (7, 7)))
-        self.assertFalse(gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7)))
+        # creature already present
+        gamemgr.new_creature('RABBIT', (7, 7))
+        self.assertRaises(
+            Exception,
+            gamemgr.new_creature,
+            ('FIRE_ELEMENTAL', (4, 4)))
 
     def test_add_creature(self):
 
@@ -174,19 +183,23 @@ class GameManagerTests(unittest.TestCase):
 
         the_tile = gamemgr.get_block((5, 5))
         self.assertTrue(the_tile.creature is fire_elemental)
-        self.assertTrue(fire_elemental.block is the_tile)
-        self.assertEqual(fire_elemental.location, (5, 5))
-        self.assertEqual(fire_elemental.location, the_tile.location)
+        self.assertTrue(fire_elemental.node is the_tile)
         self.assertTrue(
             fire_elemental in gamemgr.the_arena.creatureset)
 
     def test_not_adding_item_to_invalide_location(self):
 
-        #non-walkable tile
-        self.assertFalse(gamemgr.new_item('PICKAXE', (4, 4)))
+        # non-walkable tile
+        self.assertRaises(
+            Exception,
+            gamemgr.new_item,
+            ('PICKAXE', (4, 4)))
 
-        #out-of-bounds tile
-        self.assertFalse(gamemgr.new_item('PICKAXE', (85, 85)))
+        # out-of-bounds tile
+        self.assertRaises(
+            Exception,
+            gamemgr.new_item,
+            ('PICKAXE', (85, 85)))
 
     def test_add_single_item_to_tile(self):
 
@@ -196,10 +209,8 @@ class GameManagerTests(unittest.TestCase):
 
         self.assertTrue(pickaxe)
         self.assertTrue(pickaxe in gamemgr.the_arena.itemset)
-        self.assertTrue(pickaxe.block is the_tile)
+        self.assertTrue(pickaxe.contain is the_tile)
         self.assertTrue(pickaxe in the_tile.itemlist)
-        self.assertEqual(pickaxe.location, (5, 5))
-        self.assertEqual(pickaxe.location, the_tile.location)
 
     def test_add_multiple_items_to_tile(self):
 
@@ -209,18 +220,14 @@ class GameManagerTests(unittest.TestCase):
         the_tile = gamemgr.get_block((5, 5))
 
         self.assertTrue(pickaxe)
-        self.assertTrue(pickaxe.block is the_tile)
-        self.assertEqual(pickaxe.location, (5, 5))
+        self.assertTrue(pickaxe.contain is the_tile)
         self.assertTrue(pickaxe in the_tile.itemlist)
 
         self.assertTrue(apple)
-        self.assertTrue(apple.block is the_tile)
-        self.assertEqual(apple.location, (5, 5))
+        self.assertTrue(apple.contain is the_tile)
         self.assertTrue(apple in the_tile.itemlist)
 
-        self.assertEqual(apple.location, pickaxe.location)
-        self.assertEqual(apple.location, the_tile.location)
-        self.assertTrue(apple.block is pickaxe.block)
+        self.assertTrue(apple.contain is pickaxe.contain)
 
     def test_add_player(self):
 
@@ -230,7 +237,7 @@ class GameManagerTests(unittest.TestCase):
         self.assertTrue(
             gamemgr.the_arena.player is the_player)
         self.assertTrue(
-            the_player.block is gamemgr.get_block((13, 13)))
+            the_player.node is gamemgr.get_block((13, 13)))
 
     def teardown(self):
         pass
@@ -250,7 +257,7 @@ class TestTeleportItem(unittest.TestCase):
         self.assertTrue(pickaxe)
         self.assertTrue(pickaxeblock)
         self.assertTrue(pickaxe in pickaxeblock.itemlist)
-        self.assertTrue(pickaxe.block is pickaxeblock)
+        self.assertTrue(pickaxe.contain is pickaxeblock)
 
         self.pa = pickaxe
 
@@ -260,22 +267,32 @@ class TestTeleportItem(unittest.TestCase):
         self.assertTrue(apple)
         self.assertTrue(appleblock)
         self.assertTrue(apple in appleblock.itemlist)
-        self.assertTrue(apple.block is appleblock)
+        self.assertTrue(apple.contain is appleblock)
 
         self.ap = apple
 
     def test_no_teleport_out_of_arena_bounds(self):
-        self.assertFalse(self.pa.teleport((80, 80)))
+
+        self.assertRaises(
+            Exception,
+            gamemgr.the_arena.place_item,
+            (self.pa, (80, 80)))
 
     def test_no_teleport_inside_of_walls(self):
-        self.assertFalse(self.pa.teleport((4, 4)))
+
+        self.assertRaises(
+            Exception,
+            gamemgr.the_arena.place_item,
+            (self.pa, (4, 4)))
 
     def test_teleport_item_to_empty_square(self):
-        self.assertTrue(self.pa.teleport((9, 9)))
+
+        gamemgr.the_arena.place_item(self.pa, (9, 9))
         self._validate_item(self.pa, (3, 3), (9, 9))
 
     def test_teleport_item_to_another_item(self):
-        self.assertTrue(self.pa.teleport((5, 5)))
+
+        gamemgr.the_arena.place_item(self.pa, (5, 5))
         self._validate_item(self.pa, (3, 3), (5, 5))
         self._validate_item(self.ap, (3, 3), (5, 5))
 
@@ -284,10 +301,9 @@ class TestTeleportItem(unittest.TestCase):
         old_tile = gamemgr.get_block(old_loc)
         new_tile = gamemgr.get_block(new_loc)
 
-        self.assertTrue(item.block is new_tile)
+        self.assertTrue(item.contain is new_tile)
         self.assertTrue(item in new_tile.itemlist)
         self.assertFalse(item in old_tile.itemlist)
-        self.assertEqual(item.location, new_loc)
 
 
 class TestTeleportCreature(unittest.TestCase):
@@ -302,44 +318,45 @@ class TestTeleportCreature(unittest.TestCase):
         self.assertTrue(self.fe)
 
     def test_no_teleport_to_non_walkable_tile(self):
-        self.assertFalse(self.fe.teleport((4, 4)))
+
+        self.assertRaises(
+            Exception,
+            (self.fe, (4, 4)))
 
     def test_no_teleport_to_outside_arena(self):
-        self.assertFalse(self.fe.teleport((80, 80)))
+
+        self.assertRaises(
+            Exception,
+            (self.fe, (80, 80)))
 
     def test_no_teleport_onto_other_creature(self):
 
-        #teleporting on top of another creature should not work
+        # teleporting on top of another creature should not work
         rabbit = gamemgr.new_creature('RABBIT', (11, 11))
         self.assertTrue(rabbit)
 
-        self.assertFalse(self.fe.teleport((11, 11)))
-
-    def test_no_teleport_creature_that_wasnt_added(self):
-
-        rabbit = crea.create(templ.creatureinfo['RABBIT'])
-        self.assertTrue(rabbit)
-
-        self.assertFalse(rabbit.teleport((19, 19)))
+        self.assertRaises(
+            Exception,
+            gamemgr.the_arena.place_creature,
+            (self.fe, (11, 11)))
 
     def test_valid_creature_teleportation(self):
 
-        #double-checking that the fire elemental is where we first put him
+        # double-checking that the fire elemental is where we first put him
         self.assertTrue(
             gamemgr.the_arena.blockArray[(9, 9)].creature is self.fe)
-        self.assertEqual(self.fe.location, (9, 9))
+        self.assertTrue(
+            self.fe.node is gamemgr.the_arena.blockArray[(9, 9)])
 
-        #now to a teleport that should work
-        self.assertTrue(self.fe.teleport((15, 15)))
-
+        # now to a teleport that should work
+        gamemgr.the_arena.place_creature(self.fe, (15, 15))
         self.assertTrue(
             gamemgr.the_arena.blockArray[(15, 15)].creature is self.fe)
 
         self.assertFalse(gamemgr.the_arena.blockArray[(9, 9)].creature)
 
-        self.assertEqual(self.fe.location, (15, 15))
         self.assertTrue(
-            self.fe.block is gamemgr.the_arena.blockArray[(15, 15)])
+            self.fe.node is gamemgr.the_arena.blockArray[(15, 15)])
 
 
 class BlockGetGlyphTests(unittest.TestCase):
@@ -373,8 +390,8 @@ class BlockGetGlyphTests(unittest.TestCase):
 
     def test_items_no_creatre_gets_last_item_glyph(self):
 
-        self.assertTrue(self.pa.teleport((11, 11)))
-        self.assertTrue(self.ap.teleport((11, 11)))
+        gamemgr.the_arena.place_item(self.pa, (11, 11))
+        gamemgr.the_arena.place_item(self.ap, (11, 11))
 
         self.assertEqual(
             gamemgr.get_block((11, 11)).get_glyph(),
@@ -382,10 +399,9 @@ class BlockGetGlyphTests(unittest.TestCase):
 
     def test_creature_and_items_gets_creature_glyph(self):
 
-        self.assertTrue(self.pa.teleport((13, 13)))
-        self.assertTrue(self.ap.teleport((13, 13)))
-
-        self.assertTrue(self.fe.teleport((13, 13)))
+        gamemgr.the_arena.place_item(self.pa, (13, 13))
+        gamemgr.the_arena.place_item(self.ap, (13, 13))
+        gamemgr.the_arena.place_creature(self.fe, (13, 13))
 
         self.assertEqual(
             gamemgr.get_block((13, 13)).get_glyph(),
@@ -393,9 +409,9 @@ class BlockGetGlyphTests(unittest.TestCase):
 
     def test_player_and_items_gets_player_glyph(self):
 
-        self.assertTrue(self.pa.teleport((15, 15)))
-        self.assertTrue(self.ap.teleport((15, 15)))
-        self.assertTrue(self.pl.teleport((15, 15)))
+        gamemgr.the_arena.place_item(self.pa, (15, 15))
+        gamemgr.the_arena.place_item(self.ap, (15, 15))
+        gamemgr.the_arena.place_creature(self.pl, (15, 15))
 
         self.assertEqual(
             gamemgr.get_block((15, 15)).get_glyph(),
@@ -430,8 +446,8 @@ class TurnManagerTests(unittest.TestCase):
     def test_tick_loop(self):
 
         turnmgr.tick(gamemgr)
-        self.assertEqual(self.ngz.location, (35, 34))
-        self.assertEqual(self.other_ngz.location, (37, 36))
+        self.assertEqual(self.ngz.node.location, (35, 34))
+        self.assertEqual(self.other_ngz.node.location, (37, 36))
 
         self.assertEqual(turnmgr._counter, 1)
         self.assertEqual(turnmgr._tickloop[0], list())
@@ -443,26 +459,26 @@ class TurnManagerTests(unittest.TestCase):
             turnmgr.tick(gamemgr)
 
         self.assertEqual(turnmgr._counter, 10)
-        self.assertEqual(self.ngz.location, (35, 34))
-        self.assertEqual(self.other_ngz.location, (37, 36))
+        self.assertEqual(self.ngz.node.location, (35, 34))
+        self.assertEqual(self.other_ngz.node.location, (37, 36))
 
         turnmgr.tick(gamemgr)
 
-        self.assertEqual(self.ngz.location, (35, 33))
-        self.assertEqual(self.other_ngz.location, (37, 35))
+        self.assertEqual(self.ngz.node.location, (35, 33))
+        self.assertEqual(self.other_ngz.node.location, (37, 35))
 
         for i in range(0, 999):
             turnmgr.tick(gamemgr)
 
         self.assertEqual(turnmgr._counter, 10)
-        self.assertEqual(self.ngz.location, (25, 12))
-        self.assertEqual(self.other_ngz.location, (25, 14))
+        self.assertEqual(self.ngz.node.location, (25, 12))
+        self.assertEqual(self.other_ngz.node.location, (25, 14))
 
         turnmgr.tick(gamemgr)
 
         self.assertEqual(turnmgr._counter, 11)
-        self.assertEqual(self.ngz.location, (25, 11))
-        self.assertEqual(self.other_ngz.location, (25, 13))
+        self.assertEqual(self.ngz.node.location, (25, 11))
+        self.assertEqual(self.other_ngz.node.location, (25, 13))
 
 
 if __name__ == '__main__':

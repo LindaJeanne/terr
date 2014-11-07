@@ -10,18 +10,22 @@ class Arena(object):
 
         self.grid = np.empty(tokenarray.shape, node.Node)
         self.graph = nx.DiGraph()
+        self.navgraph = nx.DiGraph()
         self.creatureset = set()
         self.itemset = set()
         self.player = None
 
         self._build_nodes(tokenarray)
         self._build_edges()
+        self._build_navgraph()
 
     def _build_nodes(self, tokenarray):
 
         for i, v in np.ndenumerate(tokenarray):
             self.grid[i] = node.Node(tokenarray[i], self, i)
-            self.graph.add_node(self.grid[i])
+            self.graph.add_node(
+                self.grid[i],
+                {'ispassable': self.grid[i].isPassable})
 
     def _build_edges(self):
 
@@ -45,7 +49,13 @@ class Arena(object):
             self.grid[point],
             {
                 'weight': neighbor['weight'],
-                'is_passable': isPassable})
+                'ispassable': isPassable})
+
+    def _build_navgraph(self):
+
+        navnodes = (
+            n for n in self.graph if self.graph.node[n]['ispassable'])
+        self.navgraph = self.graph.subgraph(navnodes)
 
     def in_bounds(self, point):
 

@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 
 
 class Action(object):
@@ -47,6 +48,25 @@ class TeleportAction(MovementAction):
     def execute(self, actor, the_gamemgr):
 
         return super().execute(actor, the_gamemgr)
+
+
+class PathTowardsAction(Action):
+
+    def __init__(self, node):
+        self.node = node
+
+    def execute(self, actor, the_gamemgr):
+
+        the_graph = the_gamemgr.the_arena.navgraph
+        the_path = nx.astar_path(
+            the_graph,  self.node, actor.node)
+
+        try:
+            the_gamemgr.the_arena.place_creature(actor, the_path[-2].location)
+        except:
+            return 0
+
+        return 10
 
 
 class QuitAction(Action):

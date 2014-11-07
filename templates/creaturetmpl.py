@@ -10,4 +10,8 @@ tmpl = (
     {
         'token': 'NORTH_GOING_ZAX',
         'glyph': ord('Z'),
-        'objclass': 'NorthGoingZax'})
+        'objclass': 'NorthGoingZax'},
+    {
+        'token': 'PLAYER_CHASER',
+        'glyph': ord('C'),
+        'objclass': 'PlayerChaser'})

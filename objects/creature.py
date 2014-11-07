@@ -48,6 +48,22 @@ class NorthGoingZax(AiCreature):
         return action_list
 
 
+class PlayerChaser(AiCreature):
+    '''For unit testing'''
+
+    def __init__(self, creaturedetails):
+        super().__init__(creaturedetails)
+
+    def take_turn(self):
+
+        action_list = list()
+
+        action_list.append(action.PathTowardsAction(
+            self.arena.player.node))
+
+        return action_list
+
+
 def create(template):
 
     assert('objclass' in template.template)

@@ -13,6 +13,7 @@ the_arena = gamemgr.the_arena
 gamemgr.new_player('PLAYER_DEFAULT', (5, 5))
 gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7))
 gamemgr.new_creature('NORTH_GOING_ZAX', (31, 31))
+gamemgr.new_creature('PLAYER_CHASER', (25, 25))
 
 cd.setup()
 

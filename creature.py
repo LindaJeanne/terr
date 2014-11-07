@@ -1,4 +1,5 @@
-from . import action
+import action
+import creaturetmpl
 
 
 class HasTurn(object):
@@ -11,12 +12,10 @@ class HasTurn(object):
 
 class Creature(object):
 
-    def __init__(self, creaturedetails):
-        assert(creaturedetails.token)
-        assert(creaturedetails.glyph)
+    def __init__(self, token, creaturedetails):
 
-        self.token = creaturedetails.token
-        self.glyph = creaturedetails.glyph
+        self.token = token
+        self.glyph = creaturedetails['glyph']
         self.detail = creaturedetails
         self.arena = None
         self.node = None
@@ -24,15 +23,15 @@ class Creature(object):
 
 class AiCreature(Creature, HasTurn):
 
-    def __init__(self, creaturedetails):
-        super().__init__(creaturedetails)
+    def __init__(self, token, creaturedetails):
+        super().__init__(token, creaturedetails)
 
 
 class NorthGoingZax(AiCreature):
     '''For unit testsing'''
 
-    def __init__(self, creaturedetails):
-        super().__init__(creaturedetails)
+    def __init__(self, token, creaturedetails):
+        super().__init__(token, creaturedetails)
 
     def take_turn(self):
 
@@ -51,8 +50,8 @@ class NorthGoingZax(AiCreature):
 class PlayerChaser(AiCreature):
     '''For unit testing'''
 
-    def __init__(self, creaturedetails):
-        super().__init__(creaturedetails)
+    def __init__(self, token, creaturedetails):
+        super().__init__(token, creaturedetails)
 
     def take_turn(self):
 
@@ -64,12 +63,15 @@ class PlayerChaser(AiCreature):
         return action_list
 
 
-def create(template):
+def create(token):
 
-    assert('objclass' in template.template)
-    class_name = template.template['objclass']
+    try:
+        template = creaturetmpl.tmpl[token]
+        class_name = template['classname']
+        the_class = globals()[class_name]
+        the_creature = the_class(token, template)
+    except:
+        print("Exception while creating creature from template")
+        raise
 
-    assert(class_name in globals())
-    the_class = globals()[class_name]
-
-    return the_class(template)
+    return the_creature

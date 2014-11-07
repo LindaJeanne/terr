@@ -1,5 +1,6 @@
 import numpy as np
-import objects.action as action
+import action
+
 
 LOOP_SIZE = 1000
 _tickloop = np.empty((LOOP_SIZE), list)

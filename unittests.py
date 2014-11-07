@@ -1,8 +1,7 @@
 import unittest
-import templates.templ as templ
-import objects.creature as crea
-import objects.player as pl
-import objects.item as it
+import creature
+import player
+import item
 import gamemgr
 import turnmgr
 import node
@@ -26,12 +25,12 @@ def clear_arena():
     global unit_test_arena
 
     itemset = set(unit_test_arena.itemset)
-    for item in itemset:
-        unit_test_arena.remove_item(item)
+    for the_item in itemset:
+        unit_test_arena.remove_item(the_item)
 
     creatureset = set(unit_test_arena.creatureset)
-    for creature in creatureset:
-        unit_test_arena.remove_creature(creature)
+    for the_creature in creatureset:
+        unit_test_arena.remove_creature(the_creature)
 
 
 setup()
@@ -48,8 +47,8 @@ class ArenaTests(unittest.TestCase):
 
     def test_generate_2D_arena(self):
 
-        wall_block = gamemgr.get_block((4, 4))
-        floor_block = gamemgr.get_block((5, 5))
+        wall_block = self.arena.grid[(4, 4)]
+        floor_block = self.arena.grid[(5, 5)]
 
         self.assertEqual(wall_block.token, 'BLOCK_STONE')
         self.assertFalse(wall_block.isPassable)
@@ -65,9 +64,6 @@ class ArenaTests(unittest.TestCase):
 
 class TemplateTests(unittest.TestCase):
 
-    def setUp(self):
-        templ.load_templates()
-
     def test_create_block(self):
 
         new_glass_block = node.Node('BLOCK_GLASS')
@@ -80,17 +76,15 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_creature(self):
 
-        new_creature = crea.create(
-            templ.creatureinfo['FIRE_ELEMENTAL'])
+        the_creature = creature.create('FIRE_ELEMENTAL')
 
-        self.assertTrue(new_creature)
-        self.assertEqual(new_creature.token, 'FIRE_ELEMENTAL')
-        self.assertEqual(new_creature.glyph, ord('E'))
+        self.assertTrue(the_creature)
+        self.assertEqual(the_creature.token, 'FIRE_ELEMENTAL')
+        self.assertEqual(the_creature.glyph, ord('E'))
 
     def test_create_player(self):
 
-        new_player = pl.create(
-            templ.playerclassinfo['PLAYER_DEFAULT'])
+        new_player = player.create('PLAYER_DEFAULT')
 
         self.assertTrue(new_player)
         self.assertEqual(new_player.token, 'PLAYER_DEFAULT')
@@ -98,8 +92,7 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_item(self):
 
-        new_item = it.create(
-            templ.iteminfo['PICKAXE'])
+        new_item = item.create('PICKAXE')
 
         self.assertTrue(new_item)
         self.assertEqual(new_item.token, 'PICKAXE')
@@ -120,8 +113,8 @@ class GameManagerTests(unittest.TestCase):
     def test_createArena(self):
         the_arena = gamemgr.the_arena
 
-        wall_block = gamemgr.get_block((4, 4))
-        floor_block = gamemgr.get_block((5, 5))
+        wall_block = gamemgr.the_arena.grid[(4, 4)]
+        floor_block = gamemgr.the_arena.grid[(5, 5)]
 
         self.assertTrue(the_arena)
 
@@ -159,7 +152,7 @@ class GameManagerTests(unittest.TestCase):
         fire_elemental = gamemgr.new_creature('FIRE_ELEMENTAL', (5, 5))
         self.assertTrue(fire_elemental)
 
-        the_tile = gamemgr.get_block((5, 5))
+        the_tile = gamemgr.the_arena.grid[(5, 5)]
         self.assertTrue(the_tile.creature is fire_elemental)
         self.assertTrue(fire_elemental.node is the_tile)
         self.assertTrue(
@@ -181,7 +174,7 @@ class GameManagerTests(unittest.TestCase):
 
     def test_add_single_item_to_tile(self):
 
-        the_tile = gamemgr.get_block((5, 5))
+        the_tile = gamemgr.the_arena.grid[(5, 5)]
 
         pickaxe = gamemgr.new_item('PICKAXE', (5, 5))
 
@@ -195,7 +188,7 @@ class GameManagerTests(unittest.TestCase):
         pickaxe = gamemgr.new_item('PICKAXE', (5, 5))
         apple = gamemgr.new_item('APPLE', (5, 5))
 
-        the_tile = gamemgr.get_block((5, 5))
+        the_tile = gamemgr.the_arena.grid[(5, 5)]
 
         self.assertTrue(pickaxe)
         self.assertTrue(pickaxe.contain is the_tile)
@@ -215,7 +208,7 @@ class GameManagerTests(unittest.TestCase):
         self.assertTrue(
             gamemgr.the_arena.player is the_player)
         self.assertTrue(
-            the_player.node is gamemgr.get_block((13, 13)))
+            the_player.node is gamemgr.the_arena.grid[(13, 13)])
 
     def teardown(self):
         pass
@@ -230,7 +223,7 @@ class TestTeleportItem(unittest.TestCase):
 
         self.arena = unit_test_arena
 
-        pickaxe = it.create(templ.iteminfo['PICKAXE'])
+        pickaxe = item.create('PICKAXE')
         self.arena.place_item(pickaxe, (3, 3))
         pickaxeblock = self.arena.grid[(3, 3)]
 
@@ -241,7 +234,7 @@ class TestTeleportItem(unittest.TestCase):
 
         self.pa = pickaxe
 
-        apple = it.create(templ.iteminfo['APPLE'])
+        apple = item.create('APPLE')
         self.arena.place_item(apple, (5, 5))
         appleblock = self.arena.grid[(5, 5)]
 
@@ -295,7 +288,7 @@ class TestTeleportCreature(unittest.TestCase):
         global unit_test_arena
 
         self.arena = unit_test_arena
-        self.fe = crea.create(templ.creatureinfo['FIRE_ELEMENTAL'])
+        self.fe = creature.create('FIRE_ELEMENTAL')
         self.arena.place_creature(self.fe, (9, 9))
         self.assertTrue(self.fe)
 
@@ -316,7 +309,7 @@ class TestTeleportCreature(unittest.TestCase):
     def test_no_teleport_onto_other_creature(self):
 
         # teleporting on top of another creature should not work
-        rabbit = crea.create(templ.creatureinfo['RABBIT'])
+        rabbit = creature.create('RABBIT')
         self.arena.place_creature(rabbit, (11, 11))
 
         self.assertRaises(
@@ -345,16 +338,16 @@ class BlockGetGlyphTests(unittest.TestCase):
         global unit_test_arena
         self.arena = unit_test_arena
 
-        self.pl = pl.create(templ.playerclassinfo['PLAYER_DEFAULT'])
+        self.pl = player.create('PLAYER_DEFAULT')
         self.arena.place_creature(self.pl, (5, 5))
 
-        self.pa = it.create(templ.iteminfo['PICKAXE'])
+        self.pa = item.create('PICKAXE')
         self.arena.place_item(self.pa, (7, 7))
 
-        self.ap = it.create(templ.iteminfo['APPLE'])
+        self.ap = item.create('APPLE')
         self.arena.place_item(self.ap, (7, 7))
 
-        self.fe = crea.create(templ.creatureinfo['FIRE_ELEMENTAL'])
+        self.fe = creature.create('FIRE_ELEMENTAL')
         self.arena.place_creature(self.fe, (7, 7))
 
         self.assertTrue(self.pl)
@@ -410,10 +403,10 @@ class TurnManagerTests(unittest.TestCase):
         global unit_test_arena
         self.arena = unit_test_arena
 
-        self.ngz = crea.create(templ.creatureinfo['NORTH_GOING_ZAX'])
+        self.ngz = creature.create('NORTH_GOING_ZAX')
         self.arena.place_creature(self.ngz, (35, 35))
 
-        self.other_ngz = crea.create(templ.creatureinfo['NORTH_GOING_ZAX'])
+        self.other_ngz = creature.create('NORTH_GOING_ZAX')
         self.arena.place_creature(self.other_ngz, (37, 37))
 
         self.assertTrue(self.ngz)

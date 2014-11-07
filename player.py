@@ -1,5 +1,6 @@
-from . import creature
-from . import action
+import creature
+import action
+import playertmpl
 import display
 import compassrose as cr
 
@@ -35,16 +36,19 @@ class Player(creature.Creature, creature.HasTurn):
 
         return action_list
 
-    def __init__(self, playerdetails):
-        super().__init__(playerdetails)
+    def __init__(self, token, playerdetails):
+        super().__init__(token, playerdetails)
 
 
-def create(template):
+def create(token):
 
-    assert('objclass' in template.template)
-    class_name = template.template['objclass']
+    try:
+        template = playertmpl.tmpl[token]
+        class_name = template['classname']
+        the_class = globals()[class_name]
+        the_player = the_class(token, template)
+    except:
+        print("exception while trying to create player from template.")
+        raise
 
-    assert(class_name in globals())
-    the_class = globals()[class_name]
-
-    return the_class(template)
+    return the_player

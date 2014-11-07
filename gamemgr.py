@@ -1,8 +1,7 @@
-import templates.templ as templ
 import display
-import objects.player as pl
-import objects.item as it
-import objects.creature as crea
+import player
+import item
+import creature
 import arena
 
 the_arena = None
@@ -11,66 +10,38 @@ turn_list = list()
 
 def setup(generator, shape):
     global the_arena
-
-    templ.load_templates()
     the_arena = arena.Arena(generator.create(shape))
 
 
-def playermsg(msg):
-    pass
-
-
-def generalmsg(msg):
-    pass
-
-
-def get_block(location):
-    return the_arena.grid[location]
-
-
-def new_creature(templ_token, location):
+def new_creature(token, location):
     global the_arena
     global turn_list
 
-    try:
-        template = templ.creatureinfo[templ_token]
-
-        the_creature = crea.create(template)
-        the_arena.place_creature(the_creature, location)
-        turn_list.append(the_creature)
-    except:
-        return False
+    the_creature = creature.create(token)
+    the_arena.place_creature(the_creature, location)
+    turn_list.append(the_creature)
 
     return the_creature
 
 
-def new_item(templ_token, location):
+def new_item(token, location):
 
     global the_arena
 
-    try:
-        template = templ.iteminfo[templ_token]
-        the_item = it.create(template)
-        the_arena.place_item(the_item, location)
-    except:
-        return False
+    the_item = item.create(token)
+    the_arena.place_item(the_item, location)
 
     return the_item
 
 
-def new_player(templ_token, location):
+def new_player(token, location):
     global the_arena
     global turn_list
 
-    try:
-        template = templ.playerclassinfo[templ_token]
-        the_player = pl.create(template)
-
-        the_arena.place_creature(the_player, location)
-        the_arena.player = the_player
-        turn_list.append(the_player)
-    except:
-        return False
+    the_player = player.create(token)
+    the_arena.place_creature(the_player, location)
+    the_arena.player = the_player
+    turn_list.append(the_player)
 
     return the_player
 

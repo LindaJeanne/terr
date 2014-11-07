@@ -4,18 +4,8 @@ import arena
 import gamemgr
 import turnmgr
 
-keypad_directions = dict((
-    (55, arena.dir_nw),
-    (56, arena.dir_north),
-    (57, arena.dir_ne),
-    (54, arena.dir_east),
-    (51, arena.dir_se),
-    (50, arena.dir_south),
-    (49, arena.dir_sw),
-    (52, arena.dir_west)))
-
 gamemgr.setup(
-    arena.UnitTestArenaGenerator(),
+    arena.UnitTestGridGenerator(),
     (40, 40))
 
 the_arena = gamemgr.the_arena
@@ -29,7 +19,7 @@ cd.setup()
 turnmgr.setup(gamemgr.turn_list)
 
 while(True):
-    for i, v in np.ndenumerate(the_arena.blockArray):
+    for i, v in np.ndenumerate(the_arena.grid):
         cd.display_char(i[0], i[1], v.get_glyph(), 1)
 
     turnmgr.tick(gamemgr)

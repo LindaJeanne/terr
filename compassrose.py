@@ -51,8 +51,13 @@ class CompassRose(object):
 
         for i in named_dirs:
             new_xy = tuple(np.add(prefix, named_dirs[i]['vector']))
+            if suffix:
+                new_coord = new_xy + (suffix)
+            else:
+                new_coord = new_xy
+
             self.neighbors[i] = {
-                'vector': new_xy + (suffix),
+                'vector': new_coord,
                 'weight': named_dirs[i]['weight']}
 
     def iter_vectors(self):

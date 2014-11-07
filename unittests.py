@@ -63,7 +63,7 @@ class ArenaTests(unittest.TestCase):
     def setUp(self):
 
         gamemgr.setup(
-            arena.UnitTestArenaGenerator(),
+            arena.UnitTestGridGenerator(),
             (20, 20))
         self.arena = gamemgr.the_arena
 
@@ -91,8 +91,7 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_block(self):
 
-        new_glass_block = arena.create_block(
-            'BLOCK_GLASS', arena.Arena((10, 10)), (0, 0))
+        new_glass_block = arena.create_block('BLOCK_GLASS')
 
         self.assertTrue(new_glass_block)
         self.assertEqual(new_glass_block.token, 'BLOCK_GLASS')
@@ -136,7 +135,7 @@ class GameManagerTests(unittest.TestCase):
     def setUp(self):
 
         gamemgr.setup(
-            arena.UnitTestArenaGenerator(),
+            arena.UnitTestGridGenerator(),
             (40, 40))
 
     def test_createArena(self):
@@ -248,7 +247,7 @@ class TestTeleportItem(unittest.TestCase):
     def setUp(self):
 
         gamemgr.setup(
-            arena.UnitTestArenaGenerator(),
+            arena.UnitTestGridGenerator(),
             (40, 40))
 
         pickaxe = gamemgr.new_item('PICKAXE', (3, 3))
@@ -311,7 +310,7 @@ class TestTeleportCreature(unittest.TestCase):
     def setUp(self):
 
         gamemgr.setup(
-            arena.UnitTestArenaGenerator(),
+            arena.UnitTestGridGenerator(),
             (40, 40))
 
         self.fe = gamemgr.new_creature('FIRE_ELEMENTAL', (9, 9))
@@ -344,19 +343,19 @@ class TestTeleportCreature(unittest.TestCase):
 
         # double-checking that the fire elemental is where we first put him
         self.assertTrue(
-            gamemgr.the_arena.blockArray[(9, 9)].creature is self.fe)
+            gamemgr.the_arena.grid[(9, 9)].creature is self.fe)
         self.assertTrue(
-            self.fe.node is gamemgr.the_arena.blockArray[(9, 9)])
+            self.fe.node is gamemgr.the_arena.grid[(9, 9)])
 
         # now to a teleport that should work
         gamemgr.the_arena.place_creature(self.fe, (15, 15))
         self.assertTrue(
-            gamemgr.the_arena.blockArray[(15, 15)].creature is self.fe)
+            gamemgr.the_arena.grid[(15, 15)].creature is self.fe)
 
-        self.assertFalse(gamemgr.the_arena.blockArray[(9, 9)].creature)
+        self.assertFalse(gamemgr.the_arena.grid[(9, 9)].creature)
 
         self.assertTrue(
-            self.fe.node is gamemgr.the_arena.blockArray[(15, 15)])
+            self.fe.node is gamemgr.the_arena.grid[(15, 15)])
 
 
 class BlockGetGlyphTests(unittest.TestCase):
@@ -364,7 +363,7 @@ class BlockGetGlyphTests(unittest.TestCase):
     def setUp(self):
 
         gamemgr.setup(
-            arena.UnitTestArenaGenerator(),
+            arena.UnitTestGridGenerator(),
             (40, 40))
 
         self.pl = gamemgr.new_player('PLAYER_DEFAULT', (5, 5))
@@ -422,7 +421,7 @@ class TurnManagerTests(unittest.TestCase):
 
     def setUp(self):
         gamemgr.setup(
-            arena.UnitTestArenaGenerator(),
+            arena.UnitTestGridGenerator(),
             (40, 40))
 
         self.ngz = gamemgr.new_creature('NORTH_GOING_ZAX', (35, 35))

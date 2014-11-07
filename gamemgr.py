@@ -3,6 +3,7 @@ import display
 import objects.player as pl
 import objects.item as it
 import objects.creature as crea
+import arena
 
 the_arena = None
 turn_list = list()
@@ -12,7 +13,7 @@ def setup(generator, shape):
     global the_arena
 
     templ.load_templates()
-    the_arena = generator.create(shape=shape, blockinfo=templ.blockinfo)
+    the_arena = arena.Arena(generator.create(shape))
 
 
 def playermsg(msg):
@@ -24,7 +25,7 @@ def generalmsg(msg):
 
 
 def get_block(location):
-    return the_arena.blockArray[location]
+    return the_arena.grid[location]
 
 
 def new_creature(templ_token, location):

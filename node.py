@@ -1,7 +1,11 @@
 import blocktmpl
+import mixins
 
 
-class Node(object):
+NODE_ITEM_INVENTORY_SIZE = 100
+
+
+class Node(mixins.HasInventory):
 
     def __init__(self, token, arena=None, location=None):
 
@@ -16,7 +20,9 @@ class Node(object):
         self.arena = arena
         self.location = location
         self.creature = None
-        self.itemlist = list()
+
+        global NODE_ITEM_INVENTORY_SIZE
+        self.init_inv(NODE_ITEM_INVENTORY_SIZE)
 
     def get_glyph(self):
 
@@ -26,3 +32,7 @@ class Node(object):
             return self.itemlist[-1].glyph
         else:
             return self.glyph
+
+    def is_adjacent(self, node):
+
+        return node in self.arena.graph.neighbors(self)

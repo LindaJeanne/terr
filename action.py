@@ -5,79 +5,122 @@ import networkx as nx
 class Action(object):
     pass
 
-    def execute(self, actor, the_gamemgr):
+    def execute(self, actor):
         return 10
-
-
-class MovementAction(Action):
-
-    def __init__(self, location):
-        self.location = location
-
-    def execute(self, actor, the_gamemgr):
-
-        try:
-            the_gamemgr.the_arena.place_creature(actor, self.location)
-        except:
-            return 0
-
-        return 10
-
-
-class StepAction(MovementAction):
-
-    def __init__(self, direction):
-        self.direction = direction
-        self.location = None
-
-    def execute(self, actor, the_gamemgr):
-
-        new_loc = tuple(np.add(
-            actor.node.location, self.direction))
-
-        self.location = new_loc
-
-        return super().execute(actor, the_gamemgr)
-
-
-class TeleportAction(MovementAction):
-
-    def __init__(self, location):
-        self.location = location
-
-    def execute(self, actor, the_gamemgr):
-
-        return super().execute(actor, the_gamemgr)
-
-
-class PathTowardsAction(Action):
-
-    def __init__(self, node):
-        self.node = node
-
-    def execute(self, actor, the_gamemgr):
-
-        the_graph = the_gamemgr.the_arena.navgraph
-        the_path = nx.astar_path(
-            the_graph,  self.node, actor.node)
-
-        try:
-            the_gamemgr.the_arena.place_creature(actor, the_path[-2].location)
-        except:
-            return 0
-
-        return 10
-
-
-class QuitAction(Action):
-
-    def execute(self, actor, the_gamemgr):
-
-        the_gamemgr.display.end_curses()
-        raise SystemExit
 
 
 class NullAction(Action):
 
-    def execute(self, actor, the_gamemgr):
-        return 0
+    def execute(self, actor):
+        return 1
+
+
+# ========================================================
+# Movement Actions
+# ========================================================
+
+
+class MovementAction(Action):
+
+    def _path_dir_from_dest(self, actor, dest_node):
+
+        the_graph = actor.arena.navgraph
+
+        the_path = nx.astar_path(
+            the_graph, dest_node, actor.node)
+
+        return tuple(np.subtract(
+            the_path[-2].location,
+            actor.node.location))
+
+    def _coords_from_direction(self, actor, dir_vector):
+
+        return tuple(np.add(actor.node.location, dir_vector))
+
+    def _move_if_legal(self, actor, dest_coords):
+
+        if actor.is_legal_loc(dest_coords):
+            actor.arena.place_creature(actor, dest_coords)
+            return 10
+
+        return 1
+
+
+class TeleportAction(MovementAction):
+
+    def __init__(self, dest_coords):
+        self.dest_coords = dest_coords
+
+    def execute(self, actor):
+
+        return self._move_if_legal(actor, self.dest_coords)
+
+
+class StepAction(MovementAction):
+
+    def __init__(self, direction_vector):
+        self.direction_vector = direction_vector
+
+    def execute(self, actor):
+
+        dest_coords = self._coords_from_direction(actor, self.direction_vector)
+
+        return self._move_if_legal(actor, dest_coords)
+
+
+class PathTowardsAction(MovementAction):
+
+    def __init__(self, dest_node):
+        self.dest_node = dest_node
+
+    def execute(self, actor):
+
+        dir_vector = self._path_dir_from_dest(actor, self.dest_node)
+        dest_coords = self._coords_from_direction(actor, dir_vector)
+
+        return self._move_if_legal(actor, dest_coords)
+
+
+class PathAwayAction(MovementAction):
+
+    def __init__(self, avoid_node):
+        self.avoid_node = avoid_node
+
+    def execute(self, actor):
+
+        un_dir_vector = self._path_dir_from_dest(actor, self.avoid_node)
+        dir_vector = tuple(np.multiply(-1, un_dir_vector))
+        dest_coords = self._coords_from_direction(actor, dir_vector)
+
+        return self._move_if_legal(actor, dest_coords)
+
+
+# ========================================================
+# Inventory Actions
+# ========================================================
+
+
+class PickUpAction(Action):
+
+    def __init__(self, item):
+        self.item = item
+
+    def execute(self, actor):
+
+        if actor.pickup_item(self.item):
+            return 10
+        else:
+            return 1
+
+
+class DropAction(Action):
+
+    def __init__(self, item):
+        self.item = item
+
+    def execute(self, actor):
+
+        if actor.drop_item(self.item):
+            return 10
+        else:
+            return 1

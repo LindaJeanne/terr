@@ -76,7 +76,13 @@ class Arena(object):
     def place_creature(self, creature, location):
 
         assert(self.in_bounds(location))
-        assert(not self.grid[location].creature)
+
+        if self.grid[location].creature:
+            print("Cannot place", creature)
+            print("Bcause", self.grid[location].creature)
+            print("Is alreayd occupying", location)
+            raise Exception
+
         if not self.grid[location].isPassable:
             raise Exception("non walkable block error")
 
@@ -107,21 +113,20 @@ class Arena(object):
             raise Exception("Trying to place item on non walkable tile")
 
         if item in self.itemset:
-            item.contain.itemlist.remove(item)
+            item.contain.inv_remove_item(item)
+            # item.contain.itemlist.remove(item)
         else:
             self.itemset.add(item)
+            item.arena = self
 
-        item.contain = self.grid[location]
-        item.contain.itemlist.append(item)
-        item.arena = self
+        self.grid[location].inv_add_item(item)
 
     def remove_item(self, item):
 
         if item not in self.itemset:
             return False
 
-        item.contain.itemlist.remove(item)
-        item.contain = None
+        item.contain.inv_remove_item(item)
         item.arena = None
         self.itemset.remove(item)
 

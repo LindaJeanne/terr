@@ -7,6 +7,7 @@ import turnmgr
 import node
 import gridgen
 import arena
+import action
 
 
 unit_test_arena = None
@@ -31,6 +32,8 @@ def clear_arena():
     creatureset = set(unit_test_arena.creatureset)
     for the_creature in creatureset:
         unit_test_arena.remove_creature(the_creature)
+
+    gamemgr.turn_list = list()
 
 
 setup()
@@ -284,8 +287,8 @@ class TestTeleportCreature(unittest.TestCase):
 
     def setUp(self):
 
-        clear_arena()
         global unit_test_arena
+        clear_arena()
 
         self.arena = unit_test_arena
         self.fe = creature.create('FIRE_ELEMENTAL')
@@ -426,7 +429,7 @@ class TurnManagerTests(unittest.TestCase):
 
     def test_tick_loop(self):
 
-        turnmgr.tick(gamemgr)
+        turnmgr.tick()
         self.assertEqual(self.ngz.node.location, (35, 34))
         self.assertEqual(self.other_ngz.node.location, (37, 36))
 
@@ -437,29 +440,153 @@ class TurnManagerTests(unittest.TestCase):
         self.assertTrue(self.other_ngz in turnmgr._tickloop[10])
 
         for i in range(0, 9):
-            turnmgr.tick(gamemgr)
+            turnmgr.tick()
 
         self.assertEqual(turnmgr._counter, 10)
         self.assertEqual(self.ngz.node.location, (35, 34))
         self.assertEqual(self.other_ngz.node.location, (37, 36))
 
-        turnmgr.tick(gamemgr)
+        turnmgr.tick()
 
         self.assertEqual(self.ngz.node.location, (35, 33))
         self.assertEqual(self.other_ngz.node.location, (37, 35))
 
         for i in range(0, 999):
-            turnmgr.tick(gamemgr)
+            turnmgr.tick()
 
         self.assertEqual(turnmgr._counter, 10)
-        self.assertEqual(self.ngz.node.location, (25, 12))
-        self.assertEqual(self.other_ngz.node.location, (25, 14))
+        self.assertEqual(self.ngz.node.location, (35, 14))
+        self.assertEqual(self.other_ngz.node.location, (37, 16))
 
-        turnmgr.tick(gamemgr)
+        turnmgr.tick()
 
         self.assertEqual(turnmgr._counter, 11)
-        self.assertEqual(self.ngz.node.location, (25, 11))
-        self.assertEqual(self.other_ngz.node.location, (25, 13))
+        self.assertEqual(self.ngz.node.location, (35, 13))
+        self.assertEqual(self.other_ngz.node.location, (37, 15))
+
+
+class PickupDropTest(unittest.TestCase):
+
+    def setUp(self):
+
+        global unit_test_arena
+        clear_arena()
+        self.arena = None
+        self.arena = unit_test_arena
+
+        self.pd_one = creature.create('PICKUP_DROPPER')
+        self.arena.place_creature(self.pd_one, (15, 15))
+
+        self.pd_two = creature.create('PICKUP_DROPPER')
+        self.arena.place_creature(self.pd_two, (5, 5))
+
+        self.apple_one = item.create('APPLE')
+        self.arena.place_item(self.apple_one, (15, 15))
+
+        self.apple_two = item.create('APPLE')
+        self.arena.place_item(self.apple_two, (25, 25))
+
+        self.pickaxe_one = item.create('PICKAXE')
+        self.arena.place_item(self.pickaxe_one, (15, 15))
+
+        self.pickaxe_two = item.create('PICKAXE')
+        self.arena.place_item(self.pickaxe_two, (31, 31))
+
+    def test_pick_up_drop_items_on_same_square(self):
+
+        # Starting conditions
+        self.assertTrue(self.pd_one.inv_empty())
+        self.assertFalse(self.pd_one.node.inv_empty())
+        self.assertFalse(self.pd_one.inv_full())
+        self.assertFalse(self.pd_one.node.inv_full())
+        self.assertTrue(self.pd_one.node.in_inv(self.apple_one))
+        self.assertTrue(self.pd_one.node.in_inv(self.pickaxe_one))
+
+        # Pick up the apple
+        self.assertTrue(self.pd_one.pickup_item(self.apple_one))
+
+        self.assertFalse(self.pd_one.inv_empty())
+        self.assertFalse(self.pd_one.node.inv_empty())
+
+        self.assertTrue(self.apple_one.contain is self.pd_one)
+        self.assertTrue(self.pd_one.in_inv(self.apple_one))
+        self.assertFalse(self.pd_one.node.in_inv(self.apple_one))
+
+        self.assertTrue(self.pickaxe_one.contain is self.pd_one.node)
+        self.assertTrue(self.pd_one.node.in_inv(self.pickaxe_one))
+        self.assertFalse(self.pd_one.in_inv(self.pickaxe_one))
+
+        # Pick up the pickaxe
+        self.assertTrue(self.pd_one.pickup_item(self.pickaxe_one))
+
+        self.assertTrue(self.pd_one.node.inv_empty())
+        self.assertTrue(self.pd_one.in_inv(self.pickaxe_one))
+        self.assertTrue(self.pd_one.in_inv(self.apple_one))
+        self.assertFalse(self.pd_one.node.in_inv(self.apple_one))
+        self.assertFalse(self.pd_one.node.in_inv(self.pickaxe_one))
+
+        # Drop the apple
+        self.assertTrue(self.pd_one.drop_item(self.apple_one))
+
+        self.assertFalse(self.pd_one.inv_empty())
+        self.assertFalse(self.pd_one.node.inv_empty())
+
+        self.assertTrue(self.pd_one.in_inv(self.pickaxe_one))
+        self.assertTrue(self.pd_one.node.in_inv(self.apple_one))
+
+        self.assertFalse(self.pd_one.in_inv(self.apple_one))
+        self.assertFalse(self.pd_one.node.in_inv(self.pickaxe_one))
+
+    def test_no_pick_up_items_on_other_square(self):
+
+        self.assertFalse(self.pd_two.pickup_item(self.apple_two))
+        self.assertFalse(self.pd_two.in_inv(self.apple_two))
+        self.assertTrue(self.arena.grid[(25, 25)].in_inv(self.apple_two))
+        self.assertTrue(self.pd_two.inv_empty())
+        self.assertTrue(self.pd_two.node.inv_empty())
+
+    def test_no_drop_items_not_in_inventory(self):
+
+        self.assertFalse(self.pd_two.drop_item(self.pickaxe_two))
+        self.assertFalse(self.pd_two.in_inv(self.pickaxe_two))
+        self.assertFalse(self.pd_two.node.in_inv(self.pickaxe_two))
+        self.assertTrue(self.arena.grid[(31, 31)].in_inv(self.pickaxe_two))
+
+
+class TrivialPathingTest(unittest.TestCase):
+
+    def setUp(self):
+        clear_arena()
+        global unit_test_arena
+        self.arena = unit_test_arena
+        has_turn = list()
+
+        self.fe = creature.create('FIRE_ELEMENTAL')
+        self.arena.place_creature(self.fe, (25, 25))
+        has_turn.append(self.fe)
+
+        self.pc = creature.create('PLAYER_CHASER')
+        self.arena.place_creature(self.pc, (15, 15))
+        has_turn.append(self.pc)
+
+        self.pl = player.create('PLAYER_DEFAULT')
+        self.arena.place_creature(self.pl, (15, 10))
+        self.arena.player = self.pl
+
+        turnmgr.setup(has_turn)
+
+    def test_path_towards_easy_node(self):
+
+        path_action = action.PathTowardsAction(self.arena.grid[(25, 20)])
+        path_action.execute(self.fe)
+
+        self.assertEqual(self.fe.node.location, (25, 24))
+
+    def test_player_chaser(self):
+
+        turnmgr.tick()
+
+        self.assertEqual(self.pc.node.location, (15, 14))
 
 
 if __name__ == '__main__':

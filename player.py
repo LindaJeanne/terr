@@ -3,9 +3,10 @@ import action
 import playertmpl
 import display
 import compassrose as cr
+import mixins
 
 
-class Player(creature.Creature, creature.HasTurn):
+class Player(creature.Creature, mixins.HasTurn):
 
     movement_keys = cr.key_dirs
 
@@ -14,30 +15,28 @@ class Player(creature.Creature, creature.HasTurn):
     free_action_keys = {
         ord('q'): 'quit'}
 
-    def take_turn(self):
+    def __init__(self, token, playerdetails):
+        super().__init__(token, playerdetails)
 
-        action_list = list()
+    def take_turn(self):
 
         keypressed = display.wait_char()
         display.display_top_message("Key pressed =" + str(keypressed))
 
+        if keypressed == ord('q'):
+            display.end_curses()
+            raise SystemExit
         if keypressed in self.movement_keys:
-            action_list.append(
-                action.StepAction(self.movement_keys[keypressed]))
+            return action.StepAction(self.movement_keys[keypressed])
 
         elif keypressed in self.turn_action_keys:
-            action_list.append(action.NullAction())
+            return action.NullAction()
 
         elif keypressed in self.free_action_keys:
-            action_list.append(action.QuitAction())
+            return action.QuitAction(display)
 
         else:
-            action_list.append(action.NullAction())
-
-        return action_list
-
-    def __init__(self, token, playerdetails):
-        super().__init__(token, playerdetails)
+            return action.NullAction()
 
 
 def create(token):

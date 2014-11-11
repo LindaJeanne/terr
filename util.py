@@ -1,5 +1,27 @@
 import numpy as np
 
+
+def create(mod, token):
+    template = mod.templ().tmpl[token]
+    the_class = getattr(mod, template['classname'])
+    return the_class(token, template)
+
+
+def manhattan_dist(point_one, point_two):
+
+    assert(len(point_one) == len(point_two))
+
+    total_dist = 0
+    for i in range(0, len(point_one)):
+        total_dist += abs(point_one[i] - point_two[i])
+
+    return total_dist
+
+
+def modular_inc(counter, modulus, number):
+    return (counter + number) % modulus
+
+
 key_dirs = {
     ord('7'): (-1, -1),
     ord('8'): (0, -1),
@@ -9,6 +31,7 @@ key_dirs = {
     ord('1'): (-1, 1),
     ord('2'): (0, 1),
     ord('3'): (1, 1)}
+
 
 named_dirs = {
     'nw': {

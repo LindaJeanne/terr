@@ -1,7 +1,7 @@
 import numpy as np
 import networkx as nx
-import compassrose as cr
 import node
+import util
 
 
 class Arena(object):
@@ -30,7 +30,7 @@ class Arena(object):
     def _build_edges(self):
 
         for i, v in np.ndenumerate(self.grid):
-            rose = cr.CompassRose(i)
+            rose = util.CompassRose(i)
             for neighbor in rose.iter_vectors_weights():
                 point = neighbor['vector']
                 if self.in_bounds(point):
@@ -179,7 +179,7 @@ class Arena(object):
         for i in candidates:
             next_candidate = {
                 'creature': i,
-                'distance': self._get_manhatten_distance(
+                'distance': util.manhattan_dist(
                     node.location, i.node.location)}
 
             if not current_candidate:
@@ -191,16 +191,6 @@ class Arena(object):
         # the egograph, we need to go back and get the actual one.
 
         return self.grid[current_candidate['creature'].node.location].creature
-
-    def _get_manhatten_distance(self, point_one, point_two):
-
-        assert(len(point_one) == len(point_two))
-
-        the_distance = 0
-        for i in range(0, len(point_one)):
-            the_distance += abs(point_one[i] - point_two[i])
-
-        return the_distance
 
 
 class Arena2D(Arena):

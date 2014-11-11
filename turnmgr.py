@@ -1,5 +1,6 @@
 import numpy as np
 import action
+import util
 
 
 LOOP_SIZE = 1000
@@ -21,6 +22,7 @@ def tick():
 
     global _tickloop
     global _counter
+    global LOOP_SIZE
 
     return_dict = {}
 
@@ -39,7 +41,7 @@ def tick():
             _advance_turn(actor, max(result, 1))
             return_dict[actor] = the_action
 
-    _increment_counter()
+    _counter = util.modular_inc(_counter, LOOP_SIZE, 1)
     return return_dict
 
 
@@ -57,11 +59,3 @@ def _advance_turn(the_obj, num_ticks):
 
     _tickloop[_counter].remove(the_obj)
     _tickloop[new_tick].append(the_obj)
-
-
-def _increment_counter():
-
-    global LOOP_SIZE
-    global _counter
-
-    _counter = (_counter + 1) % LOOP_SIZE

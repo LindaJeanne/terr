@@ -1,14 +1,18 @@
 import creature
 import action
-import playertmpl
+import tmpl.playertmpl
 import display
-import compassrose as cr
 import mixins
+import util
+
+
+def templ():
+    return tmpl.playertmpl
 
 
 class Player(creature.Creature, mixins.HasTurn):
 
-    movement_keys = cr.key_dirs
+    movement_keys = util.key_dirs
 
     turn_action_keys = {}
 
@@ -37,17 +41,3 @@ class Player(creature.Creature, mixins.HasTurn):
 
         else:
             return action.NullAction()
-
-
-def create(token):
-
-    try:
-        template = playertmpl.tmpl[token]
-        class_name = template['classname']
-        the_class = globals()[class_name]
-        the_player = the_class(token, template)
-    except:
-        print("exception while trying to create player from template.")
-        raise
-
-    return the_player

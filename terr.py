@@ -1,26 +1,33 @@
 import numpy as np
 import display as cd
-import gamemgr
 import turnmgr
 import gridgen
+import util
+import arena
+import creature
+import player
+import item
 
-gamemgr.setup(
-    gridgen.UnitTestGridGenerator(),
-    (40, 40))
+global the_arena
+utgg = gridgen.UnitTestGridGenerator()
+the_arena = arena.Arena(utgg.create((40, 40)))
 
-the_arena = gamemgr.the_arena
+the_player = util.create(player, 'PLAYER_DEFAULT')
+the_arena.player = the_player
+the_arena.place_creature(the_player, (5, 5))
 
-gamemgr.new_player('PLAYER_DEFAULT', (5, 5))
-gamemgr.new_creature('FIRE_ELEMENTAL', (7, 7))
-gamemgr.new_creature('NORTH_GOING_ZAX', (31, 31))
-gamemgr.new_creature('PICKUP_DROPPER', (25, 25))
-gamemgr.new_item('APPLE', (11, 11))
-gamemgr.new_item('APPLE', (25, 25))
-gamemgr.new_item('PICKAXE', (31, 29))
+the_arena.place_creature(util.create(creature, 'FIRE_ELEMENTAL'), (7, 7))
+the_arena.place_creature(util.create(creature, 'NORTH_GOING_ZAX'), (31, 31))
+the_arena.place_creature(util.create(creature, 'PICKUP_DROPPER'), (25, 25))
+the_arena.place_item(util.create(item, 'APPLE'), (11, 11))
+the_arena.place_item(util.create(item, 'APPLE'), (25, 25))
+the_arena.place_item(util.create(item, 'PICKAXE'), (31, 29))
+
+turn_list = list(the_arena.creatureset)
 
 cd.setup()
 
-turnmgr.setup(gamemgr.turn_list)
+turnmgr.setup(turn_list)
 
 while(True):
     for i, v in np.ndenumerate(the_arena.grid):

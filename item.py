@@ -1,4 +1,8 @@
-import itemtmpl
+import tmpl.itemtmpl
+
+
+def templ():
+    return tmpl.itemtmpl
 
 
 class Item(object):
@@ -14,17 +18,3 @@ class Item(object):
     def get_loc(self):
 
         return self.contain.get_loc()
-
-
-def create(token):
-
-    try:
-        template = itemtmpl.tmpl[token]
-        class_name = template['classname']
-        the_class = globals()[class_name]
-        the_item = the_class(token, template)
-    except:
-        print("Exception while creating item from template.")
-        raise
-
-    return the_item

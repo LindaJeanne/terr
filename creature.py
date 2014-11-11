@@ -1,7 +1,11 @@
 import action
-import creaturetmpl
 import mixins
 import display
+import tmpl.creaturetmpl
+
+
+def templ():
+    return tmpl.creaturetmpl
 
 
 class Creature(mixins.HasInventory):
@@ -125,17 +129,3 @@ class TrackAndAttack(AiCreature):
         else:
             target = self.arena.get_closest_creature(self.node, 10)
             return action.PathTowardsAction(target.node)
-
-
-def create(token):
-
-    try:
-        template = creaturetmpl.tmpl[token]
-        class_name = template['classname']
-        the_class = globals()[class_name]
-        the_creature = the_class(token, template)
-    except:
-        print("Exception while creating creature from template")
-        raise
-
-    return the_creature

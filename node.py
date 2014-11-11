@@ -1,4 +1,4 @@
-import blocktmpl
+import tmpl.blocktmpl
 import mixins
 
 
@@ -9,7 +9,7 @@ class Node(mixins.HasInventory):
 
     def __init__(self, token, arena=None, location=None):
 
-        template = blocktmpl.tmpl[token]
+        template = tmpl.blocktmpl.tmpl[token]
 
         self.token = token
         self.glyph = template['glyph']

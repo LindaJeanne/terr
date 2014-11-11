@@ -10,7 +10,7 @@ def templ():
     return tmpl.playertmpl
 
 
-class Player(creature.Creature, mixins.HasTurn):
+class Player(creature.Creature, mixins.CanMove):
 
     movement_keys = util.key_dirs
 

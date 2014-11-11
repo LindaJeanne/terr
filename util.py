@@ -18,6 +18,30 @@ def manhattan_dist(point_one, point_two):
     return total_dist
 
 
+def cross_manhattan_dist(point_one, point_two):
+
+    assert(len(point_one) == len(point_two))
+
+    delta_dist = list()
+    for i in range(0, len(point_one)):
+        delta_dist[i] = abs(point_one[i] - point_two[i])
+
+    # 2^(1/2), 3^(1/3), 4^(1/4), and 5^(1/5) are all pretty
+    # close to 1.4. We can improve the return value of the
+    # manhatten distance without adding root calculations
+    # by using this approximation.
+
+    min_side = min(delta_dist)
+
+    total_dist = 0
+    for i in len(point_one):
+        total_dist += delta_dist[i] - min_side
+
+    total_dist += 1.4 * min_side
+
+    return total_dist
+
+
 def modular_inc(counter, modulus, number):
     return (counter + number) % modulus
 

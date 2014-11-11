@@ -50,3 +50,35 @@ class HasInventory(object):
     def in_inv(self, item):
 
         return item in self.itemlist
+
+
+class CanMove(object):
+
+    def load_movement(self, profile):
+        self.movement = profile
+
+
+class CanAttack(object):
+
+    def load_attack(self, profile):
+        self.attack = profile
+
+
+class CanDefend(object):
+
+    def load_defense(self, profile):
+        self.defence = profile
+
+
+class CanCombat(CanAttack, CanDefend):
+
+    def load_attack_defense(self, attackprofile, defenseprofile):
+        self.load_attack(attackprofile)
+        self.load_defense(defenseprofile)
+
+
+class IsTemplated(object):
+
+    def __init__(self, token, template):
+        self.token = token
+        self.tempalte = template

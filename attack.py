@@ -1,4 +1,5 @@
 import tmpl.attacktmpl
+import mixins
 
 
 def templ():
@@ -10,13 +11,12 @@ def templ():
 # ========================================================
 
 
-class AttackProfile(object):
+class AttackProfile(mixins.IsTemplated):
 
     def __init__(self, token, template):
-        self.token = token
+        super().__init__(token, template)
         self.attacks = template['attacks']
         self.useWeaopon = template['useweapon']
-        self.template = template
 
 
 class BasicAttackProfile(AttackProfile):

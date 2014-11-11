@@ -1,17 +1,17 @@
 import tmpl.defensetmpl
+import mixins
 
 
 def templ():
     return tmpl.defensetmpl
 
 
-class DefenseProfile(object):
+class DefenseProfile(mixins.IsTemplated):
 
     def __init__(self, token, template):
-        self.token = token
+        super().__init__(token, template)
         self.dodge_chance = template['dodge_chance']
         self.soak_range = template['soak_range']
-        self.template = template
 
 
 class BasicDefenseProfile(DefenseProfile):

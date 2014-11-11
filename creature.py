@@ -8,49 +8,43 @@ def templ():
     return tmpl.creaturetmpl
 
 
-class Creature(mixins.HasInventory):
+class Creature(mixins.IsTemplated, mixins.HasInventory, mixins.CanCombat):
 
     def __init__(self, token, creaturedetails):
-
-        self.token = token
+        super().__init__(token, creaturedetails)
         self.glyph = creaturedetails['glyph']
-        self.detail = creaturedetails
         self.arena = None
         self.node = None
 
         self.init_inv(creaturedetails['invsize'])
 
     def pickup_item(self, item):
-        if self.inv_full():
-            return False
-
         if self.node is item.contain:
             return self.inv_add_item(item)
-
         return False
 
     def drop_item(self, item):
-        if item not in self.itemlist:
-            return False
-
-        self.inv_remove_item(item)
-        return self.node.inv_add_item(item)
+        if self.inv_remove_item(item):
+            return self.node.inv_add_item(item)
+        return False
 
     def is_legal_loc(self, coords):
 
         if not self.arena.in_bounds(coords):
             return False
-
         node = self.arena.grid[(coords)]
-
         if any((node.creature, not node.isPassable)):
             return False
-
         return True
 
     def get_loc(self):
         '''used when we don't know if this is a creature or item'''
         return self.node.location
+
+
+# =====================================================
+# Creatures with AI
+# =====================================================
 
 
 class AiCreature(Creature, mixins.HasTurn):
@@ -59,7 +53,20 @@ class AiCreature(Creature, mixins.HasTurn):
         super().__init__(token, creaturedetails)
 
 
-class NorthGoingZax(AiCreature):
+class AiCreatureStationary(AiCreature):
+    pass
+
+
+class AiCreatureMobile(Creature, mixins.CanMove):
+    pass
+
+
+# =====================================================
+# Created for unit tests
+# =====================================================
+
+
+class NorthGoingZax(AiCreatureMobile):
     '''For unit testsing'''
 
     def __init__(self, token, creaturedetails):
@@ -75,7 +82,7 @@ class NorthGoingZax(AiCreature):
                 self.arena.grid.shape[1] - 1))
 
 
-class PlayerChaser(AiCreature):
+class PlayerChaser(AiCreatureMobile):
     '''For unit testing'''
 
     def __init__(self, token, creaturedetails):
@@ -87,7 +94,7 @@ class PlayerChaser(AiCreature):
             self.arena.player.node)
 
 
-class PickupDropper(AiCreature):
+class PickupDropper(AiCreatureMobile):
     '''For unit testing'''
 
     def __init__(self, token, creaturedetails):
@@ -114,7 +121,7 @@ class PickupDropper(AiCreature):
                 return action.PathTowardsAction(self.arena.player.node)
 
 
-class TrackAndAttack(AiCreature):
+class TrackAndAttack(AiCreatureMobile):
 
     def __init__(self, token, creaturedetails):
         super().__init__(token, creaturedetails)

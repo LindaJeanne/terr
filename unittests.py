@@ -2,7 +2,6 @@ import unittest
 import creature
 import player
 import item
-import gamemgr
 import turnmgr
 import node
 import gridgen
@@ -15,6 +14,8 @@ import defense
 
 
 unit_test_arena = None
+utgg = gridgen.UnitTestGridGenerator()
+utggar = utgg.create((40, 40))
 
 
 def setup():
@@ -36,8 +37,6 @@ def clear_arena():
     creatureset = set(unit_test_arena.creatureset)
     for the_creature in creatureset:
         unit_test_arena.remove_creature(the_creature)
-
-    gamemgr.turn_list = list()
 
 
 def cr_i(token):
@@ -61,16 +60,14 @@ setup()
 class ArenaTests(unittest.TestCase):
 
     def setUp(self):
+        global utggar
 
-        gamemgr.setup(
-            gridgen.UnitTestGridGenerator(),
-            (20, 20))
-        self.arena = gamemgr.the_arena
+        self.the_arena = arena.Arena(utggar)
 
     def test_generate_2D_arena(self):
 
-        wall_block = self.arena.grid[(4, 4)]
-        floor_block = self.arena.grid[(5, 5)]
+        wall_block = self.the_arena.grid[(4, 4)]
+        floor_block = self.the_arena.grid[(5, 5)]
 
         self.assertEqual(wall_block.token, 'BLOCK_STONE')
         self.assertFalse(wall_block.isPassable)
@@ -127,18 +124,16 @@ class TemplateTests(unittest.TestCase):
 class GameManagerTests(unittest.TestCase):
 
     def setUp(self):
+        global utggar
 
-        gamemgr.setup(
-            gridgen.UnitTestGridGenerator(),
-            (40, 40))
+        self.the_arena = arena.Arena(utggar)
 
     def test_createArena(self):
-        the_arena = gamemgr.the_arena
 
-        wall_block = gamemgr.the_arena.grid[(4, 4)]
-        floor_block = gamemgr.the_arena.grid[(5, 5)]
+        wall_block = self.the_arena.grid[(4, 4)]
+        floor_block = self.the_arena.grid[(5, 5)]
 
-        self.assertTrue(the_arena)
+        self.assertTrue(self.the_arena)
 
         self.assertEqual(wall_block.token, 'BLOCK_STONE')
         self.assertFalse(wall_block.isPassable)
@@ -150,90 +145,15 @@ class GameManagerTests(unittest.TestCase):
 
 #    def test_not_adding_creature_to_invalide_location(self):
 
-#        # non-walkable tile
-#        self.assertRaises(
-#            Exception,
-#            gamemgr.new_creature,
-#            ('FIRE_ELEMENTAL', (4, 4)))
-
-#        # out-of-bounds tile
-#        self.assertRaises(
-#            Exception,
-#            gamemgr.new_creature,
-#            ('FIRE_ELEMENTAL', (85, 85)))
-
-#        # creature already present
-#        gamemgr.new_creature('RABBIT', (7, 7))
-#        self.assertRaises(
-#            Exception,
-#            gamemgr.new_creature,
-#            ('FIRE_ELEMENTAL', (4, 4)))
-
 #    def test_add_creature(self):
-
-#        fire_elemental = gamemgr.new_creature('FIRE_ELEMENTAL', (5, 5))
-#        self.assertTrue(fire_elemental)
-
-#        the_tile = gamemgr.the_arena.grid[(5, 5)]
-#        self.assertTrue(the_tile.creature is fire_elemental)
-#        self.assertTrue(fire_elemental.node is the_tile)
-#        self.assertTrue(
-#            fire_elemental in gamemgr.the_arena.creatureset)
 
 #    def test_not_adding_item_to_invalide_location(self):
 
-#        # non-walkable tile
-#        self.assertRaises(
-#            Exception,
-#            gamemgr.new_item,
-#            ('PICKAXE', (4, 4)))
-
-#        # out-of-bounds tile
-#        self.assertRaises(
-#            Exception,
-#            gamemgr.new_item,
-#            ('PICKAXE', (85, 85)))
-
 #    def test_add_single_item_to_tile(self):
-
-#        the_tile = gamemgr.the_arena.grid[(5, 5)]
-
-#        pickaxe = gamemgr.new_item('PICKAXE', (5, 5))
-
-#        self.assertTrue(pickaxe)
-#        self.assertTrue(pickaxe in gamemgr.the_arena.itemset)
-#        self.assertTrue(pickaxe.contain is the_tile)
-#        self.assertTrue(pickaxe in the_tile.itemlist)
 
 #    def test_add_multiple_items_to_tile(self):
 
-#        pickaxe = gamemgr.new_item('PICKAXE', (5, 5))
-#        apple = gamemgr.new_item('APPLE', (5, 5))
-
-#        the_tile = gamemgr.the_arena.grid[(5, 5)]
-
-#        self.assertTrue(pickaxe)
-#        self.assertTrue(pickaxe.contain is the_tile)
-#        self.assertTrue(pickaxe in the_tile.itemlist)
-
-#        self.assertTrue(apple)
-#        self.assertTrue(apple.contain is the_tile)
-#        self.assertTrue(apple in the_tile.itemlist)
-
-#        self.assertTrue(apple.contain is pickaxe.contain)
-
 #    def test_add_player(self):
-
-#        the_player = gamemgr.new_player('PLAYER_DEFAULT', (13, 13))
-
-#        self.assertTrue(the_player)
-#        self.assertTrue(
-#            gamemgr.the_arena.player is the_player)
-#        self.assertTrue(
-#            the_player.node is gamemgr.the_arena.grid[(13, 13)])
-
-#    def teardown(self):
-#        pass
 
 
 class TestTeleportItem(unittest.TestCase):

@@ -44,6 +44,10 @@ class Creature(mixins.HasInventory):
 
         return True
 
+    def get_loc(self):
+        '''used when we don't know if this is a creature or item'''
+        return self.node.location
+
 
 class AiCreature(Creature, mixins.HasTurn):
 
@@ -104,6 +108,23 @@ class PickupDropper(AiCreature):
                 display.display_top_message(
                     "path towards player")
                 return action.PathTowardsAction(self.arena.player.node)
+
+
+class TrackAndAttack(AiCreature):
+
+    def __init__(self, token, creaturedetails):
+        super().__init__(token, creaturedetails)
+
+    def take_turn(self):
+
+        neighbor = self.node.find_adj_creature()
+
+        if neighbor:
+            return action.MeleeAction(neighbor)
+
+        else:
+            target = self.arena.get_closest_creature(self.node, 10)
+            return action.PathTowardsAction(target.node)
 
 
 def create(token):

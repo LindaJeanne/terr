@@ -18,4 +18,8 @@ tmpl = {
     'PICKUP_DROPPER': {
         'glyph': ord('P'),
         'classname': 'PickupDropper',
+        'invsize': 2},
+    'TRACK_AND_ATTACK': {
+        'glyph': ord('A'),
+        'classname': 'TrackAndAttack',
         'invsize': 2}}

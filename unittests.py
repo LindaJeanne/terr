@@ -589,5 +589,197 @@ class TrivialPathingTest(unittest.TestCase):
         self.assertEqual(self.pc.node.location, (15, 14))
 
 
+class TestTickReturnValue(unittest.TestCase):
+
+    def setUp(self):
+
+        clear_arena()
+        global unit_test_arena
+        self.arena = unit_test_arena
+        has_turn = list()
+
+        self.zax = creature.create('NORTH_GOING_ZAX')
+        self.arena.place_creature(self.zax, (25, 25))
+        has_turn.append(self.zax)
+
+        self.rabbit = creature.create('RABBIT')
+        self.arena.place_creature(self.rabbit, (15, 15))
+        has_turn.append(self.rabbit)
+
+        turnmgr.setup(has_turn)
+
+    def test_tick_return_dict(self):
+
+        self.assertTrue(self.zax)
+        self.assertTrue(self.rabbit)
+
+        result = dict()
+
+        while not result:
+            result = turnmgr.tick()
+
+        self.assertTrue(isinstance(result[self.zax], action.StepAction))
+        self.assertTrue(isinstance(result[self.rabbit], action.NullAction))
+
+
+class TestNewUtilityFunctions(unittest.TestCase):
+
+    def setUp(self):
+
+        clear_arena()
+        global unit_test_arena
+        self.arena = unit_test_arena
+
+        self.fe = creature.create('FIRE_ELEMENTAL')
+        self.arena.place_creature(self.fe, (25, 25))
+
+        self.rb = creature.create('RABBIT')
+        self.arena.place_creature(self.rb, (25, 26))
+
+        self.ap = item.create('APPLE')
+        self.arena.place_item(self.ap, (25, 27))
+
+        self.pi = item.create('PICKAXE')
+        self.arena.place_item(self.pi, (11, 11))
+
+        self.zx = creature.create('NORTH_GOING_ZAX')
+        self.arena.place_creature(self.zx, (15, 15))
+
+    def test_findAdjacent(self):
+
+        result = self.fe.node.find_adj_creature()
+        self.assertTrue(result is self.rb)
+
+        result = self.fe.node.find_adj_item()
+        self.assertFalse(result)
+
+        result = self.rb.node.find_adj_creature()
+        self.assertTrue(result is self.fe)
+
+        result = self.rb.node.find_adj_item()
+        self.assertTrue(result is self.ap)
+
+        result = self.ap.contain.find_adj_creature()
+        self.assertTrue(result is self.rb)
+
+        result = self.ap.contain.find_adj_item()
+        self.assertFalse(result)
+
+    def test_find_creatures_in_radius(self):
+
+        self.assertTrue(self.zx in self.arena.creatureset)
+
+        result = self.arena.find_creatures_in_radius(
+            self.arena.grid[(5, 5)], 4)
+        self.assertFalse(result)
+
+        result = self.arena.find_creatures_in_radius(
+            self.zx.node, 3)
+        self.assertEqual(len(result), 1)
+        self.assertTrue(self.zx in result)
+
+        result = self.arena.find_creatures_in_radius(
+            self.zx.node, 20)
+
+        self.assertEqual(len(result), 3)
+        self.assertTrue(self.rb in result)
+        self.assertTrue(self.fe in result)
+        self.assertTrue(self.zx in result)
+
+    def test_find_items_in_radius(self):
+
+        result = self.arena.find_items_in_radius(
+            self.zx.node, 3)
+        self.assertFalse(result)
+
+        result = self.arena.find_items_in_radius(
+            self.zx.node, 7)
+        self.assertEqual(len(result), 1)
+        self.assertTrue(self.pi in result)
+
+        result = self.arena.find_items_in_radius(
+            self.zx.node, 30)
+        self.assertEqual(len(result), 2)
+        self.assertTrue(self.pi in result)
+        self.assertTrue(self.ap in result)
+
+    def test_find_closest_creature_in_radius(self):
+
+        result = self.arena.get_closest_creature(
+            self.zx.node, 30)
+
+        self.assertTrue(result is self.fe)
+
+        result = self.arena.get_closest_creature(
+            self.zx.node, 3)
+        self.assertFalse(result)
+
+
+#    def test_find_nearest_creature(self):
+#
+#        result = self.zx.arena.find_nearest_creature(self.node, 20)
+#
+#        self.assertTrue(result is self.fe)
+#
+#        self.assertFalse(self.zx.arena.find_nearest_crature(self.node, 5))
+#
+#        clear_arena()
+#        rabbit = creature.create('RABBIT')
+#        self.arena.place_creature(rabbit, (23, 23))
+#
+#        self.assertTrue(False)
+
+
+class TrivialCombatTest(unittest.TestCase):
+
+    def setUp(self):
+
+        clear_arena()
+        global unit_test_arena
+        self.arena = unit_test_arena
+        has_turn = list()
+
+        self.ta_one = creature.create('TRACK_AND_ATTACK')
+        self.arena.place_creature(self.ta_one, (25, 25))
+        has_turn.append(self.ta_one)
+
+        self.ta_two = creature.create('TRACK_AND_ATTACK')
+        self.arena.place_creature(self.ta_two, (25, 28))
+        has_turn.append(self.ta_two)
+
+        turnmgr.setup(has_turn)
+
+    def test_basic_combat(self):
+
+        # Verify Setup
+        self.assertTrue(self.ta_one)
+        self.assertEqual(self.ta_one.node.location, (25, 25))
+        self.assertTrue(self.ta_two)
+        self.assertEqual(self.ta_two.node.location, (25, 28))
+
+        # First tick they should approack each other.
+        result = {}
+        while not result:
+            result = turnmgr.tick()
+
+        self.assertTrue(isinstance(
+            result[self.ta_one], action.PathTowardsAction))
+        self.assertTrue(isinstance(
+            result[self.ta_two], action.PathTowardsAction))
+        self.assertEqual(self.ta_one.node.location, (25, 26))
+        self.assertEqual(self.ta_two.node.location, (25, 27))
+
+        # Next action should be for them to attack each other.
+        result = {}
+        while not result:
+            result = turnmgr.tick()
+
+        ta_one_action = result[self.ta_one]
+        ta_two_action = result[self.ta_two]
+
+        self.assertTrue(isinstance(ta_one_action, action.MeleeAction))
+        self.assertTrue(isinstance(ta_two_action, action.MeleeAction))
+
+
 if __name__ == '__main__':
     unittest.main()

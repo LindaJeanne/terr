@@ -130,6 +130,78 @@ class Arena(object):
         item.arena = None
         self.itemset.remove(item)
 
+    def find_creatures_in_radius(self, node, radius):
+
+        egograph = nx.ego_graph(self.graph, node, radius)
+
+        return_list = list()
+
+        for i in egograph:
+            if i.creature:
+                # returning i.creature will return a copy that
+                # was created along with the egograph. We need
+                # to pull in the one from self instead.
+                return_list.append(self.grid[i.location].creature)
+
+        return return_list
+
+    def find_items_in_radius(self, node, radius):
+
+        egograph = nx.ego_graph(self.graph, node, radius)
+        return_list = list()
+
+        for i in egograph:
+            if i.itemlist:
+                # need to use the itemlist from self rather
+                # than i.itemlist, which has copies made
+                # when the egograph was created.
+                the_items = self.grid[i.location].itemlist
+                return_list = return_list + the_items
+        return return_list
+
+    def get_closest_creature(self, node, radius):
+
+        candidates = self.find_creatures_in_radius(node, radius)
+
+        if node.creature:
+            candidates.remove(node.creature)
+
+        if not candidates:
+            return False
+
+        current_candidate = {}
+
+        # just calculating a fast-and-simple manhatten distance to
+        # each candidate for now. May want to graduate to something
+        # like K-d tress when I have more agents running around, but
+        # this will do for now.
+
+        for i in candidates:
+            next_candidate = {
+                'creature': i,
+                'distance': self._get_manhatten_distance(
+                    node.location, i.node.location)}
+
+            if not current_candidate:
+                current_candidate = next_candidate
+            elif next_candidate['distance'] < current_candidate['distance']:
+                current_candidate = next_candidate
+
+        # Since we've been looking at copies produced by the generation of
+        # the egograph, we need to go back and get the actual one.
+
+        return self.grid[current_candidate['creature'].node.location].creature
+
+    def _get_manhatten_distance(self, point_one, point_two):
+
+        assert(len(point_one) == len(point_two))
+
+        the_distance = 0
+        for i in range(0, len(point_one)):
+            the_distance += abs(point_one[i] - point_two[i])
+
+        return the_distance
+
 
 class Arena2D(Arena):
 

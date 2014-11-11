@@ -11,6 +11,10 @@ class Item(object):
         self.arena = None
         self.contain = None
 
+    def get_loc(self):
+
+        return self.contain.get_loc()
+
 
 def create(token):
 

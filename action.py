@@ -124,3 +124,16 @@ class DropAction(Action):
             return 10
         else:
             return 1
+
+
+# ========================================================
+# Combat
+# ========================================================
+
+class MeleeAction(Action):
+
+    def __init__(self, target):
+        self.target = target
+
+    def execute(self, actor):
+        return 10

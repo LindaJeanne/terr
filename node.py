@@ -36,3 +36,21 @@ class Node(mixins.HasInventory):
     def is_adjacent(self, node):
 
         return node in self.arena.graph.neighbors(self)
+
+    def get_loc(self):
+        '''used when we don't know what we're getting the loc of.'''
+        return self.location
+
+    def find_adj_creature(self):
+
+        for i in self.arena.graph.neighbors(self):
+            if i.creature:
+                return i.creature
+
+        return False
+
+    def find_adj_item(self):
+
+        for i in self.arena.graph.neighbors(self):
+            if i.itemlist:
+                return i.itemlist[0]

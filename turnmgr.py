@@ -22,6 +22,8 @@ def tick():
     global _tickloop
     global _counter
 
+    return_dict = {}
+
     if _tickloop[_counter]:
         for actor in list(_tickloop[_counter]):
 
@@ -35,8 +37,10 @@ def tick():
 
             result = the_action.execute(actor)
             _advance_turn(actor, max(result, 1))
+            return_dict[actor] = the_action
 
     _increment_counter()
+    return return_dict
 
 
 def _advance_turn(the_obj, num_ticks):

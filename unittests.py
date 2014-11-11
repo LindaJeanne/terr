@@ -8,7 +8,7 @@ import node
 import gridgen
 import arena
 import action
-
+import mixins
 
 unit_test_arena = None
 
@@ -779,6 +779,38 @@ class TrivialCombatTest(unittest.TestCase):
 
         self.assertTrue(isinstance(ta_one_action, action.MeleeAction))
         self.assertTrue(isinstance(ta_two_action, action.MeleeAction))
+
+
+class LoadingCombatAttackDefenseProfiles(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def test_load_attack_profile(self):
+
+        ap = mixins.attack_profile_create(
+            'BASIC_ATTACK_PROFILE')
+
+        self.assertTrue(isinstance(ap, mixins.BasicAttackProfile))
+        self.assertEqual(ap.token, 'BASIC_ATTACK_PROFILE')
+
+        self.assertEqual(ap.attacks['TEETH']['hit_chance'], 90)
+        self.assertEqual(ap.attacks['TEETH']['speed'], 10)
+        self.assertEqual(ap.attacks['TEETH']['damage_type'], 'TEARING')
+        self.assertEqual(ap.attacks['TEETH']['damage_range'], (20, 40))
+
+        self.assertEqual(ap.attacks['CLAWS']['hit_chance'], 90)
+
+    def test_load_defense_profile(self):
+
+        the_defense_profile = mixins.defense_profile_create(
+            'BASIC_DEFENSE_PROFILE')
+
+        self.assertTrue(isinstance(
+            the_defense_profile, mixins.BasicDefenseProfile))
+        self.assertEqual(the_defense_profile.token, 'BASIC_DEFENSE_PROFILE')
+        self.assertEqual(the_defense_profile.dodge_chance, 20)
+        self.assertEqual(the_defense_profile.soak_range, (5, 15))
 
 
 if __name__ == '__main__':

@@ -6,16 +6,18 @@ import util
 LOOP_SIZE = 1000
 _tickloop = np.empty((LOOP_SIZE), list)
 _counter = 0
+turn_list = list()
 
 
-def setup(has_turn_list):
+def setup():
 
     global _tickloop
     global _counter
+    global turn_list
 
     _tickloop = np.empty((LOOP_SIZE), list)
     _counter = 0
-    _tickloop[_counter] = has_turn_list
+    _tickloop[_counter] = turn_list
 
 
 def tick():

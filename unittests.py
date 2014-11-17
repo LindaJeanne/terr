@@ -25,6 +25,8 @@ def setup():
     tokenarray = generator.create((40, 40))
     unit_test_arena = arena.Arena(tokenarray)
 
+    turnmgr.turn_list = list()
+
 
 def clear_arena():
 
@@ -103,10 +105,10 @@ class TemplateTests(unittest.TestCase):
 
     def test_create_player(self):
 
-        new_player = cr_p('PLAYER_DEFAULT')
+        new_player = cr_p('UNIT_TEST_PLAYER')
 
         self.assertTrue(new_player)
-        self.assertEqual(new_player.token, 'PLAYER_DEFAULT')
+        self.assertEqual(new_player.token, 'UNIT_TEST_PLAYER')
         self.assertEqual(new_player.glyph, ord('@'))
 
     def test_create_item(self):
@@ -280,8 +282,9 @@ class BlockGetGlyphTests(unittest.TestCase):
         global unit_test_arena
         self.arena = unit_test_arena
 
-        self.pl = cr_p('PLAYER_DEFAULT')
+        self.pl = cr_p('UNIT_TEST_PLAYER')
         self.arena.place_creature(self.pl, (5, 5))
+        self.arena.player = self.pl
 
         self.pa = cr_i('PICKAXE')
         self.arena.place_item(self.pa, (7, 7))
@@ -354,17 +357,18 @@ class TurnManagerTests(unittest.TestCase):
         self.assertTrue(self.ngz)
         self.assertTrue(self.other_ngz)
 
-        self.zaxlist = list()
-        self.zaxlist.append(self.ngz)
-        self.zaxlist.append(self.other_ngz)
-        turnmgr.setup(self.zaxlist)
+        turnmgr.turn_list = list()
+        turnmgr.turn_list.append(self.ngz)
+        turnmgr.turn_list.append(self.other_ngz)
+        turnmgr.setup()
 
     def test_setup(self):
 
         self.assertTrue(self.arena)
         self.assertTrue(self.ngz)
         self.assertEqual(turnmgr._counter, 0)
-        self.assertTrue(turnmgr._tickloop[turnmgr._counter] is self.zaxlist)
+        self.assertTrue(
+            turnmgr._tickloop[turnmgr._counter] is turnmgr.turn_list)
 
     def test_tick_loop(self):
 
@@ -498,21 +502,22 @@ class TrivialPathingTest(unittest.TestCase):
         clear_arena()
         global unit_test_arena
         self.arena = unit_test_arena
-        has_turn = list()
+        turnmgr.turn_list = list()
 
         self.fe = cr_c('FIRE_ELEMENTAL')
         self.arena.place_creature(self.fe, (25, 25))
-        has_turn.append(self.fe)
+        turnmgr.turn_list.append(self.fe)
 
         self.pc = cr_c('PLAYER_CHASER')
         self.arena.place_creature(self.pc, (15, 15))
-        has_turn.append(self.pc)
+        turnmgr.turn_list.append(self.pc)
 
-        self.pl = cr_p('PLAYER_DEFAULT')
+        self.pl = cr_p('UNIT_TEST_PLAYER')
         self.arena.place_creature(self.pl, (15, 10))
         self.arena.player = self.pl
+        turnmgr.turn_list.append(self.pl)
 
-        turnmgr.setup(has_turn)
+        turnmgr.setup()
 
     def test_path_towards_easy_node(self):
 
@@ -535,17 +540,16 @@ class TestTickReturnValue(unittest.TestCase):
         clear_arena()
         global unit_test_arena
         self.arena = unit_test_arena
-        has_turn = list()
 
         self.zax = cr_c('NORTH_GOING_ZAX')
         self.arena.place_creature(self.zax, (25, 25))
-        has_turn.append(self.zax)
+        turnmgr.turn_list.append(self.zax)
 
         self.rabbit = cr_c('RABBIT')
         self.arena.place_creature(self.rabbit, (15, 15))
-        has_turn.append(self.rabbit)
+        turnmgr.turn_list.append(self.rabbit)
 
-        turnmgr.setup(has_turn)
+        turnmgr.setup()
 
     def test_tick_return_dict(self):
 
@@ -661,17 +665,16 @@ class TrivialCombatTest(unittest.TestCase):
         clear_arena()
         global unit_test_arena
         self.arena = unit_test_arena
-        has_turn = list()
 
         self.ta_one = cr_c('TRACK_AND_ATTACK')
         self.arena.place_creature(self.ta_one, (25, 25))
-        has_turn.append(self.ta_one)
+        turnmgr.turn_list.append(self.ta_one)
 
         self.ta_two = cr_c('TRACK_AND_ATTACK')
         self.arena.place_creature(self.ta_two, (25, 28))
-        has_turn.append(self.ta_two)
+        turnmgr.turn_list.append(self.ta_two)
 
-        turnmgr.setup(has_turn)
+        turnmgr.setup()
 
     def test_basic_combat(self):
 

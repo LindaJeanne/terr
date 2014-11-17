@@ -23,11 +23,11 @@ the_arena.place_item(util.create(item, 'APPLE'), (11, 11))
 the_arena.place_item(util.create(item, 'APPLE'), (25, 25))
 the_arena.place_item(util.create(item, 'PICKAXE'), (31, 29))
 
-turn_list = list(the_arena.creatureset)
+turnmgr.turn_list = list(the_arena.creatureset)
 
 cd.setup()
 
-turnmgr.setup(turn_list)
+turnmgr.setup()
 
 while(True):
     for i, v in np.ndenumerate(the_arena.grid):

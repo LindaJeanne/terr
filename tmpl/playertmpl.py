@@ -3,7 +3,7 @@ tmpl = {
         'glyph': ord('@'),
         'classname': 'Player',
         'invsize': 10},
-    'ANOTHER_PLAYER_CLASS': {
+    'UNIT_TEST_PLAYER': {
         'glyph': ord('@'),
-        'classname': 'Player',
+        'classname': 'UnitTestPlayer',
         'invsize': 10}}

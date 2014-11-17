@@ -41,3 +41,9 @@ class Player(creature.Creature, mixins.CanMove):
 
         else:
             return action.NullAction()
+
+
+class UnitTestPlayer(Player):
+
+    def take_turn(self):
+        return action.NullAction()

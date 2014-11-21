@@ -10,11 +10,21 @@ def templ():
     return tmpl.playertmpl
 
 
+def pickup_an_item(actor):
+    return action.PickUpAction(actor.node.itemlist[-1])
+
+
+def drop_an_item(actor):
+    return action.DropAction(actor.itemlist[-1])
+
+
 class Player(creature.Creature, mixins.CanMove):
 
     movement_keys = util.key_dirs
 
-    turn_action_keys = {}
+    turn_action_keys = {
+        ord(','): pickup_an_item,
+        ord('d'): drop_an_item}
 
     free_action_keys = {
         ord('q'): 'quit'}
@@ -34,7 +44,7 @@ class Player(creature.Creature, mixins.CanMove):
             return action.StepAction(self.movement_keys[keypressed])
 
         elif keypressed in self.turn_action_keys:
-            return action.NullAction()
+            return self.turn_action_keys[keypressed](self)
 
         elif keypressed in self.free_action_keys:
             return action.QuitAction(display)

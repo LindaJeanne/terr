@@ -1,4 +1,7 @@
-import tmpl.blocktmpl
+# import tmpl.blocktmpl
+import tmpl.blocks
+import tmpl.blocktype
+import tmpl.material
 import mixins
 
 
@@ -9,13 +12,7 @@ class Node(mixins.HasInventory):
 
     def __init__(self, token, arena=None, location=None):
 
-        template = tmpl.blocktmpl.tmpl[token]
-
-        self.token = token
-        self.glyph = template['glyph']
-        self.isPassable = template['ispass']
-        self.isLiquid = template['isliquid']
-        self.isTransparent = template['istransparent']
+        self._set_template(token)
 
         self.arena = arena
         self.location = location
@@ -54,3 +51,21 @@ class Node(mixins.HasInventory):
         for i in self.arena.graph.neighbors(self):
             if i.itemlist:
                 return i.itemlist[0]
+
+    def change_template(self, token):
+        assert(not self.creature)
+        assert(not self.itemlist)
+
+        self._set_template(token)
+
+    def _set_template(self, token):
+
+        template = tmpl.blocks.tmpl[token]
+
+        self.token = token
+        self.glyph = template['glyph']
+        self.material = tmpl.material.allmats[template['material']]
+        self.blockType = tmpl.blocktype.alltypes[template['blocktype']]
+        self.isPassable = self.blockType.isPassable
+        self.isTransparent = self.material.isTransparent
+        self.isLiquid = isinstance(self.material, tmpl.material.MaterialLiquid)

@@ -136,3 +136,10 @@ class TrackAndAttack(AiCreatureMobile):
         else:
             target = self.arena.get_closest_creature(self.node, 10)
             return action.PathTowardsAction(target.node)
+
+
+def create(token):
+
+    template = tmpl.creaturetmpl.tmpl[token]
+    the_class = globals()[template['classname']]
+    return the_class(token, template)

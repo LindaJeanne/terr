@@ -47,6 +47,14 @@ class HasInventory(object):
 
         return True
 
+    def has_item_with_token(self, token):
+
+        for i, v in enumerate(self.itemlist):
+            if v.token == token:
+                return v
+
+        return False
+
     def in_inv(self, item):
 
         return item in self.itemlist

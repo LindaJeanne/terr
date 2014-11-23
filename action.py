@@ -137,3 +137,31 @@ class MeleeAction(Action):
 
     def execute(self, actor):
         return 10
+
+
+# ========================================================
+# Construction
+# ========================================================
+
+class BuildAction(Action):
+    '''Abstract class -- instantize through subclass.'''
+
+    def __init__(self, node, item):
+        self.node = node
+        self.item = item
+        self.blocktoken = item.buildToken
+
+        assert(item.buildToken)
+        assert(node.isPassable)
+
+    def execute(self, actor):
+
+        assert(self.node.isPassable)
+        assert(self.item in actor.itemlist)
+
+        actor.inv_remove_item(self.item)
+        self.node.arena.itemset.remove(self.item)
+
+        self.node.change_template(self.blocktoken)
+
+        return 10

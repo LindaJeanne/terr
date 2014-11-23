@@ -57,3 +57,10 @@ class UnitTestPlayer(Player):
 
     def take_turn(self):
         return action.NullAction()
+
+
+def create(token):
+
+    template = tmpl.playertmpl.tmpl[token]
+    the_class = globals()[template['classname']]
+    return the_class(token, template)

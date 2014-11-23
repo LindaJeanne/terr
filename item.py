@@ -33,3 +33,18 @@ class ItemContainer(Item, mixins.HasInventory):
 
 class ItemActive(Item, mixins.HasTurn):
     pass
+
+
+class ItemBuildable(Item):
+
+    def __init__(self, token, itemdetails):
+        super().__init__(token, itemdetails)
+        self.buildToken = itemdetails['buildable']['buildtoken']
+        self.buildTool = itemdetails['buildable']['buildtool']
+
+
+def create(token):
+
+    template = tmpl.itemtmpl.tmpl[token]
+    the_class = globals()[template['classname']]
+    return the_class(token, template)

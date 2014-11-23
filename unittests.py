@@ -43,17 +43,20 @@ def clear_arena():
 
 def cr_i(token):
     # return util.create(item, tpl.itemtmpl, token)
-    return util.create(item, token)
+    # return util.create(item, token)
+    return item.create(token)
 
 
 def cr_c(token):
     # return util.create(creature, tpl.creaturetmpl, token)
-    return util.create(creature, token)
+    # return util.create(creature, token)
+    return creature.create(token)
 
 
 def cr_p(token):
     # return util.create(player, tpl.playertmpl, token)
-    return util.create(player, token)
+    # return util.create(player, token)
+    return player.create(token)
 
 
 setup()
@@ -735,6 +738,34 @@ class LoadingCombatAttackDefenseProfiles(unittest.TestCase):
         self.assertEqual(dp.token, 'BASIC_DEFENSE_PROFILE')
         self.assertEqual(dp.dodge_chance, 20)
         self.assertEqual(dp.soak_range, (5, 15))
+
+
+class TestBuildConstruct(unittest.TestCase):
+
+    def setUp(self):
+
+        clear_arena()
+        global unit_test_arena
+        self.arena = unit_test_arena
+
+        self.pl = cr_p('UNIT_TEST_PLAYER')
+        self.arena.place_creature(self.pl, (15, 10))
+        self.arena.player = self.pl
+        turnmgr.turn_list.append(self.pl)
+
+        turnmgr.setup()
+
+    def test_build_stone_wall(self):
+
+        the_stone = item.create('ITEM_STONE')
+        self.pl.arena.place_item(the_stone, (15, 10))
+
+        self.assertEqual(
+            action.PickUpAction(the_stone).execute(self.pl), 10)
+
+        the_action = action.BuildAction(
+            self.pl.arena.grid[(15, 11)], the_stone)
+        self.assertEqual(the_action.execute(self.pl), 10)
 
 
 if __name__ == '__main__':

@@ -33,9 +33,9 @@ def setup():
     _regions['NONE'] = (0, 0, 0, 0)
 
 
-def create_region(x, y, width, height, scr_token):
+def create_region(x, y, width, height, token):
 
-    _regions[scr_token] = (x, y, width, height)
+    _regions[token] = (x, y, width, height)
 
 
 def end_curses():
@@ -76,6 +76,7 @@ def wait_keypress():
     global _scr
     return _scr.getch()
 
+#        _screenlist[screenToken].keypad(False)
 
 def end_curses():
 

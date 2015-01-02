@@ -31,9 +31,7 @@ turnmgr.setup()
 
 while(True):
     for i, v in np.ndenumerate(the_arena.grid):
-
         cd.display_map_char(i[0], i[1], v.get_glyph(), 1)
-        # cd.display_char(i[0], i[1], v.get_glyph(), 1)
 
     turnmgr.tick()
 

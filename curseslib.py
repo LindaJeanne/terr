@@ -91,7 +91,7 @@ class CursesCharmapWidget(CursesWidget):
 
     def draw_array(self, the_char_array):
 
-        for i, v in np.ndenumerate:
+        for i, v in np.ndenumerate(the_char_array):
             self.display_char(i[0], i[1], v)
         self.session.refresh()
 

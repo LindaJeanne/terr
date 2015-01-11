@@ -1,209 +1,98 @@
 import numpy as np
 import networkx as nx
-import node
-import util
-
+import gameobj as ob
+import actor
+import item
 
 class Arena(object):
 
-    def __init__(self, tokenarray):
+    def __init__(self, mapgrid):
 
-        self.grid = np.empty(tokenarray.shape, node.Node)
-        self.graph = nx.DiGraph()
-        self.navgraph = nx.DiGraph()
-        self.creatureset = set()
-        self.itemset = set()
+        self.grid = np.empty(mapgrid.shape, ob.Block)
         self.player = None
 
-        self._build_nodes(tokenarray)
-        self._build_edges()
-        self._build_navgraph()
+        for i, block_token in np.ndenumerate(mapgrid):
+            self.grid[i] = ob.create_block(block_token, self)
+            self.grid[i].location = i
 
-    def _build_nodes(self, tokenarray):
+        self.navgraph = self.build_master_navgraph()
 
-        for i, v in np.ndenumerate(tokenarray):
-            self.grid[i] = node.Node(tokenarray[i], self, i)
-            self.graph.add_node(
-                self.grid[i],
-                {'ispassable': self.grid[i].isPassable})
+    def build_master_navgraph(self):
+        pass
 
-    def _build_edges(self):
+    def add_player_from_token(self, token, coords):
+        self.player = self.add_actor_from_token(token, coords)
+        self.grid[coords].add_player(self.player)
+        return self.player
 
-        for i, v in np.ndenumerate(self.grid):
-            rose = util.CompassRose(i)
-            for neighbor in rose.iter_vectors_weights():
-                point = neighbor['vector']
-                if self.in_bounds(point):
-                    self._add_edge(self.grid[i], neighbor)
+    def add_actor_from_token(self, token, coords):
+        new_actor = actor.create_actor(token)
+        self.grid[coords].add_actor(new_actor)
+        return new_actor
 
-    def _add_edge(self, source, neighbor):
+    def add_structure_from_token(self, token, coords):
+        new_structure = gameobj.create_structure(token)
+        self.grid[coords].add_structure(new_structure)
+        return new_structure
 
-        point = neighbor['vector']
-
-        isPassable = all((
-            source.isPassable,
-            self.grid[point].isPassable))
-
-        self.graph.add_edge(
-            source,
-            self.grid[point],
-            {
-                'weight': neighbor['weight'],
-                'ispassable': isPassable})
-
-    def _build_navgraph(self):
-
-        navnodes = (
-            n for n in self.graph if self.graph.node[n]['ispassable'])
-        self.navgraph = self.graph.subgraph(navnodes)
-
-    def in_bounds(self, point):
-
-        if len(self.grid.shape) != len(point):
-            return False
-
-        for i in point:
-            if i < 0:
-                return False
-
-        difference = np.subtract(self.grid.shape, point)
-        for i in difference:
-            if i <= 0:
-                return False
-
-        return True
-
-    def place_creature(self, creature, location):
-
-        assert(self.in_bounds(location))
-
-        if self.grid[location].creature:
-            print("Cannot place", creature)
-            print("Bcause", self.grid[location].creature)
-            print("Is alreayd occupying", location)
-            raise Exception
-
-        if not self.grid[location].isPassable:
-            raise Exception("non walkable block error")
-
-        if creature in self.creatureset:
-            creature.node.creature = None
-        else:
-            self.creatureset.add(creature)
-
-        creature.node = self.grid[location]
-        creature.node.creature = creature
-        creature.arena = self
-
-    def remove_creature(self, creature):
-
-        if creature not in self.creatureset:
-            return False
-
-        creature.node.creature = None
-        creature.node = None
-        self.creatureset.remove(creature)
-        creature.arena = None
-        return True
-
-    def place_item(self, item, location):
-
-        assert(self.in_bounds(location))
-        if not self.grid[location].isPassable:
-            raise Exception("Trying to place item on non walkable tile")
-
-        if item in self.itemset:
-            item.contain.inv_remove_item(item)
-            # item.contain.itemlist.remove(item)
-        else:
-            self.itemset.add(item)
-            item.arena = self
-
-        self.grid[location].inv_add_item(item)
-
-    def remove_item(self, item):
-
-        if item not in self.itemset:
-            return False
-
-        item.contain.inv_remove_item(item)
-        item.arena = None
-        self.itemset.remove(item)
-
-    def find_creatures_in_radius(self, node, radius):
-
-        egograph = nx.ego_graph(self.graph, node, radius)
-
-        return_list = list()
-
-        for i in egograph:
-            if i.creature:
-                # returning i.creature will return a copy that
-                # was created along with the egograph. We need
-                # to pull in the one from self instead.
-                return_list.append(self.grid[i.location].creature)
-
-        return return_list
-
-    def find_items_in_radius(self, node, radius):
-
-        egograph = nx.ego_graph(self.graph, node, radius)
-        return_list = list()
-
-        for i in egograph:
-            if i.itemlist:
-                # need to use the itemlist from self rather
-                # than i.itemlist, which has copies made
-                # when the egograph was created.
-                the_items = self.grid[i.location].itemlist
-                return_list = return_list + the_items
-        return return_list
-
-    def get_closest_creature(self, node, radius):
-
-        candidates = self.find_creatures_in_radius(node, radius)
-
-        if node.creature:
-            candidates.remove(node.creature)
-
-        if not candidates:
-            return False
-
-        current_candidate = {}
-
-        # just calculating a fast-and-simple manhatten distance to
-        # each candidate for now. May want to graduate to something
-        # like K-d tress when I have more agents running around, but
-        # this will do for now.
-
-        for i in candidates:
-            next_candidate = {
-                'creature': i,
-                'distance': util.manhattan_dist(
-                    node.location, i.node.location)}
-
-            if not current_candidate:
-                current_candidate = next_candidate
-            elif next_candidate['distance'] < current_candidate['distance']:
-                current_candidate = next_candidate
-
-        # Since we've been looking at copies produced by the generation of
-        # the egograph, we need to go back and get the actual one.
-
-        return self.grid[current_candidate['creature'].node.location].creature
+    def add_item_from_token(self, token, coords):
+        new_item = item.create_item(token)
+        self.grid[coords].add_item(new_item)
+        return new_item
 
 
-class Arena2D(Arena):
-
-    def __init__(self, tokenarray):
-        assert(len(tokenarray.shape) == 2)
-
-        super().__init__(tokenarray)
+class NavGraph(nx.Graph):
+    pass
 
 
-class Arena3D(Arena):
+class ArenaGenerator(object):
 
-    def __init__(self, tokenarray):
-        assert(len(tokenarray.shape) == 3)
+    def generate(self, shape):
+        ''' returns an array of block tokens'''
+        return np.full(shape, 'GENERIC_FLOOR_BLOCK', object)
 
-        super().__init__(tokenarray)
+
+class GenUnitTestArena(ArenaGenerator):
+
+    def generate(self, shape):
+
+        new_grid = super().generate(shape)
+
+        for i, v in np.ndenumerate(new_grid):
+            x_even = ((i[0] % 2) == 0)
+            y_even = ((i[1] % 2) == 0)
+            if x_even and y_even:
+                new_grid[i] = 'GENERIC_SOLID_BLOCK'
+
+        return new_grid
+
+
+class ArenaPopulator(object):
+
+    def populate(self, the_arena, player_token):
+        return {'actor_list': list(), 'decay_list': list()}
+
+
+class PopUnitTestArena(ArenaPopulator):
+
+    def populate(self, the_arena, player_token):
+
+        actor_list = list()
+        decay_list = list()
+
+        the_arena.add_item_from_token('GENERIC_ITEM', (5, 5))
+        actor_list.append(the_arena.add_actor_from_token('NULL_CREATURE', (7, 7)))
+        actor_list.append(the_arena.add_player_from_token(player_token, (9, 9)))
+
+        return {'actor_list': actor_list, 'decay_list': decay_list}
+
+
+def generate_arena(generator_class, shape):
+    the_generator_class = globals()[generator_class]
+    the_generator = the_generator_class()
+    return Arena(the_generator.generate(shape))
+
+def populate_arena(populator_class, the_arena, player_token):
+    the_populator_class = globals()[populator_class]
+    the_populator = the_populator_class()
+    return the_populator.populate(the_arena, player_token)

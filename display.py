@@ -2,65 +2,115 @@ import curses
 import curseslib
 
 
-_cur = None
+class TerrDisplay(object):
 
-_topmsg = None
-_mapwin = None
-_lowmsg = None
+    def __init__(self):
+        pass
 
-#curseslib.create_region(1, 0, 40, 3, 'TOPMSG')
-#curseslib.create_region(1, 3, 40, 40, 'MAPWIN')
-#curseslib.create_region(1, 43, 40, 3, 'LOWMSG')
+    def display_top_message(self, msg):
+        pass
 
+    def display_bottom_message(self, msg):
+        pass
 
-def setup():
+    def display_map_char(self, x, y, tileinfo):
+        pass
 
-    # curseslib.setup()
-    global _cur
-    global _topmsg
-    global _mapwin
-    global _lowmsg
+    def display_char_array(self, the_array):
+        pass
 
-    _cur = curseslib.CursesSession()
+    def end(self):
+        pass
 
-    _topmsg = curseslib.CursesMessageWidget(_cur, 1, 0, 40, 2)
-    _mapwin = curseslib.CursesCharmapWidget(_cur, 1, 3, 40, 40)
-    _lowmsg = curseslib.CursesMessageWidget(_cur, 1, 44, 40, 3)
+    def wait_keypress(self):
+        pass
 
 
-def display_top_message(msg):
+class TerrCursesDisplay(TerrDisplay):
 
-    # curseslib.display_string(0, 1, msg, region='TOPMSG')
-    global _topmsg
-    _topmsg.display_message(msg)
+    def __init__(self):
+
+        self._cur = curseslib.CursesSession()
+
+        self._topmsg = curseslib.CursesMessageWidget(self._cur, 1, 0, 40, 2)
+        self._mapwin = curseslib.CursesCharmapWidget(self._cur, 1, 3, 40, 40)
+        self._lowmsg = curseslib.CursesMessageWidget(self._cur, 1, 44, 40, 3)
+
+    def display_top_message(self, msg):
+
+        self._topmsg.display_message(msg)
+
+    def display_bottom_message(self, msg):
+
+        self._lowmsg.display_message(msg)
+
+    def display_map_char(self, x, y, tileinfo):
+
+        char = tileinfo['ascii_code']
+        color = tileinfo['curses_colorpair']
+
+        self._mapwin.draw_char(x, y, char, color)
+        self._cur.refresh
+
+    def display_char_array(self, the_array):
+        self._mapwin.draw_array(the_array)
+
+    def end(self):
+        self._cur.end()
+
+    def wait_keypress(self):
+        return self._cur.wait_keypress()
+
+class TerrTkinterDisplay(TerrDisplay):
+
+    def __init__(self):
+        pass
+
+    def display_top_message(self, msg):
+        pass
+
+    def display_bottom_message(self, msg):
+        pass
+
+    def display_map_char(self, x, y, tileinfo):
+        pass
+
+    def display_char_array(self, the_array):
+        pass
+
+    def end(self):
+        pass
+
+    def wait_keypress(self):
+        pass
 
 
-def display_bottom_message(msg):
+class TerrUnitTestDisplay(object):
 
-    #curseslib.display_string(0, 1, msg, region='LOWMSG')
-    global _lowmsg
-    _lowmsg.display_message(msg)
+    def __init__(self):
+        print("\nInitializing display.")
 
+    def display_top_message(self, msg):
+        print("\nTopMessage: ", msg)
 
-def display_map_char(x, y, char, color=1):
+    def display_bottom_message(self, msg):
+        print("\nBottomMessage: ", msg)
 
-    global _mapwin
-    _mapwin.draw_char(x, y, char, color)
-    _cur.refresh
+    def display_map_char(self, x, y, tileinfo):
+        pass
 
+    def display_char_array(self, the_array):
+        print("\nDisplay full character array")
 
-def display_char_array(the_array):
-    global _mapwin
-    _mapwin.draw_array(the_array)
+    def end(self):
+        print("\nEnding display")
 
+    def wait_keypress(self):
+        entered_text = input("\nPress enter to continue ")
+        print("entered text:", entered_text)
+        return entered_text
 
-def end_curses():
-    #curseslib.end_curses()
-    global _cur
-    _cur.end()
+def create_display(class_name):
 
-
-def wait_char():
-    #return curseslib.wait_keypress()
-    global _cur
-    return _cur.wait_keypress()
+    the_class = globals()[class_name]
+    return the_class()

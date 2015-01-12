@@ -4,7 +4,15 @@ import arena
 import display
 
 player_commands = {
-    ord('8'): ('Action')
+    ord('8'): ('StepDirectionAction', (0, -1), None),
+    ord('9'): ('StepDirectionAction', (1, -1), None),
+    ord('6'): ('StepDirectionAction', (1, 0), None),
+    ord('3'): ('StepDirectionAction', (1, 1), None),
+    ord('2'): ('StepDirectionAction', (0, 1), None),
+    ord('1'): ('StepDirectionAction', (-1, 1), None),
+    ord('4'): ('StepDirectionAction', (-1, 0), None),
+    ord('7'): ('StepDirectionAction', (-1, -1), None),
+    ord('q'): ('QuitAction', None, None)
 }
 
 class GameLoop(object):
@@ -55,7 +63,10 @@ class GameLoop(object):
             self.player_action = self.get_player_action()
 
         for actor in self.current_actors:
-            self._do_actor_loop(actor)
+            try:
+                self._do_actor_loop(actor)
+            except SystemExit:
+                self.end()
 
     def _do_actor_loop(self, actor):
             self.last_actions[actor] = actor.take_turn(self.player_action)
@@ -79,10 +90,17 @@ class GameLoop(object):
 
 
     def get_player_action(self):
+        global player_commands
 
         the_char = self.the_display.wait_keypress()
+        command_info = player_commands[the_char]
 
-        return action.create_action('StepDirectionAction', self.the_player, (0, 1))
+        return action.create_action(
+            command_info[0],
+            self.the_player,
+            command_info[1],
+            command_info[2])
 
     def end(self):
         self.the_display.end()
+        raise SystemExit

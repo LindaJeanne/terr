@@ -10,10 +10,6 @@ class GameObj(object):
         self.arena = the_arena
 
 
-class Structure(GameObj):
-    pass
-
-
 class Block(GameObj):
 
     def __init__(self, token, template, the_arena=None):

@@ -106,9 +106,11 @@ class TerrUnitTestDisplay(object):
         print("\nEnding display")
 
     def wait_keypress(self):
-        entered_text = input("\nPress enter to continue ")
-        print("entered text:", entered_text)
-        return entered_text
+#        entered_text = input("\nPress enter to continue ")
+#        print("entered text:", entered_text)
+#        return ord(entered_text)
+        print("Wait_keypress called. Returning ord('2').")
+        return ord('2')
 
 def create_display(class_name):
 

@@ -38,6 +38,12 @@ class StepDirectionAction(MovementAction):
         destination = tuple(np.add(actor.container.location, direction_vector))
         super().__init__(actor, destination)
 
+
+class QuitAction(Action):
+
+    def execute(self):
+        raise SystemExit
+
 def create_action(classname, actor, target=None, item=None):
     the_class = globals()[classname]
     return the_class(actor, target, item)

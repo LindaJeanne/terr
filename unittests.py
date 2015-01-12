@@ -43,7 +43,7 @@ class BlockTests(unittest.TestCase):
 
     def setUp(self):
         self.solid_block = gameobj.create_block('GENERIC_SOLID_BLOCK')
-        self.open_block = gameobj.create_block('GENERIC_OPEN_BLOCK')
+        self.air_block = gameobj.create_block('GENERIC_AIR_BLOCK')
         self.floor_block = gameobj.create_block('GENERIC_FLOOR_BLOCK')
         self.liquid_block = gameobj.create_block('GENERIC_LIQUID_BLOCK')
 
@@ -52,10 +52,10 @@ class BlockTests(unittest.TestCase):
         self.assertIsInstance(self.solid_block, gameobj.SolidBlock)
         self.assertEqual(self.solid_block.token, 'GENERIC_SOLID_BLOCK')
 
-    def test_open_block(self):
+    def test_air_block(self):
 
-        self.assertIsInstance(self.open_block, gameobj.OpenBlock)
-        self.assertEqual(self.open_block.token, 'GENERIC_OPEN_BLOCK')
+        self.assertIsInstance(self.air_block, gameobj.AirBlock)
+        self.assertEqual(self.air_block.token, 'GENERIC_AIR_BLOCK')
 
     def test_floor_block(self):
 

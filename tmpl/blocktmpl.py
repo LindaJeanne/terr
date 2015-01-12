@@ -17,9 +17,9 @@ tmpl = {
             }
 
     },
-    'GENERIC_OPEN_BLOCK': {
-        'classname': 'OpenBlock',
-        'displayname': 'Generic Open Block',
+    'GENERIC_AIR_BLOCK': {
+        'classname': 'AirBlock',
+        'displayname': 'Generic Air Block',
         'description': "An open Block. You can't walk through it, unless you can fly.",
         'tileinfo':
             {

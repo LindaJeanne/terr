@@ -12,6 +12,15 @@ class GameObj(object):
 
 class Block(GameObj):
 
+    is_passable = {
+        'WALKING': False,
+        'FLYING': False,
+        'SWIMMING': False,
+        'PHASING': False
+    }
+
+    allowed_mats = list()
+
     def __init__(self, token, template, the_arena=None):
         super().__init__(token, template, the_arena)
 
@@ -25,9 +34,6 @@ class Block(GameObj):
         return False
 
     def add_item(self, item):
-        return False
-
-    def add_structure(self, structure):
         return False
 
     def add_player(self, player):
@@ -47,12 +53,6 @@ class Block(GameObj):
         else:
             return False
 
-    def remove_structure(self):
-        if self.structure:
-            self.structure = None
-            return True
-        else:
-            return False
 
     def remove_player(self):
         if self.player:
@@ -76,11 +76,23 @@ class Block(GameObj):
             return self.tileinfo
 
 
-class OpenBlock(Block):
-    pass
+class AirBlock(Block):
+    is_passable = {
+        'WALKING': False,
+        'FLYING': True,
+        'SWIMMING': False,
+        'PHASING': True
+    }
 
 
 class FloorBlock(Block):
+
+    is_passable = {
+        'WALKING': True,
+        'FLYING': True,
+        'SWIMMING': False,
+        'PHASING': True
+    }
 
     def add_actor(self, actor):
         if actor not in self.actor_list:
@@ -123,12 +135,45 @@ class FloorBlock(Block):
             return True
 
 
-class SolidBlock(Block):
+class ActivityBlock(FloorBlock):
+
+    is_passable = {
+        'WALKING': True,
+        'FLYING': False,
+        'SWIMMING': False,
+        'PHASING': False
+    }
+
+
+class TrackBlock(FloorBlock):
     pass
+
+class DoorBlock(FloorBlock):
+    pass
+
+class StairBlock(FloorBlock):
+    pass
+
+
+
+class SolidBlock(Block):
+
+    is_passable = {
+        'WALKING': False,
+        'FLYING': False,
+        'SWIMMING': False,
+        'PHASING': True
+    }
 
 
 class LiquidBlock(Block):
-    pass
+
+    is_passable = {
+        'WALKING': False,
+        'FLYING': False,
+        'SWIMMING': True,
+        'PHASING': False
+    }
 
 
 def create_block(block_token, the_arena=None):

@@ -30,15 +30,24 @@ class Arena(object):
         self.grid[coords].add_actor(new_actor)
         return new_actor
 
-    def add_structure_from_token(self, token, coords):
-        new_structure = gameobj.create_structure(token)
-        self.grid[coords].add_structure(new_structure)
-        return new_structure
-
     def add_item_from_token(self, token, coords):
         new_item = item.create_item(token)
         self.grid[coords].add_item(new_item)
         return new_item
+
+    def change_block(self, coords, new_block_token):
+
+
+        old_block = self.grid[coords]
+        if any(
+                old_block.item_list,
+                old_block.actor_list,
+                old_block.the_player):
+            return False
+
+        self.grid[coords] = gameobj.create_block(new_block_token, self)
+
+        #TODO: call to update master nav-graph, once such a call exists.
 
 
 class NavGraph(nx.Graph):

@@ -2,25 +2,20 @@ import numpy as np
 import action
 import arena
 import display
+import keymap
 
-player_commands = {
-    ord('8'): ('StepDirectionAction', (0, -1), None),
-    ord('9'): ('StepDirectionAction', (1, -1), None),
-    ord('6'): ('StepDirectionAction', (1, 0), None),
-    ord('3'): ('StepDirectionAction', (1, 1), None),
-    ord('2'): ('StepDirectionAction', (0, 1), None),
-    ord('1'): ('StepDirectionAction', (-1, 1), None),
-    ord('4'): ('StepDirectionAction', (-1, 0), None),
-    ord('7'): ('StepDirectionAction', (-1, -1), None),
-    ord('q'): ('QuitAction', None, None)
-}
 
 class GameLoop(object):
 
     LOOP_SIZE = 10000
     DECAY_FREQ = 500
 
-    def __init__(self, shape, generator_name, populator_name, display_name, player_token):
+    def __init__(
+            self, shape,
+            generator_name,
+            populator_name,
+            display_name,
+            player_token):
 
         self.the_arena = arena.generate_arena(generator_name, shape)
         self._populate_arena(populator_name, player_token)
@@ -38,7 +33,8 @@ class GameLoop(object):
 
     def _populate_arena(self, populator_name, player_token):
 
-        the_lists = arena.populate_arena(populator_name, self.the_arena, player_token)
+        the_lists = arena.populate_arena(
+            populator_name, self.the_arena, player_token)
         self.actor_list = the_lists['actor_list']
         self.decay_list = the_lists['decay_list']
 
@@ -77,8 +73,6 @@ class GameLoop(object):
         for item in self.decay_list:
             item.decayprofile.decay()
 
-
-
     def advance_turn(self, actor, turn_length):
         new_loc = (self.tickcount + turn_length) % self.LOOP_SIZE
 
@@ -88,12 +82,10 @@ class GameLoop(object):
         self.tickloop[new_loc].append(actor)
         self.tickloop[self.tickcount].remove(actor)
 
-
     def get_player_action(self):
-        global player_commands
 
         the_char = self.the_display.wait_keypress()
-        command_info = player_commands[the_char]
+        command_info = keymap.player_commands[the_char]
 
         return action.create_action(
             command_info[0],

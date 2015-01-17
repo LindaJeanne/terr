@@ -4,6 +4,7 @@ import gameobj as ob
 import actor
 import item
 
+
 class Arena(object):
 
     def __init__(self, mapgrid):
@@ -37,7 +38,6 @@ class Arena(object):
 
     def change_block(self, coords, new_block_token):
 
-
         old_block = self.grid[coords]
         if any(
                 old_block.item_list,
@@ -45,9 +45,9 @@ class Arena(object):
                 old_block.the_player):
             return False
 
-        self.grid[coords] = gameobj.create_block(new_block_token, self)
+        self.grid[coords] = ob.create_block(new_block_token, self)
 
-        #TODO: call to update master nav-graph, once such a call exists.
+        # TODO: call to update master nav-graph, once such a call exists.
 
 
 class NavGraph(nx.Graph):
@@ -90,8 +90,10 @@ class PopUnitTestArena(ArenaPopulator):
         decay_list = list()
 
         the_arena.add_item_from_token('GENERIC_ITEM', (5, 5))
-        actor_list.append(the_arena.add_actor_from_token('NULL_CREATURE', (7, 7)))
-        actor_list.append(the_arena.add_player_from_token(player_token, (9, 9)))
+        actor_list.append(the_arena.add_actor_from_token(
+            'NULL_CREATURE', (7, 7)))
+        actor_list.append(the_arena.add_player_from_token(
+            player_token, (9, 9)))
 
         return {'actor_list': actor_list, 'decay_list': decay_list}
 
@@ -100,6 +102,7 @@ def generate_arena(generator_class, shape):
     the_generator_class = globals()[generator_class]
     the_generator = the_generator_class()
     return Arena(the_generator.generate(shape))
+
 
 def populate_arena(populator_class, the_arena, player_token):
     the_populator_class = globals()[populator_class]

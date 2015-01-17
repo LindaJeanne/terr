@@ -2,6 +2,7 @@ import gameobj as ob
 import tmpl.actortmpl as tp
 import action
 
+
 class Actor(ob.GameObj):
 
     def __init__(self, token, template, the_arena=None):

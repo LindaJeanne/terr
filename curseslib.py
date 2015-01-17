@@ -29,10 +29,8 @@ class CursesSession(object):
         curses.init_pair(4, curses.COLOR_RED, curses.COLOR_BLACK)
         curses.init_pair(5, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
-
     def display_char(self, x, y, the_char, color=1):
         self._scr.addch(y, x, the_char, curses.color_pair(color))
-
 
     def display_string(self, x, y, the_str):
         if the_str:
@@ -60,7 +58,6 @@ class CursesWidget(object):
         self.width = width
         self.height = height
 
-
     def display_string(self, x, y, the_str):
         self.session.display_string(x + self.x, y + self.y, the_str)
 
@@ -74,7 +71,7 @@ class CursesWidget(object):
     def clear_widget(self):
         for i in self.x:
             for j in self.y:
-                display_char(i, j, ' ')
+                self.display_char(i, j, ' ')
 
         self.session.refresh()
 
@@ -82,7 +79,7 @@ class CursesWidget(object):
 class CursesMessageWidget(CursesWidget):
 
     def display_message(self, the_str):
-        #self.clear_widget()
+        # self.clear_widget()
         self.display_string(0, 0, the_str)
         self.session.refresh()
 
@@ -99,4 +96,3 @@ class CursesCharmapWidget(CursesWidget):
 
         self.display_char(x, y, the_char, color)
         self.session.refresh()
-

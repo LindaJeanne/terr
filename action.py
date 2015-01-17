@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Action(object):
 
     def __init__(self, actor, target=None, item=None):
@@ -43,6 +44,13 @@ class QuitAction(Action):
 
     def execute(self):
         raise SystemExit
+
+
+class ActionAskWhichDir(Action):
+
+    def __init__(self, actor, item=None):
+        pass
+
 
 def create_action(classname, actor, target=None, item=None):
     the_class = globals()[classname]

@@ -1,5 +1,6 @@
 import tmpl.blocktmpl as tp
 
+
 class GameObj(object):
 
     def __init__(self, token, template, the_arena=None):
@@ -53,14 +54,12 @@ class Block(GameObj):
         else:
             return False
 
-
     def remove_player(self):
         if self.player:
             self.player = None
             return True
         else:
             return False
-
 
     def get_display_tile(self):
 
@@ -148,12 +147,13 @@ class ActivityBlock(FloorBlock):
 class TrackBlock(FloorBlock):
     pass
 
+
 class DoorBlock(FloorBlock):
     pass
 
+
 class StairBlock(FloorBlock):
     pass
-
 
 
 class SolidBlock(Block):

@@ -12,7 +12,6 @@ class Item(ob.GameObj):
         self.damage_profile = self._component(template['damage_profile'])
         self.treasure_profile = self._component(template['treasure_profile'])
 
-
     def _component(self, comp_tmpl):
 
         class_name = comp_tmpl['classname']

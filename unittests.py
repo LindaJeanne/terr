@@ -6,6 +6,9 @@ import actor
 import gameloop
 import action
 import logger
+import gridgraph
+from os import remove
+import numpy as np
 
 
 def standard_gameloop():
@@ -336,6 +339,126 @@ class LoggerTests(unittest.TestCase):
 
         self.assertEqual(len(result), 1)
         self.assertTrue("[ERROR] This is an error." in result[0])
+
+    def tearDown(self):
+        remove(self.logname)
+
+
+class GridNodeTests(unittest.TestCase):
+
+    def setUp(self):
+        self.KEY_DICT = {
+            'WALK': True,
+            'SWIM': False,
+            'PHASE': True,
+            'FLY': False}
+        self.COORDS = (5, 5)
+        self.node = gridgraph.GridNode(self.COORDS, self.KEY_DICT)
+
+    def test_gridnode_init(self):
+        self.assertTrue(self.node)
+        self.assertEqual(self.node.location, self.COORDS)
+        self.assertEqual(self.node.keys, self.KEY_DICT)
+        self.assertTrue(self.node.keys['WALK'])
+        self.assertFalse(self.node.keys['SWIM'])
+        self.assertTrue(self.node.keys['PHASE'])
+        self.assertFalse(self.node.keys['FLY'])
+
+    def test_gridnode_get_loc(self):
+        self.assertEqual(self.node.get_loc(), self.COORDS)
+
+    def test_gridnode_nav_value(self):
+        self.assertFalse(self.node.nav_value('RANDOM_KEY'))
+        self.assertFalse(self.node.nav_value('SWIM'))
+        self.assertTrue(self.node.nav_value('PHASE'))
+        self.assertFalse(self.node.nav_value('FLY'))
+        self.assertTrue(self.node.nav_value('WALK'))
+
+
+class GridGraphSetTests(unittest.TestCase):
+
+    def setUp(self):
+        GRIDGRAPH_SHAPE = (5, 5)
+        key_list = ('WALK', 'SWIM', 'FLY')
+        self.KEYDICT_A = {
+            'WALK': True,
+            'SWIM': False,
+            'FLY': True}
+        self.KEYDICT_B = {
+            'WALK': False,
+            'SWIM': True,
+            'FLY': False}
+        self.KEYDICT_C = {
+            'WALK': False,
+            'SWIM': True,
+            'FLY': True}
+        node_array = np.empty(GRIDGRAPH_SHAPE, gridgraph.GridNode)
+        for i, v in np.ndenumerate(node_array):
+            if any((
+                    i[0] == 1,
+                    i[0] == 3,
+                    i[1] == 1,
+                    i[1] == 3)):
+                node_array[i] = gridgraph.GridNode(i, self.KEYDICT_A)
+            elif any((
+                    i[0] == 0,
+                    i[0] == 4,
+                    i[1] == 0,
+                    i[1] == 4)):
+                node_array[i] = gridgraph.GridNode(i, self.KEYDICT_B)
+            else:
+                node_array[i] = gridgraph.GridNode(i, self.KEYDICT_C)
+
+        self.the_graphset = gridgraph.GridGraphSet(node_array, key_list)
+
+    def _cell(self, x, y):
+        return self.the_graphset.cell_at((x, y))
+
+    def test_gridgraph_init(self):
+        self.assertEqual(
+            self.the_graphset.key_list,
+            ('WALK', 'SWIM', 'FLY'))
+        self.assertTrue(self.the_graphset.graphs['WALK'])
+        self.assertTrue(self.the_graphset.graphs['SWIM'])
+        self.assertTrue(self.the_graphset.graphs['FLY'])
+
+    def test_gridgraph_get_neighbors(self):
+        ne_one = self.the_graphset.get_neighbors(self._cell(2, 2))
+        ne_two = self.the_graphset.get_neighbors(self._cell(0, 0))
+
+        self.assertEqual(len(ne_one), 8)
+        self.assertEqual(len(ne_two), 3)
+
+        self.assertTrue(self._cell(1, 1) in ne_one)
+        self.assertTrue(self._cell(1, 2) in ne_one)
+        self.assertTrue(self._cell(1, 3) in ne_one)
+        self.assertTrue(self._cell(2, 1) in ne_one)
+        self.assertTrue(self._cell(2, 3) in ne_one)
+        self.assertTrue(self._cell(3, 1) in ne_one)
+        self.assertTrue(self._cell(3, 2) in ne_one)
+        self.assertTrue(self._cell(3, 3) in ne_one)
+
+        self.assertTrue(self._cell(0, 1) in ne_two)
+        self.assertTrue(self._cell(1, 1) in ne_two)
+        self.assertTrue(self._cell(1, 0) in ne_two)
+
+    def test_gridgraph_cell_at(self):
+        self.assertFalse(self._cell(-1, -1))
+        self.assertEqual(
+            self.the_graphset.cell_at((0, 0)).keys,
+            self.KEYDICT_B)
+        self.assertEqual(
+            self.the_graphset.cell_at((1, 3)).keys,
+            self.KEYDICT_A)
+
+    def test_gridgraph_cell_step(self):
+
+        the_step = self.the_graphset.cell_step(
+            self.the_graphset.cell_at((3, 3)),
+            (-1, -1))
+        self.assertTrue(the_step)
+        self.assertEqual(the_step.location, (2, 2))
+        self.assertEqual(the_step.keys, self.KEYDICT_C)
 
 if __name__ == '__main__':
     unittest.main()

@@ -88,7 +88,8 @@ class TerrTkinterDisplay(TerrDisplay):
 class TerrUnitTestDisplay(object):
 
     def __init__(self):
-        print("\nInitializing display.")
+        # print("\nInitializing display.")
+        pass
 
     def display_top_message(self, msg):
         print("\nTopMessage: ", msg)
@@ -106,14 +107,21 @@ class TerrUnitTestDisplay(object):
         print("\nEnding display")
 
     def wait_keypress(self):
-        # entered_text = input("\nPress enter to continue ")
-        # print("entered text:", entered_text)
-        # return ord(entered_text)
-        print("Wait_keypress called. Returning ord('2').")
+        # print("Wait_keypress called. Returning ord('2').")
         return ord('2')
+
+# adding this so that I can access it from within action.py without
+# creating a circular dependency.
+# TODO: either remove the need for this, or remove the implication
+#       that it should be possible to have more than one display
+#       at once.
+
+the_display = None
 
 
 def create_display(class_name):
+    global the_display
 
     the_class = globals()[class_name]
-    return the_class()
+    the_display = the_class()
+    return the_display

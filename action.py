@@ -1,4 +1,6 @@
 import numpy as np
+import display
+import keymap
 
 
 class Action(object):
@@ -15,6 +17,16 @@ class Action(object):
         print("ACTION FAILED:", self)
         return 1
 
+    def _ask(self, ask_msg):
+        display.the_display.display_top_message(ask_msg)
+        return display.the_display.wait_keypress()
+
+    def _get_coords_from_dir(self, dir_vector):
+        return tuple(np.add(self.actor.container.location, dir_vector))
+
+    def _block_at(self, coords):
+        return self.actor.arena.get_cell_at(coords)
+
 
 class NullAction(Action):
 
@@ -25,8 +37,10 @@ class NullAction(Action):
 class MovementAction(Action):
 
     def execute(self):
-        target_block = self.actor.arena.grid[self.target]
-        if target_block.add_actor(self.actor):
+        the_dest = self._block_at(self.target)
+        if all((
+                the_dest,
+                the_dest.add_actor(self.actor))):
             return 10
         else:
             return self.on_fail()
@@ -35,9 +49,8 @@ class MovementAction(Action):
 class StepDirectionAction(MovementAction):
 
     def __init__(self, actor, direction_vector, item=None):
-
-        destination = tuple(np.add(actor.container.location, direction_vector))
-        super().__init__(actor, destination)
+        super().__init__(actor, None, item)
+        self.target = self._get_coords_from_dir(direction_vector)
 
 
 class QuitAction(Action):
@@ -46,9 +59,15 @@ class QuitAction(Action):
         raise SystemExit
 
 
-class ActionAskWhichDir(Action):
+class BuildAction(Action):
 
-    def __init__(self, actor, item=None):
+    def __init__(self, actor, target=None, item=None):
+        super().__init__(self, actor, target, item)
+        if not self.target:
+            self.target = keymap.get_dir(
+                self._ask("Build in which direction?"))
+
+    def execute(self):
         pass
 
 

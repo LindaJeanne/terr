@@ -2,6 +2,10 @@ from time import strftime, gmtime
 
 DEFAULT_LOG_NAME = 'terrlog.txt'
 
+# TODO: As in Display, this is a hack, & I need to find a
+# way that's more consistent.
+the_logger = None
+
 
 class Logger(object):
 
@@ -9,6 +13,9 @@ class Logger(object):
         self.filename = filename
         self.log_level = log_level
         self.echo = set_echo
+
+        global the_logger
+        the_logger = self
 
     def _write_to_log(self, msg, prefix=None, timestamp=True):
         the_time = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())

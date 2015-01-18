@@ -191,7 +191,8 @@ class CreateGameLoopTests(unittest.TestCase):
         self.assertIsInstance(gl.last_actions[self.other_a], action.NullAction)
         self.assertIsInstance(
             gl.last_actions[gl.the_player], action.StepDirectionAction)
-        self.assertEqual(gl.the_player.container, gl.the_arena.grid[(9, 10)])
+        self.assertEqual(
+            gl.the_player.container, gl.the_arena.get_cell_at((9, 10)))
 
     def test_second_tick(self):
         gl = self.game_loop
@@ -206,7 +207,8 @@ class CreateGameLoopTests(unittest.TestCase):
         self.assertIsInstance(gl.last_actions[self.other_a], action.NullAction)
         self.assertIsInstance(
             gl.last_actions[gl.the_player], action.StepDirectionAction)
-        self.assertEqual(gl.the_player.container, gl.the_arena.grid[(9, 10)])
+        self.assertEqual(
+            gl.the_player.container, gl.the_arena.get_cell_at((9, 10)))
 
     def test_eleventh_tick(self):
         gl = self.game_loop

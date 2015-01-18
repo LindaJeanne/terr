@@ -18,6 +18,15 @@ class Arena(object):
 
         self.navgraph = self.build_master_navgraph()
 
+    def get_cell_at(self, coords):
+
+        try:
+            result = self.grid[coords]
+        except Exception:
+            result = None
+        finally:
+            return result
+
     def build_master_navgraph(self):
         pass
 

@@ -66,6 +66,10 @@ class TerrCursesDisplay(TerrDisplay):
     def wait_keypress(self):
         return self._cur.wait_keypress()
 
+    def ask_char(self, msg):
+        self._topmsg.display_message(msg)
+        return self.wait_keypress(self)
+
 
 class TerrTkinterDisplay(TerrDisplay):
 
@@ -100,8 +104,13 @@ class TerrUnitTestDisplay(TerrDisplay):
         print("\nBottomMessage: ", msg)
 
     def wait_keypress(self):
-        # print("Wait_keypress called. Returning ord('2').")
         return ord('2')
+
+    def ask_char(self, msg):
+        return ord('6')
+
+    def ask_tile(self, msg):
+        return (3, 3)
 
 
 class TerrTextDisplay(TerrUnitTestDisplay):
@@ -115,14 +124,18 @@ class TerrTextDisplay(TerrUnitTestDisplay):
         print("\nEnding display.")
 
     def wait_keypress(self):
-        the_input = input("Input function called. Hit one key, then return.")
-        return ord(the_input)
+        return self.ask_char("Waiting for keypress. Hit one key, then return.")
 
     def ask_char(self, msg):
-        pass
+        the_input = input(msg)
+        return ord(the_input)
 
     def ask_tile(self, msg):
-        pass
+        x_val = input(
+            "Type the X value of the tile you want to target, then return.")
+        y_val = input(
+            "Type the Y value of the tile you want to target, then return.")
+        return (int(x_val), int(y_val))
 
 # adding this so that I can access it from within action.py without
 # creating a circular dependency.

@@ -1,6 +1,5 @@
 import numpy as np
 import networkx as nx
-import gameobj as ob
 import actor
 import item
 import gridgraph as gg
@@ -55,7 +54,7 @@ class Arena(gg.GridGraphSet):
                 old_block.the_player):
             return False
 
-        self.grid[coords] = ob.create_block(new_block_token, self)
+        self.grid[coords] = block.create_block(new_block_token, self)
 
         # TODO: call to update master nav-graph, once such a call exists.
 

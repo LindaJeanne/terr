@@ -24,6 +24,12 @@ class TerrDisplay(object):
     def wait_keypress(self):
         pass
 
+    def ask_char(self, msg):
+        pass
+
+    def ask_tile(self, msg):
+        pass
+
 
 class TerrCursesDisplay(TerrDisplay):
 
@@ -85,11 +91,7 @@ class TerrTkinterDisplay(TerrDisplay):
         pass
 
 
-class TerrUnitTestDisplay(object):
-
-    def __init__(self):
-        # print("\nInitializing display.")
-        pass
+class TerrUnitTestDisplay(TerrDisplay):
 
     def display_top_message(self, msg):
         print("\nTopMessage: ", msg)
@@ -97,18 +99,30 @@ class TerrUnitTestDisplay(object):
     def display_bottom_message(self, msg):
         print("\nBottomMessage: ", msg)
 
-    def display_map_char(self, x, y, tileinfo):
-        pass
-
-    def display_char_array(self, the_array):
-        print("\nDisplay full character array")
-
-    def end(self):
-        print("\nEnding display")
-
     def wait_keypress(self):
         # print("Wait_keypress called. Returning ord('2').")
         return ord('2')
+
+
+class TerrTextDisplay(TerrUnitTestDisplay):
+    def __init__(self):
+        print("\nInitializing display.")
+
+    def display_char_array(self, the_array):
+        print("\nDisplay Full character array")
+
+    def end(self):
+        print("\nEnding display.")
+
+    def wait_keypress(self):
+        the_input = input("Input function called. Hit one key, then return.")
+        return ord(the_input)
+
+    def ask_char(self, msg):
+        pass
+
+    def ask_tile(self, msg):
+        pass
 
 # adding this so that I can access it from within action.py without
 # creating a circular dependency.

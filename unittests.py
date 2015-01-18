@@ -9,6 +9,7 @@ import logger
 import gridgraph
 from os import remove
 import numpy as np
+import block
 
 
 def standard_gameloop():
@@ -50,24 +51,24 @@ class ItemTests(unittest.TestCase):
 class BlockTests(unittest.TestCase):
 
     def setUp(self):
-        self.solid_block = gameobj.create_block('GENERIC_SOLID_BLOCK')
-        self.air_block = gameobj.create_block('GENERIC_AIR_BLOCK')
-        self.floor_block = gameobj.create_block('GENERIC_FLOOR_BLOCK')
-        self.liquid_block = gameobj.create_block('GENERIC_LIQUID_BLOCK')
+        self.solid_block = block.create_block('GENERIC_SOLID_BLOCK')
+        self.air_block = block.create_block('GENERIC_AIR_BLOCK')
+        self.floor_block = block.create_block('GENERIC_FLOOR_BLOCK')
+        self.liquid_block = block.create_block('GENERIC_LIQUID_BLOCK')
 
     def test_solid_block(self):
 
-        self.assertIsInstance(self.solid_block, gameobj.SolidBlock)
+        self.assertIsInstance(self.solid_block, block.SolidBlock)
         self.assertEqual(self.solid_block.token, 'GENERIC_SOLID_BLOCK')
 
     def test_air_block(self):
 
-        self.assertIsInstance(self.air_block, gameobj.AirBlock)
+        self.assertIsInstance(self.air_block, block.AirBlock)
         self.assertEqual(self.air_block.token, 'GENERIC_AIR_BLOCK')
 
     def test_floor_block(self):
 
-        self.assertIsInstance(self.floor_block, gameobj.FloorBlock)
+        self.assertIsInstance(self.floor_block, block.FloorBlock)
         self.assertEqual(self.floor_block.token, 'GENERIC_FLOOR_BLOCK')
         self.assertEqual(self.floor_block.item_list, list())
         self.assertEqual(self.floor_block.actor_list, list())
@@ -75,7 +76,7 @@ class BlockTests(unittest.TestCase):
 
     def test_liquid_block(self):
 
-        self.assertIsInstance(self.liquid_block, gameobj.LiquidBlock)
+        self.assertIsInstance(self.liquid_block, block.LiquidBlock)
         self.assertEqual(self.liquid_block.token, 'GENERIC_LIQUID_BLOCK')
 
 

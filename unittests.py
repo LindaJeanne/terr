@@ -9,6 +9,7 @@ import gridgraph
 from os import remove
 import numpy as np
 import block
+import trans
 
 
 def standard_gameloop():
@@ -459,6 +460,22 @@ class GridGraphSetTests(unittest.TestCase):
         self.assertTrue(the_step)
         self.assertEqual(the_step.location, (2, 2))
         self.assertEqual(the_step.keys, self.KEYDICT_C)
+
+
+class TranslationModuleTests(unittest.TestCase):
+
+    def test_translation_messages(self):
+
+        self.assertEqual(
+            trans.msgs.get('CHOOSE_DIRECTION'),
+            "Pick a direction:")
+
+    def test_translation_formatted(self):
+
+        self.assertEqual(
+            trans.msgs.get('YOU_BUMP_INTO', trans.msgs.get('A_WALL')),
+            "Ouch! You bump into a wall.")
+
 
 if __name__ == '__main__':
     unittest.main()

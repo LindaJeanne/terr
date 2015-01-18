@@ -25,7 +25,7 @@ class Action(object):
         return tuple(np.add(self.actor.container.location, dir_vector))
 
     def _block_at(self, coords):
-        return self.actor.arena.get_cell_at(coords)
+        return self.actor.arena.cell_at(coords)
 
 
 class NullAction(Action):
@@ -40,7 +40,7 @@ class MovementAction(Action):
         the_dest = self._block_at(self.target)
         if all((
                 the_dest,
-                the_dest.add_actor(self.actor))):
+                the_dest.add_creature(self.actor))):
             return 10
         else:
             return self.on_fail()

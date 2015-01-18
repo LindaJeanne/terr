@@ -3,29 +3,30 @@ import networkx as nx
 import gameobj as ob
 import actor
 import item
+import gridgraph as gg
+import block
 
 
-class Arena(object):
+class Arena(gg.GridGraphSet):
 
     def __init__(self, mapgrid):
 
-        self.grid = np.empty(mapgrid.shape, ob.Block)
-        self.player = None
+        grid = np.empty(mapgrid.shape, block.Block)
 
         for i, block_token in np.ndenumerate(mapgrid):
-            self.grid[i] = ob.create_block(block_token, self)
-            self.grid[i].location = i
+            grid[i] = block.create_block(block_token, self)
+            grid[i].location = i
 
+        key_list = list((
+            'WALKING',
+            'FLYING',
+            'SWIMMING',
+            'PHASING'))
+
+        super().__init__(grid, key_list)
+
+        self.player = None
         self.navgraph = self.build_master_navgraph()
-
-    def get_cell_at(self, coords):
-
-        try:
-            result = self.grid[coords]
-        except Exception:
-            result = None
-        finally:
-            return result
 
     def build_master_navgraph(self):
         pass
@@ -37,7 +38,7 @@ class Arena(object):
 
     def add_actor_from_token(self, token, coords):
         new_actor = actor.create_actor(token)
-        self.grid[coords].add_actor(new_actor)
+        self.grid[coords].add_creature(new_actor)
         return new_actor
 
     def add_item_from_token(self, token, coords):
@@ -103,6 +104,9 @@ class PopUnitTestArena(ArenaPopulator):
             'NULL_CREATURE', (7, 7)))
         actor_list.append(the_arena.add_player_from_token(
             player_token, (9, 9)))
+
+        for the_actor in actor_list:
+            the_actor.arena = the_arena
 
         return {'actor_list': actor_list, 'decay_list': decay_list}
 

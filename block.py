@@ -10,6 +10,7 @@ class Block(gg.GridNode):
         self.token = token
         self.template = template
         self.arena = the_arena
+        self.tileinfo = template['tileinfo']
 
         self.item_list = list()
         self.actor_list = list()
@@ -28,9 +29,9 @@ class Block(gg.GridNode):
 
     def add_player(self, the_player):
         if self.keys['WALKING']:
-            if the_player.location:
-                the_player.location.the_player = None
-            the_player.location = self
+            if the_player.container:
+                the_player.container.the_player = None
+            the_player.container = self
             return True
         else:
             return False
@@ -129,6 +130,22 @@ class LiquidBlock(Block):
             'SWIMMING': True,
             'PHASING': True
         }
+
+
+class ActivityBlock(FloorBlock):
+    pass
+
+
+class TrackBlock(FloorBlock):
+    pass
+
+
+class DoorBlock(FloorBlock):
+    pass
+
+
+class StairBlock(FloorBlock):
+    pass
 
 
 def create_block(block_token, the_arena=None):

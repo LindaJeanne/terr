@@ -1,6 +1,5 @@
 import unittest
 import item
-import gameobj
 import arena
 import actor
 import gameloop
@@ -109,8 +108,8 @@ class CreateArenaTests(unittest.TestCase):
 
         block_grid = self.the_arena.grid
 
-        self.assertIsInstance(block_grid[(4, 4)], gameobj.SolidBlock)
-        self.assertIsInstance(block_grid[(5, 5)], gameobj.FloorBlock)
+        self.assertIsInstance(block_grid[(4, 4)], block.SolidBlock)
+        self.assertIsInstance(block_grid[(5, 5)], block.FloorBlock)
 
     def test_item_population(self):
         block_grid = self.the_arena.grid
@@ -196,7 +195,7 @@ class CreateGameLoopTests(unittest.TestCase):
         self.assertIsInstance(
             gl.last_actions[gl.the_player], action.StepDirectionAction)
         self.assertEqual(
-            gl.the_player.container, gl.the_arena.get_cell_at((9, 10)))
+            gl.the_player.container, gl.the_arena.cell_at((9, 10)))
 
     def test_second_tick(self):
         gl = self.game_loop
@@ -212,7 +211,7 @@ class CreateGameLoopTests(unittest.TestCase):
         self.assertIsInstance(
             gl.last_actions[gl.the_player], action.StepDirectionAction)
         self.assertEqual(
-            gl.the_player.container, gl.the_arena.get_cell_at((9, 10)))
+            gl.the_player.container, gl.the_arena.cell_at((9, 10)))
 
     def test_eleventh_tick(self):
         gl = self.game_loop
